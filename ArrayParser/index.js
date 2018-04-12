@@ -1,9 +1,12 @@
-var str = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
-//  var str = "[{a:'a'}, {b: [1,2,3]}, {c: 123}]"
+// var str = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
+// var str = "[{a:'a'}, {b: [1,2,3]}, {c: 123}]"
+var _isArrayString = require('./isClosedString/_isArrayString')
+
 
 const pipe = (...fns) => (value) => fns.reduce((acc, fn) => fn(acc), value)
 
 const _each = (list, iter) => {
+    
     for(let i =0; i<list.length; i++){
         iter(list[i])
     }
@@ -55,10 +58,10 @@ const splitItem = str => {
         else{
             if(str[i]===leftBracket | str[i]===leftCurly) close = close << 1;
             if(str[i]===rightBracket | str[i]===rightCurly) close = close >> 1;
-            item+=str[i]
+            item += str[i]
         }  
     }
-    if(close !==2){
+    if(close !== 2){
         item = {error: item}
     }
     itemList.push(item);
