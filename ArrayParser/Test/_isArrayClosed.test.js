@@ -1,5 +1,5 @@
 const {describe, test, equal, expect} = require('../testUtil')
-const _isArrayClosed = require('../modules/_isArrayClosed')
+const {_isArrayClosed} = require('../modules')
   
 describe('is Array String Test', ()=>{
     test('정상값 [] 테스트',()=>{

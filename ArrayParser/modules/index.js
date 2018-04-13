@@ -1,9 +1,15 @@
 const testUtil = require('../testUtil')
 const splitItem = require('./splitItem')
-const _isArrayClosed = require('./_isArrayClosed') 
-const _isObjClosed = require('./_isObjString')
 const {IdentityObject} = require('../class/IdentityObject')
 
+const _isArrayClosed = str => {
+  return str[0]==='[' && str[str.length-1] ===']'
+}
+
+const _isObjClosed = str => {
+  str = str.trim();
+  return str[0]==='{' && str[str.length-1] ==='}'
+}
 
 const stringSelector = '\''
 
@@ -30,9 +36,5 @@ module.exports = Object.freeze({
     splitItem,
     _isArrayClosed,
     _isObjClosed,
-    // isNormalString,
-    // isNullString,
-    // isBooleanString,
-    // isUndefinedString,
     MakeIdObjPrimitiveType,
   });
