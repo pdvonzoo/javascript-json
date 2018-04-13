@@ -18,7 +18,7 @@ const makeIdObjByType = str => {
   }
 
 
-const resultToObjArrayString = arr => {
+const getResultToObjArrayString = arr => {
     const result = new IdentityObject('Array', 'ArrayObject')
     arr.reduce((ac,c)=> {
         c = _trimed(c)
@@ -29,7 +29,7 @@ const resultToObjArrayString = arr => {
     return result;
 }
 
-const resultToObjObjString = arr => {
+const getResultToObjObjString = arr => {
     const result = new IdentityObjObject() 
     arr.reduce((ac,c)=>{
         const divisor = c.indexOf(':')
@@ -54,14 +54,14 @@ const parseString = (str, type) => {
 
 const parseObjString = str => {
     if(!_isObjClosed(str)) throw Error(`문자열 오브젝트가  안 닫혀 있습니다 현재값 :${str}`)
-      const result = _pipe(removeBracket, splitItem, resultToObjObjString)(str)
+      const result = _pipe(removeBracket, splitItem, getResultToObjObjString)(str)
     return result;
   }
   
   
   const parseArrayString = str => {
     if(!_isArrayClosed(str)) throw Error(`문자열 배열이 안 닫혀 있습니다 현재값 :${str}`)
-    const result = _pipe(removeBracket, splitItem, resultToObjArrayString)(str)
+    const result = _pipe(removeBracket, splitItem, getResultToObjArrayString)(str)
     return result;
   }
 
