@@ -17,13 +17,13 @@ const removeBracket = str => {
 }
 
 const makeIdObjByType = str => {
-    if(isNormalString(str)) return new IdObjString(str)
-    if(!isNaN(str)) return new IdObjNumber(str) 
-    if(isBooleanString(str)) return new IdObjBoolean(str)
-    if(isNullString(str)) return new IdObjNull(str)
-    if(isUndefinedString(str)) return new IdObjUndefiend(str) 
+    if(isNormalString(str)) return new IdentityObject('string', str)
+    if(!isNaN(str)) return new IdentityObject('number',str) 
+    if(isBooleanString(str)) return new IdentityObject('boolean',str)
+    if(isNullString(str)) return new IdentityObject('null', str)
+    if(isUndefinedString(str)) return new IdentityObject('undefined',str) 
     if(_isArrayClosed(str)) return ArrayParser(str)
-}
+  }
 
 
 const resultToObj = arr => {

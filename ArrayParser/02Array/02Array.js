@@ -21,7 +21,7 @@ const removeBracket = str => {
 }
 
 const makeIdObjByType = str => {
-    if(!isNaN(str)) return new IdObjNumber(str) 
+    if(!isNaN(str)) return new IdentityObject('number', str) 
     if(_isArrayClosed(str)) return ArrayParser(str)
 }
 

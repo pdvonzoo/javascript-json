@@ -9,7 +9,7 @@ class IdentityObject {
     }
 }
 
-class IdObjObj{
+class IdentityObjObject{
     constructor(key,value){
         this.type= 'Object',
         this.key = key,
@@ -17,47 +17,7 @@ class IdObjObj{
     }
 }
 
-class IdObjArray extends IdentityObject{
-    constructor(){
-        super('Array', 'ArrayObject')
-    }
-}
-
-class IdObjNumber extends IdentityObject{
-    constructor(value){
-        super("Number", value)
-    }
-}
-class IdObjString extends IdentityObject{
-    constructor(value){
-        super("String", value)
-    }
-}
-class IdObjBoolean extends IdentityObject{
-    constructor(value){
-        super("Boolean", value)
-    }
-}
-
-class IdObjNull extends IdentityObject{
-    constructor(value){
-        super("Null", value)
-    }
-}
-class IdObjUndefiend extends IdentityObject{
-    constructor(value){
-        super('Undefined', value)
-    }
-}
-
-
 module.exports = Object.freeze({
     IdentityObject,
-    IdObjNumber,
-    IdObjArray,
-    IdObjString,
-    IdObjNull,
-    IdObjBoolean,
-    IdObjUndefiend,
-    IdObjObj,
+    IdentityObjObject,
 })
