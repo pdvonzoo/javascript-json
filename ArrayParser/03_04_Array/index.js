@@ -39,7 +39,6 @@ const resultToObj = arr => {
 }
 
 
-
 const ArrayParser = str => {
     if(!isString(str)) throw Error(`문자열로 값을 입력해주세요  현재값 :${str}`)
     str = _trimed(str)

@@ -8,12 +8,11 @@ const Types = {
     Null: "null",
     Undefined: "undefined",
   }
+  const typeStringStart = 8
+  const typeStringEnd = -1
   
   const checkType = dataType => {
-    return Object.prototype.toString
-      .call(dataType)
-      .slice(8, -1)
-      .toLowerCase();
+    return Object.prototype.toString.call(dataType).slice(typeStringStart, typeStringEnd).toLowerCase();
   };
   const isNumber = dataType => {
     return checkType(dataType) === Types.Number;
