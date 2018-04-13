@@ -12,8 +12,8 @@ const removeBracket = str => {
 }
 
 const makeIdObjByType = str => {
-    if(_isArrayClosed(str)) return ArrayParser(str)
-    if(_isObjClosed(str)) return ObjParser(str)
+    if(_isArrayClosed(str)) return parseArrayString(str)
+    if(_isObjClosed(str)) return parseObjString(str)
     return MakeIdObjPrimitiveType(str)
   }
 
@@ -42,24 +42,24 @@ const resultToObjObjString = arr => {
     return result;
 }
 
-const Parser = (str, type) => {
+const parseString = (str, type) => {
     if(!isString(str)) throw Error(`문자열로 값을 입력해주세요  현재값 :${str}`)
     str = _trimed(str)
     const parserType ={
-        'obj': ObjParser,
-        'array': ArrayParser
+        'obj': parseObjString,
+        'array': parseArrayString
     }
     return parserType[type](str)
 }
 
-const ObjParser = str => {
+const parseObjString = str => {
     if(!_isObjClosed(str)) throw Error(`문자열 오브젝트가  안 닫혀 있습니다 현재값 :${str}`)
       const result = _pipe(removeBracket, splitItem, resultToObjObjString)(str)
     return result;
   }
   
   
-  const ArrayParser = str => {
+  const parseArrayString = str => {
     if(!_isArrayClosed(str)) throw Error(`문자열 배열이 안 닫혀 있습니다 현재값 :${str}`)
     const result = _pipe(removeBracket, splitItem, resultToObjArrayString)(str)
     return result;
@@ -72,13 +72,13 @@ const ObjParser = str => {
 // const result = ArrayParser(str);
 // console.log(JSON.stringify(result, null, 2));
 
-const result = Parser(str, 'array')
+const result = parseString(str, 'array')
 console.log(JSON.stringify(result, null, 2));
 
 
 
 module.exports = Object.freeze({
-    ObjParser,
-    ArrayParser,
+    parseObjString,
+    parseArrayString,
 })
 
