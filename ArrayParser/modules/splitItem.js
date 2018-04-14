@@ -50,10 +50,8 @@ const splitItem = str => {
             const {updatedArrayClose, updatedObjClose} = updateCloseState(singleCharacter, arrayClose, objClose) 
             arrayClose = updatedArrayClose
             objClose = updatedObjClose
-
             splitItem += singleCharacter
         }
-        
     })       
     splitItemList.push(splitItem)
     return splitItemList

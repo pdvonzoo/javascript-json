@@ -1,6 +1,14 @@
+const {_each} = require('../functionalUtil')
+
 const equal = (a,b)=> {
-    if(a===b) console.log(`input ${a} 예상 Output ${b} 값이 같습니다`)
-    else{ throw Error(`input ${a} 예상 Output ${b} 값이 다릅니다.`)}
+    if(a!== b) throw Error(`: FAIL  targetValue is ${a}, expectValue is ${b}`)
+    console.log(`: OK  target Value : ${a} expectedValue : ${b}`)
+    return true;
+}
+
+const equalToNotMsg = (a,b)=>{
+    if(a!== b) throw Error(`: FAIL  targetValue is ${a}, expectValue is ${b}`)
+    return true;
 }
 
 const test = (testMsg, fn)=>{
@@ -13,8 +21,14 @@ class Expect {
         this.targetValue = targetValue;
     }
     toBe(expectValue){
-        if(this.targetValue !== expectValue) throw Error(`: FAIL  targetValue is ${this.targetValue}, expectValue is ${expectValue}`)
-        console.log(`: OK  target Value : ${this.targetValue} expectedValue : ${expectValue}`)
+        equal(this.targetValue, expectValue)
+    }
+    toBeArrayValue(expectValue){
+        const result = this.targetValue.every((v, i)=> {
+            return equalToNotMsg(v, expectValue[i])
+        })
+        if(result) console.log(`실행 값 ${this.targetValue} 예상 결과 값과 ${expectValue} 같습니다`)
+
     }
 }
 
@@ -29,6 +43,8 @@ const describe = (testParagraph, fn)=>{
 }
 
 expect(3).toBe(3)
+expect([1,2,3]).toBeArrayValue([1,2,3])
+
 
 module.exports = Object.freeze({
     test,
