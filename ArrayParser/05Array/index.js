@@ -17,28 +17,31 @@ const makeIdObjByType = str => {
     return MakeIdObjPrimitiveType(str)
   }
 
+const addEachItemArrString = (ac, c)=> {
+    c = _trimed(c)
+    const item = makeIdObjByType(c)
+    ac.push(item)
+    return ac;
+}
+
+const addEachItemObjString = (ac,c)=>{
+    const divisor = c.indexOf(':')
+    const key = c.slice(0,divisor).trim()
+    const value = c.slice(divisor+1).trim()
+    ac.key = key;
+    ac.value = makeIdObjByType(value)
+    return ac;
+}
 
 const getResultToObjArrayString = arr => {
     const result = new IdentityObject('Array', 'ArrayObject')
-    arr.reduce((ac,c)=> {
-        c = _trimed(c)
-        const item = makeIdObjByType(c)
-        ac.push(item)
-        return ac;
-    }, result.child)
+    arr.reduce(addEachItemArrString, result.child)
     return result;
 }
 
 const getResultToObjObjString = arr => {
     const result = new IdentityObjObject() 
-    arr.reduce((ac,c)=>{
-        const divisor = c.indexOf(':')
-        const key = c.slice(0,divisor).trim()
-        const value = c.slice(divisor+1).trim()
-        ac.key = key;
-        ac.value = makeIdObjByType(value)
-        return ac;
-    }, result)
+    arr.reduce(addEachItemObjString, result)
     return result;
 }
 
@@ -65,12 +68,6 @@ const parseObjString = str => {
     return result;
   }
 
-
-
-
-
-// const result = ArrayParser(str);
-// console.log(JSON.stringify(result, null, 2));
 
 const result = parseString(str, 'array')
 console.log(JSON.stringify(result, null, 2));
