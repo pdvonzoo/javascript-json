@@ -18,23 +18,24 @@ const allClosed = (arrayClose, objClose) => (arrayClose===closed) && (objClose =
 
 const isComma = item => item === ','
 
+const isStringItemEnd = (arrayClose, objClose, singleCharacter) =>allClosed(arrayClose, objClose) && isComma(singleCharacter)
+
 const splitItem = str => {
     const splitItemList =[] 
     let arrayClose = closed;
     let objClose = closed;
-
     let splitItem = ''
-    for(item of str){
-        if(allClosed(arrayClose, objClose) && isComma(item)){
+    for(singleCharacter of str){
+        if(isStringItemEnd(arrayClose, objClose, singleCharacter)){
             splitItemList.push(splitItem)
-            splitItem =''
+            splitItem = ''
         }
         else {
-            if(brackets[item]){
-                arrayClose = brackets[item](arrayClose)
-                objClose = brackets[item](objClose)
+            if(brackets[singleCharacter]){
+                arrayClose = brackets[singleCharacter](arrayClose)
+                objClose = brackets[singleCharacter](objClose)
             }
-            splitItem+=item
+            splitItem+=singleCharacter
         }
     }
     splitItemList.push(splitItem)

@@ -40,4 +40,5 @@ const _pipe = (...fns) => (value) => fns.reduce((acc, fn) => fn(acc), value)
 module.exports = Object.freeze({
     _pipe,
     _map,
+    _each
 })
