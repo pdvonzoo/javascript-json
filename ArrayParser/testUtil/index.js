@@ -13,13 +13,8 @@ class Expect {
         this.targetValue = targetValue;
     }
     toBe(expectValue){
-        debugger;
-        if(this.targetValue === expectValue){
-            return console.log(': OK')
-        }
-        else{
-            throw Error(`: FAIL  targetValue is ${this.targetValue}, expectValue is ${expectValue}`)
-        }
+        if(this.targetValue !== expectValue) throw Error(`: FAIL  targetValue is ${this.targetValue}, expectValue is ${expectValue}`)
+        console.log(`: OK  target Value : ${this.targetValue} expectedValue : ${expectValue}`)
     }
 }
 
@@ -33,6 +28,7 @@ const describe = (testParagraph, fn)=>{
     fn();
 }
 
+expect(3).toBe(3)
 
 module.exports = Object.freeze({
     test,
