@@ -1,3 +1,5 @@
+const { _each } = require('../functionalUtil')
+
 const brackets = {
     '[': function(arrayClose){
         return arrayClose = arrayClose  << 1;
@@ -14,30 +16,45 @@ const brackets = {
 }
 const closed = 2
 
-const allClosed = (arrayClose, objClose) => (arrayClose===closed) && (objClose === closed)
+
 
 const isComma = item => item === ','
 
-const isStringItemEnd = (arrayClose, objClose, singleCharacter) =>allClosed(arrayClose, objClose) && isComma(singleCharacter)
+const allClosed = (arrayClose, objClose) => (arrayClose===closed) && (objClose === closed)
+
+const isStringItemEnd = (singleCharacter, arrayClose, objClose) =>allClosed(arrayClose, objClose) && isComma(singleCharacter)
+
+const updateCloseState = (singleCharacter, arrayClose, objClose) => {
+    updatedArrayClose = arrayClose
+    updatedObjClose = objClose
+    if(brackets[singleCharacter]){
+        updatedArrayClose = brackets[singleCharacter](arrayClose)
+        updatedObjClose = brackets[singleCharacter](objClose)
+    }
+    return {updatedArrayClose, updatedObjClose}
+}
+
 
 const splitItem = str => {
-    const splitItemList =[] 
+    const splitItemList = [] 
     let arrayClose = closed;
     let objClose = closed;
     let splitItem = ''
-    for(singleCharacter of str){
-        if(isStringItemEnd(arrayClose, objClose, singleCharacter)){
+    
+    _each(str, function(singleCharacter){
+        if(isStringItemEnd(singleCharacter, arrayClose, objClose)){
             splitItemList.push(splitItem)
             splitItem = ''
         }
         else {
-            if(brackets[singleCharacter]){
-                arrayClose = brackets[singleCharacter](arrayClose)
-                objClose = brackets[singleCharacter](objClose)
-            }
-            splitItem+=singleCharacter
+            const {updatedArrayClose, updatedObjClose} = updateCloseState(singleCharacter, arrayClose, objClose) 
+            arrayClose = updatedArrayClose
+            objClose = updatedObjClose
+
+            splitItem += singleCharacter
         }
-    }
+        
+    })       
     splitItemList.push(splitItem)
     return splitItemList
 }
