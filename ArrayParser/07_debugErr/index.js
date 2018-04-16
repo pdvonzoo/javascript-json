@@ -81,6 +81,7 @@ const addEachItemArrString = (ac, c)=> {
 
 const addEachItemObjString = (ac,c)=>{
     const divisor = c.indexOf(':')
+    if(divisor===-1) throw Error(` : 이 없습니다.{${c}}`)
     const key = c.slice(0,divisor).trim()
     const value = c.slice(divisor+1).trim()
     ac.key = key;
@@ -145,8 +146,9 @@ const parseObjString = str => {
 // var s1 = "[[2,3]] ]";
 
 //1.2) 객체 체크
-// var s1 = "[{2:3}} ]";
-// var s1 = "[2:3} ]";
+// var s1 = "[{2:3}} ]"; 클로즈드 체크 
+// var s1 = "[2: 3} ]"; 클로즈드 체크
+// var s1 = "[{2 3} ]"; : 체크 
 
 
 
