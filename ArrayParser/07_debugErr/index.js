@@ -54,17 +54,18 @@ const isClosedInsideObjString = str => {
 
 
 const checkClosedArrString = str => {
-    if(isClosedOutSideArrString(str)) return isClosedInsideArrString(str)
+    if(isClosedOutSideArrString(str)) return parseArrayString(str)
     throw new Error(`배열이 닫혀 있지 않습니다 ${str}`)
 }
 
 const checkClosedObjString = str => {
-    if(isClosedOutSideObjString(str)) return isClosedInsideObjString(str)
+    if(isClosedOutSideObjString(str)) return parseObjString(str)
     throw new Error(`객체가 닫혀 있지 않습니다 ${str}`)
 }
 
 
 const makeIdObjByType = str => {
+    debugger;
     if(hasArrayBracketsEdge(str)) return checkClosedArrString(str)
     if(hasObjBracketsEdge(str)) return checkClosedObjString(str)
     // if(_isArrayClosed(str)) return parseArrayString(str)
@@ -146,19 +147,35 @@ const parseObjString = str => {
 // var s1 = "[[2,3]] ]";
 
 //1.2) 객체 체크
-// var s1 = "[{2:3}} ]"; 클로즈드 체크 
-// var s1 = "[2: 3} ]"; 클로즈드 체크
-// var s1 = "[{2 3} ]"; : 체크 
+// var s1 = "[{2:3}} ]"
+// var s1 = "[2: 3} ]"; 
+// var s1 = "[{2 3} ]";
 
 
+
+// var str = "['1a3',null,false,[1],2,3]]";
 
 // var str = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
 
+// var s1 = "[1,[null,false,['11',112,'99']], {a:'str', b:{[912]}}},true]";
 
-// var s1 = "[1,[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]";
 
 
-var result = parseString(s1, 'array');
+// var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b:[912,[5656,33]]}, true]";
+//정상출력
+
+// var s = "['1a3',[null,false,['11',112,'99' , {a:'str', b:[912,[5656,33]]}, true]";
+// 정상적으로 종료되지 않은 배열이 있습니다.
+
+// var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b: [912,[5656,33]], true]";
+// 정상적으로 종료되지 않은 객체가 있습니다.
+
+// var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b  [912,[5656,33]]}, true]";
+// ':'이 누락된 객체표현이 있습니다.
+
+
+
+var result = parseString(s, 'array');
 
 console.log(JSON.stringify(result, null, 2));
 

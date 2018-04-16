@@ -20,7 +20,7 @@ const closed = 2
 
 const isComma = item => item === ','
 
-const allClosed = (arrayClose, objClose) => (arrayClose===closed) && (objClose === closed)
+const allClosed = (arrayClose, objClose) => (arrayClose<=closed) && (objClose <=closed)
 
 const isStringItemEnd = (singleCharacter, arrayClose, objClose) =>allClosed(arrayClose, objClose) && isComma(singleCharacter)
 
