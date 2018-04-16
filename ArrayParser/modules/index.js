@@ -26,7 +26,7 @@ const hasEnd = str => str[str.length-1]===stringSelector
 
 const hasStringEdge = str => str[0]===stringSelector || str[str.length-1]===stringSelector
 
-const isClosedOutsied = str=> str[0]===stringSelector && str[str.length-1]===stringSelector
+const isClosedOutSide = str=> str[0]===stringSelector && str[str.length-1]===stringSelector
 
 
 const isClosedInside = (str) => {
@@ -40,7 +40,7 @@ const isBooleanString = str => str === 'false' || str === 'true'
 const isUndefinedString = str => str === 'undefined'
 
 const checkClosedString = (str) => {
-  if(isClosedOutsied(str)) return isClosedInside(str)
+  if(isClosedOutSide(str)) return isClosedInside(str)
   throw new Error(`invalid String type not closed outside' ${str}`)
 }
 

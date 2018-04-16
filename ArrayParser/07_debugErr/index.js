@@ -24,14 +24,51 @@ const {_isObjClosed, _isArrayClosed, splitItem, MakeIdObjPrimitiveType, checkClo
 // // ':'이 누락된 객체표현이 있습니다.
 
 
+const removeFirstAndLast = str => {
+    return str.slice(1,str.length-1)
+  }
+
 const _trimed = str => str.trim()
 
 const removeBracket = str => str.slice(1,str.length-1)
 
+const hasArrayBracketsEdge = str => str[0]==='[' || str[str.length-1]===']'
+
+const isClosedOutSideArrString = str => str[0]==='[' && str[str.length-1]===']'
+
+const hasObjBracketsEdge = str => str[0]==='{' || str[str.length-1]==='}'
+
+const isClosedOutSideObjString = str => str[0]==='{' && str[str.length-1]==='}'
+
+const isClosedInsideArrString = str => {
+    const internalString = removeFirstAndLast(str)
+    if(internalString.indexOf('[') === -1&&internalString.indexOf(']') === -1) return parseArrayString(str)
+    throw new Error(`배열 내부가 닫혀 있지 않습니다 ${str}`)
+}
+
+const isClosedInsideObjString = str => {
+    const internalString = removeFirstAndLast(str)
+    if(internalString.indexOf('{') === -1 &&internalString.indexOf('}') === -1) return parseObjString(str)
+    throw new Error(`객체 내부가 닫혀 있지 않습니다 ${str}`)
+}
+
+
+const checkClosedArrString = str => {
+    if(isClosedOutSideArrString(str)) return isClosedInsideArrString(str)
+    throw new Error(`배열이 닫혀 있지 않습니다 ${str}`)
+}
+
+const checkClosedObjString = str => {
+    if(isClosedOutSideObjString(str)) return isClosedInsideObjString(str)
+    throw new Error(`객체가 닫혀 있지 않습니다 ${str}`)
+}
+
+
 const makeIdObjByType = str => {
-    console.log('str', str);
-    if(_isArrayClosed(str)) return parseArrayString(str)
-    if(_isObjClosed(str)) return parseObjString(str)
+    if(hasArrayBracketsEdge(str)) return checkClosedArrString(str)
+    if(hasObjBracketsEdge(str)) return checkClosedObjString(str)
+    // if(_isArrayClosed(str)) return parseArrayString(str)
+    // if(_isObjClosed(str)) return parseObjString(str)
     return MakeIdObjPrimitiveType(str)
   }
 
@@ -91,17 +128,34 @@ const parseObjString = str => {
 
 //1)내부가 안 닫혀 있음
 //var s1 = "['1a'3']"; 
+
 //2) 외부가 안 닫혀 있는 경우  
 // var s1 = "['1a3, 3]";
 // var s1 = "[1a3', 3]"; 
- 
+
+//3) 원시타입중에 없는 타입인 경우
+// var s1 = "['1a3', 1a3]"; 
+
+// 배열과 Object Error Check
+
+// 1) 배열 객체 체크 
+
+// 1.1) 배열 외부 
+// var s1 = "[1,[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]";
+// var s1 = "[[2,3]] ]";
+
+//1.2) 객체 체크
+// var s1 = "[{2:3}} ]";
+// var s1 = "[2:3} ]";
 
 
 
 // var str = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
 
 
-// var s1 = "['1a'3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]";
+// var s1 = "[1,[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]";
+
+
 var result = parseString(s1, 'array');
 
 console.log(JSON.stringify(result, null, 2));
