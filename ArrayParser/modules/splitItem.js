@@ -56,11 +56,10 @@ const splitItem = str => {
     splitItemList.push(splitItem)
     return splitItemList
 }
-var str = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
 
+var s1 = "['1a'3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]";
+var result = splitItem(s1, 'array');
 
-const result = splitItem(str)
 console.log(JSON.stringify(result, null, 2));
-
 
 module.exports = splitItem

@@ -32,7 +32,6 @@ class Expect {
     }
 }
 
-
 const expect = function(targetValue){
     return new Expect(targetValue)
 }
