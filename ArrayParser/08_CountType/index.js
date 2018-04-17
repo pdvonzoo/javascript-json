@@ -49,7 +49,7 @@ const addEachItemObjString = (ac,c)=>{
 }
 
 const getResultToObjArrayString = arr => {
-    const newArrayObj = new IdentityObject('Array', 'ArrayObject')
+    const newArrayObj = new IdentityObject('array', 'ArrayObject')
     const result = arr.reduce(addEachItemArrString, newArrayObj)
     return result;
 }
@@ -82,9 +82,12 @@ const parseString = (str, type) => {
 }
 
 
-var str = "['1a3',[null,false,['11',112,'99']], {a:'str', b:[912,[5656,33]]}, true, undefined]";
-var result = parseString(str, 'array');
+var str = "['1a3',[null,false,['11',112,'99']],{c:{d:{a:[1,2,3]}}}, {a:'str', b:[912,[5656,33]]}, true, undefined]";
+const result = parseString(str, 'array');
 console.log(JSON.stringify(result, null, 2));
+
+
+module.exports = result
 
 
 

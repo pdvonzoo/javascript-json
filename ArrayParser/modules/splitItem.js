@@ -3,42 +3,39 @@ const { each } = require('../functionalUtil')
 const brackets = {
     '[': function(arrayClose){
         return arrayClose = arrayClose  << 1;
-    },
+         },
     ']': function(arrayClose){
         return arrayClose = arrayClose  >> 1;
-    },
+        },
     '{': function(objClose){
         return objClose = objClose  << 1;
-    },
+        },
     '}': function(objClose){
         return objClose = objClose  >> 1;
-    }
+        }
 }
-const closed = 2
+const ClOSED = 2
 
 
 
 const isComma = item => item === ','
 
-const allClosed = (arrayClose, objClose) => (arrayClose<=closed) && (objClose <=closed)
+const allClosed = (arrayClose, objClose) => (arrayClose<=ClOSED) && (objClose <=ClOSED)
 
-const isStringItemEnd = (singleCharacter, arrayClose, objClose) =>allClosed(arrayClose, objClose) && isComma(singleCharacter)
+const isStringItemEnd = (singleCharacter, arrayClose, objClose) => allClosed(arrayClose, objClose) && isComma(singleCharacter)
 
 const updateCloseState = (singleCharacter, arrayClose, objClose) => {
-    updatedArrayClose = arrayClose
-    updatedObjClose = objClose
     if(brackets[singleCharacter]){
-        updatedArrayClose = brackets[singleCharacter](arrayClose)
-        updatedObjClose = brackets[singleCharacter](objClose)
+        arrayClose = brackets[singleCharacter](arrayClose)
+        objClose = brackets[singleCharacter](objClose)
     }
-    return {updatedArrayClose, updatedObjClose}
+    return {arrayClose, objClose}
 }
-
 
 const splitItem = str => {
     const splitItemList = [] 
-    let arrayClose = closed;
-    let objClose = closed;
+    let arrayClose = ClOSED;
+    let objClose = ClOSED;
     let splitItem = ''
     
     each(str, function(singleCharacter){
@@ -47,9 +44,9 @@ const splitItem = str => {
             splitItem = ''
         }
         else {
-            const {updatedArrayClose, updatedObjClose} = updateCloseState(singleCharacter, arrayClose, objClose) 
-            arrayClose = updatedArrayClose
-            objClose = updatedObjClose
+            const update = updateCloseState(singleCharacter, arrayClose, objClose) 
+            arrayClose = update.arrayClose
+            objClose = update.objClose
             splitItem += singleCharacter
         }
     })       

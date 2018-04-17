@@ -11,7 +11,7 @@ class IdentityObject {
 
 class IdentityObjObject{
     constructor(key,value){
-        this.type= 'Object',
+        this.type= 'object',
         this.key = key,
         this.value = value
     }
