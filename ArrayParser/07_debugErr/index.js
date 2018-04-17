@@ -1,8 +1,7 @@
-const {_pipe} = require('../functionalUtil')
+const {pipe} = require('../functionalUtil')
 const {isString} = require('../typeCheck')
 const { IdentityObjObject, IdentityObject} = require('../class/IdentityObject')
-const {_isObjClosed, _isArrayClosed, splitItem, MakeIdObjPrimitiveType, checkClosedString, hasStringEdge } = require('../modules')
-
+const {isObjClosed, isArrayClosed, splitItem, MakeIdObjPrimitiveType} = require('../modules')
 
 //정상출력
 
@@ -96,15 +95,15 @@ const parseString = (str, type) => {
 }
 
 const parseObjString = str => {
-    if(!_isObjClosed(str)) throw Error(`문자열 오브젝트가  안 닫혀 있습니다 현재값 :${str}`)
-      const result = _pipe(removeBracket, splitItem, getResultToObjObjString)(str)
+    if(!isObjClosed(str)) throw Error(`문자열 오브젝트가  안 닫혀 있습니다 현재값 :${str}`)
+      const result = pipe(removeBracket, splitItem, getResultToObjObjString)(str)
     return result;
   }
   
   
   const parseArrayString = str => {
-    if(!_isArrayClosed(str)) throw Error(`문자열 배열이 안 닫혀 있습니다 현재값 :${str}`)
-    const result = _pipe(removeBracket, splitItem, getResultToObjArrayString)(str)
+    if(!isArrayClosed(str)) throw Error(`문자열 배열이 안 닫혀 있습니다 현재값 :${str}`)
+    const result = pipe(removeBracket, splitItem, getResultToObjArrayString)(str)
     return result;
   }
 
@@ -153,7 +152,7 @@ const parseObjString = str => {
 // var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b: [912,[5656,33]], true]";
 // 정상적으로 종료되지 않은 객체가 있습니다.
 
-// var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b  [912,[5656,33]]}, true]";
+var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b  [912,[5656,33]]}, true]";
 // ':'이 누락된 객체표현이 있습니다.
 
 

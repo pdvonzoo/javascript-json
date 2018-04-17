@@ -17,7 +17,6 @@ const brackets = {
 const ClOSED = 2
 
 
-
 const isComma = item => item === ','
 
 const allClosed = (arrayClose, objClose) => (arrayClose<=ClOSED) && (objClose <=ClOSED)
@@ -55,8 +54,13 @@ const splitItem = str => {
 }
 
 var s1 = "['1a'3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]";
-var result = splitItem(s1, 'array');
+var result = splitItem(s1);
 
-console.log(JSON.stringify(result, null, 2));
+var test1 = "1,[1,[1,[2,[2,3]]],3";
+var test1_result = splitItem(test1);
+var test2 = "{a:b},{c:[1,2,3],d:{a:b}}";
+var test2_result = splitItem(test2);
+
+console.log(JSON.stringify(test2_result, null, 2));
 
 module.exports = splitItem

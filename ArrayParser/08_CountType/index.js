@@ -2,6 +2,7 @@ const {pipe} = require('../functionalUtil')
 const {isString} = require('../typeCheck')
 const { IdentityObjObject, IdentityObject} = require('../class/IdentityObject')
 const {isObjClosed, isArrayClosed, splitItem, MakeIdObjPrimitiveType} = require('../modules')
+const totalCounter = require('../modules/counts')
 
 const trimed = str => str.trim()
 
@@ -12,7 +13,6 @@ const hasEdgeValue = (str, first, last)=> str[0]===first || str[str.length-1]===
 const hasArrayBracketsEdge = str =>  hasEdgeValue(str, '[',']')
 
 const hasObjBracketsEdge = str =>  hasEdgeValue(str, '{','}')
-
 
 const checkClosedArrString = str => {
     if(isArrayClosed(str)) return parseString(str, 'array')
@@ -86,6 +86,8 @@ var str = "['1a3',[null,false,['11',112,'99']],{c:{d:{a:[1,2,3]}}}, {a:'str', b:
 const result = parseString(str, 'array');
 console.log(JSON.stringify(result, null, 2));
 
+const counts = totalCounter(result)
+console.log(JSON.stringify(counts, null, 2));
 
 module.exports = result
 

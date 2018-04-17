@@ -1,4 +1,4 @@
-const result = require('../08_CountType/index');
+// const result = require('../08_CountType/index');
 
 class TypeCounter {
     constructor(){
@@ -16,7 +16,7 @@ class TypeCounter {
     }
 }
 
-const Totalcounter = function(target){
+const totalcounter = function(target){
     const typeCounter = new TypeCounter()
     const counter = function(input){
         typeCounter.addCount(input.type)
@@ -27,4 +27,5 @@ const Totalcounter = function(target){
     return typeCounter;
 }
 
-console.log(Totalcounter(result));
+module.exports = totalcounter;
+// console.log(Totalcounter(result));
