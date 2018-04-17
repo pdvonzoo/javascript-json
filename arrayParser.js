@@ -12,12 +12,14 @@
 
 function arrayParser(str) {
 
-    // 구현이 아닌 설계코드입니다 :)
-
     // 0. variable
     let resultObject = new Object();
-    resultObject.type = "array";
+    resultObject.type = null;
     resultObject.child = new Array();
+
+    let dividedCharacterDatas = [];
+
+    const strDataLength = parseInt(str.length);
 
     // 0-1. variable 출력 테스트
     // 결과 : {"type":"array","child":[]}
@@ -25,30 +27,84 @@ function arrayParser(str) {
     
 
     // 1. String 찢기
-    for () {
-
-        let dividedCharacterDatas = [];
+    for (let i=0; i<strDataLength; i++) {
+        dividedCharacterDatas.push(str[i]);
      }
 
-    // 2. 데이터 갯수만큼 반복
-    for () {
-        
-        // 3. 배열에 넣을(resultObject.child) 임시 객체 생성
-        // 저번시간에 배운 call Method 를 통한 함수재사용에 대한 내용을
-        // 적용해볼 수 있으면 적용해야겠다고 생각이 듬
-        // 데이터만 넣으면 객체가 반환되도록
-        let tempObject = new Object();
+     // 1-1. type check
+     // 입력받은 데이터(str)의 맨 앞,뒤 문자를 구분하여
+     // type을 결정합니다
+     let firstCharacter = str[0];
+     let lastCharacter = str[strDataLength-1];
 
-        // 4. ',' 문자가 나올때 데이터를 만들면 됨
-        // 공백을 주의할 것 (공백은 그대로 넘기는 식으로)
-        if (data === ',') {
-            // resultObject.child 에 추가 (배열에 객체를 추가)
+    //  resultObject.type = checkType(firstCharacter, lastCharacter);
+     resultObject.type = checkType(str);
+
+    // // 2. 데이터 갯수만큼 반복
+    // for (let i=0; i<strDataLength; i++) {
+        
+    //     // 3. 배열에 넣을(resultObject.child) 임시 객체 생성
+    //     // 저번시간에 배운 call Method 를 통한 함수재사용에 대한 내용을
+    //     // 적용해볼 수 있으면 적용해야겠다고 생각이 듬
+    //     // 데이터만 넣으면 객체가 반환되도록
+    //     let tempObject = new Object();
+
+    //     // 4. ',' 문자가 나올때 데이터를 만들면 됨
+    //     // 공백을 주의할 것 (공백은 그대로 넘기는 식으로)
+    //     if (data === ',') {
+    //         // resultObject.child 에 추가 (배열에 객체를 추가)
+    //     }
+    // }
+
+    let mergeData = "";
+
+    dividedCharacterDatas.forEach(element => {
+        if (element === ',') {
+
+            // child 는 아직 어떻게 처리해야할 지 모르겠다
+            // 일단 보류..
+            let dataObject = {
+                type: checkType(mergeData),
+                value: mergeData,
+                child: []
+            };
+
+            resultObject.child.push(dataObject);
+            mergeData = "";
         }
-    }
+
+        mergeData += element
+        
+    });
 
     // 5. return resultObject
+    return resultObject;
+}
+
+function checkType(str) {
+    // if (data1 == '[' && data2 == ']') {
+    //     return 'array';
+    // }
+
+    // 해당 함수를 재활용 할 수 있도록 재구성 해야할 필요를 느낌
+
+    // console.log(String.includes.call(str, "["));
+    if (str.includes("[") && str.includes("]")) {
+        return 'array';
+    }
+
+    // const onlyNumberRegex = '/[^0-9]/g';
+
+    if (parseInt(str) !== NaN) {
+        return 'number';
+    }
+    
+}
+
+function createStringObject() {
 
 }
+
 
 function run() {
     var str = "[123, 22, 33]";
@@ -89,4 +145,4 @@ function tempToken() {
 }
 
 tempToken();
-arrayParser("");
+run();
