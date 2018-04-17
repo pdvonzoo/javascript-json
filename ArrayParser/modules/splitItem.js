@@ -1,4 +1,4 @@
-const { _each } = require('../functionalUtil')
+const { each } = require('../functionalUtil')
 
 const brackets = {
     '[': function(arrayClose){
@@ -41,7 +41,7 @@ const splitItem = str => {
     let objClose = closed;
     let splitItem = ''
     
-    _each(str, function(singleCharacter){
+    each(str, function(singleCharacter){
         if(isStringItemEnd(singleCharacter, arrayClose, objClose)){
             splitItemList.push(splitItem)
             splitItem = ''

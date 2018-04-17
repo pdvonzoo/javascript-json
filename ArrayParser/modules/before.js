@@ -2,7 +2,24 @@ const testUtil = require('../testUtil')
 const splitItem = require('./splitItem')
 const {IdentityObject} = require('../class/IdentityObject')
 
-const removeFirstAndLast = str => str.slice(1,str.length-1)
+
+const typeCounts = {
+  'string': 0,
+  'number': 0,
+  'boolean': 0,
+  'undefined': 0,
+  'null': 0,
+  'array': 0,
+  'object': 0,
+  'function': 0,
+  addCount(type){
+      this[type]+=1
+  }
+}
+
+const removeFirstAndLast = str => {
+  return str.slice(1,str.length-1)
+}
 
 const isArrayClosed = str => {
   str.trim()
@@ -18,14 +35,24 @@ const stringSelector = '\''
 
 const isNullString = str => str ==='null'
 
+const hasStart = str => str[0]===stringSelector
+const hasEnd = str => str[str.length-1]===stringSelector
+
+
 const hasStringEdge = str => str[0]===stringSelector || str[str.length-1]===stringSelector
 
 const isClosedOutSide = str=> str[0]===stringSelector && str[str.length-1]===stringSelector
 
+const makeIdObjandUpdaeCounts = (type, str) =>{
+  const makeOne = new IdentityObject(type, str)
+  typeCounts.addCount(type)
+  return makeOne
+}
+
 
 const isClosedInside = (str) => {
   const internalString = removeFirstAndLast(str)
-  if(internalString.indexOf(stringSelector) === -1) return new IdentityObject('string', str)
+  if(internalString.indexOf(stringSelector) === -1) return makeIdObjandUpdaeCounts('string', str)
   throw new Error(`invalid String type not closed insied ${str}`)
 }
 
@@ -41,10 +68,10 @@ const checkClosedString = (str) => {
 
 const MakeIdObjPrimitiveType = str => {
   if(hasStringEdge(str)) return checkClosedString(str)
-  if(!isNaN(str)) return new IdentityObject('number', str)
-  if(isBooleanString(str)) return new IdentityObject('boolean', str)
-  if(isNullString(str)) return new IdentityObject('null', str)
-  if(isUndefinedString(str)) return new IdentityObject('undefined', str) 
+  if(!isNaN(str)) return makeIdObjandUpdaeCounts('number', str)
+  if(isBooleanString(str)) return makeIdObjandUpdaeCounts('boolean', str)
+  if(isNullString(str)) return makeIdObjandUpdaeCounts('null', str)
+  if(isUndefinedString(str)) return makeIdObjandUpdaeCounts('undefined', str) 
   throw new Error(`${str} 는 알 수 없는 타입입니다`) 
 }
 
@@ -54,4 +81,6 @@ module.exports = Object.freeze({
     isArrayClosed,
     isObjClosed,
     MakeIdObjPrimitiveType,
+    checkClosedString,
+    typeCounts,
   });
