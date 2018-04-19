@@ -64,9 +64,10 @@ const getResultToObjObjString = arr => {
 const makeItemList= pipe(removeBracket, splitItem)
 
 const parseString = (str, type) => {
+    debugger;
     if(!isString(str)) throw Error(`문자열로 값을 입력해주세요  현재값 :${str}`)
     str = trimed(str)
-  
+    if(type!=='array'&&type!=='obj') return makeIdObjByType(str)
     const methodsByType ={
         'obj': {
             result: getResultToObjObjString,
@@ -92,12 +93,15 @@ console.log(JSON.stringify(counts, null, 2));
 
 const str1 = "[1,2,3,4,5]";
 const str2 = "[[1,2,3],[2],{a:'str', b:[1,2,3]},true, undefined, false]";
+const str3 = '[1,2,3]'
 
 const sampleResult1 = parseString(str1, 'array');
 const sampleResult2 = parseString(str2, 'array');
-
+const sampleResult3 = parseString(str3, '');
 // console.log(sampleResult1.constructor===IdentityObject)
 // console.log(typeCheck.checkType(sampleResult1))
+console.log(sampleResult3)
+
 
 module.exports = {
     sampleResult1,

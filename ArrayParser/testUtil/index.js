@@ -4,7 +4,7 @@ const typeChecks = require('../typeCheck')
 
 const equal = (a,b, msg = true)=> {
     if(a!== b) throw Error(`: FAIL  targetValue is ${a}, expectValue is ${b}`)
-    if(msg) console.log(`: OK  target Value : ${a} expectedValue : ${b}`)
+    if(msg===true) console.log(`: OK  targetValue : ${a} expectedValue : ${b}`)
     return true;
 }
 
@@ -19,27 +19,26 @@ class Expect {
     constructor(targetValue){
         this.targetValue = targetValue;
     }
-    toBe(expectValue){
+    toBe(expectValue, msg=true){
         debugger;
-        if(typeChecks.isArray(this.targetValue)) return  this.toBeArrayValue(expectValue)
-        if(typeChecks.isObject(this.targetValue)) return this.toBeObjectValue(expectValue)
-        equal(this.targetValue, expectValue)
+        if(typeChecks.isArray(this.targetValue)) return  this.toBeArrayValue(this.targetValue,expectValue)
+        if(typeChecks.isObject(this.targetValue)) return this.toBeObjectValue(this.targetValue,expectValue)
+        equal(this.targetValue, expectValue, msg)
     }
-    toBeArrayValue(expectValue, targetValue= this.targetValue, msg = true){
-        debugger;
-        const result = targetValue.every((v, i)=> {
-            return equal(v, expectValue[i], false)
-        })
+    toBeArrayValue(targetValue,expectedValue, msg = true){
         console.log(`${msg}`)
-        if(result && msg) console.log(`실행 값 ${targetValue} 예상 결과 값과 ${expectValue} 같습니다`)
+        targetValue.forEach((v, i)=> {
+            new Expect(v).toBe(expectedValue[i])
+        })
+        console.log(`${targetValue, expectedValue}`)
     }
-    toBeObjectValue(expectedValue){
-        const targetKeys = Object.keys(this.targetValue)
-        const targetValues = Object.values(this.targetValue)
+    toBeObjectValue(targetValue, expectedValue){
+        const targetKeys = Object.keys(targetValue)
+        const targetValues = Object.values(targetValue)
         const expectKeys = Object.keys(expectedValue)
         const expectValues = Object.values(expectedValue)
-        this.toBeArrayValue(expectKeys, targetKeys, 'key값 비교')
-        this.toBeArrayValue(expectValues, targetValues, 'value값 비교')
+        this.toBeArrayValue(targetKeys, expectKeys, 'key값 비교')
+        this.toBeArrayValue(targetValues, expectValues, 'value값 비교')
     }
 }
 
