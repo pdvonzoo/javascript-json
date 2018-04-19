@@ -1,15 +1,14 @@
 const {_each} = require('../functionalUtil')
+const typeChecks = require('../typeCheck')
 
-const equal = (a,b)=> {
+
+const equal = (a,b, msg = true)=> {
     if(a!== b) throw Error(`: FAIL  targetValue is ${a}, expectValue is ${b}`)
-    console.log(`: OK  target Value : ${a} expectedValue : ${b}`)
+    if(msg) console.log(`: OK  target Value : ${a} expectedValue : ${b}`)
     return true;
 }
 
-const equalToNotMsg = (a,b)=>{
-    if(a!== b) throw Error(`: FAIL  targetValue is ${a}, expectValue is ${b}`)
-    return true;
-}
+const isArrayOrObject = input => typeChecks.isArray(input) || typeChecks.isObject(input)
 
 const test = (testMsg, fn)=>{
     console.log(testMsg, "\t")
@@ -21,14 +20,26 @@ class Expect {
         this.targetValue = targetValue;
     }
     toBe(expectValue){
+        debugger;
+        if(typeChecks.isArray(this.targetValue)) return  this.toBeArrayValue(expectValue)
+        if(typeChecks.isObject(this.targetValue)) return this.toBeObjectValue(expectValue)
         equal(this.targetValue, expectValue)
     }
-    toBeArrayValue(expectValue){
-        const result = this.targetValue.every((v, i)=> {
-            return equalToNotMsg(v, expectValue[i])
+    toBeArrayValue(expectValue, targetValue= this.targetValue, msg = true){
+        debugger;
+        const result = targetValue.every((v, i)=> {
+            return equal(v, expectValue[i], false)
         })
-        if(result) console.log(`실행 값 ${this.targetValue} 예상 결과 값과 ${expectValue} 같습니다`)
-
+        console.log(`${msg}`)
+        if(result && msg) console.log(`실행 값 ${targetValue} 예상 결과 값과 ${expectValue} 같습니다`)
+    }
+    toBeObjectValue(expectedValue){
+        const targetKeys = Object.keys(this.targetValue)
+        const targetValues = Object.values(this.targetValue)
+        const expectKeys = Object.keys(expectedValue)
+        const expectValues = Object.values(expectedValue)
+        this.toBeArrayValue(expectKeys, targetKeys, 'key값 비교')
+        this.toBeArrayValue(expectValues, targetValues, 'value값 비교')
     }
 }
 
@@ -42,7 +53,8 @@ const describe = (testParagraph, fn)=>{
 }
 
 expect(3).toBe(3)
-expect([1,2,3]).toBeArrayValue([1,2,3])
+expect([1,2,3]).toBe([1,2,3])
+expect({'a':'b'}).toBe({'a':'b'})
 
 
 module.exports = Object.freeze({

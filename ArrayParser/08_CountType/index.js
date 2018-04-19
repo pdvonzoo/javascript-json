@@ -3,6 +3,7 @@ const {isString} = require('../typeCheck')
 const { IdentityObjObject, IdentityObject} = require('../class/IdentityObject')
 const {isObjClosed, isArrayClosed, splitItem, MakeIdObjPrimitiveType} = require('../modules')
 const totalCounter = require('../modules/counts')
+const typeCheck = require('../typeCheck')
 
 const trimed = str => str.trim()
 
@@ -89,7 +90,19 @@ console.log(JSON.stringify(result, null, 2));
 const counts = totalCounter(result)
 console.log(JSON.stringify(counts, null, 2));
 
-module.exports = result
+const str1 = "[1,2,3,4,5]";
+const str2 = "[[1,2,3],[2],{a:'str', b:[1,2,3]},true, undefined, false]";
+
+const sampleResult1 = parseString(str1, 'array');
+const sampleResult2 = parseString(str2, 'array');
+
+console.log(sampleResult1.constructor===IdentityObject)
+// console.log(typeCheck.checkType(sampleResult1))
+
+module.exports = {
+    sampleResult1,
+    sampleResult2,
+}
 
 
 

@@ -1,4 +1,5 @@
-// const result = require('../08_CountType/index');
+const typeCheck = require('../typeCheck');
+
 
 class TypeCounter {
     constructor(){
@@ -17,6 +18,7 @@ class TypeCounter {
 }
 
 const totalcounter = function(target){
+    if(target.constructor!==IdentityObject) throw Error('잘못된 값을 입력하였습니다 ')
     const typeCounter = new TypeCounter()
     const counter = function(input){
         typeCounter.addCount(input.type)
