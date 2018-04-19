@@ -52,9 +52,9 @@ const describe = (testParagraph, fn)=>{
     fn();
 }
 
-expect(3).toBe(3)
-expect([1,2,3]).toBe([1,2,3])
-expect({'a':'b'}).toBe({'a':'b'})
+// expect(3).toBe(3)
+// expect([1,2,3]).toBe([1,2,3])
+// expect({'a':'b'}).toBe({'a':'b'})
 
 
 module.exports = Object.freeze({

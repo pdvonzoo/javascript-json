@@ -96,12 +96,13 @@ const str2 = "[[1,2,3],[2],{a:'str', b:[1,2,3]},true, undefined, false]";
 const sampleResult1 = parseString(str1, 'array');
 const sampleResult2 = parseString(str2, 'array');
 
-console.log(sampleResult1.constructor===IdentityObject)
+// console.log(sampleResult1.constructor===IdentityObject)
 // console.log(typeCheck.checkType(sampleResult1))
 
 module.exports = {
     sampleResult1,
     sampleResult2,
+    parseString,
 }
 
 
