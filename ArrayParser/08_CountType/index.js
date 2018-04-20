@@ -64,6 +64,7 @@ const getResultToObjObjString = arr => {
 const makeItemList= pipe(removeBracket, splitItem)
 
 const parseString = (str) => {
+    debugger;
     if(!isString(str)) throw Error(`문자열로 값을 입력해주세요  현재값 :${str}`)
     str = str.trim()
     return makeIdObjByType(str)
@@ -84,25 +85,46 @@ const parseObjandArray = (str, type)=>{
 
 
 
-var str = "['1a3',[null,false,['11',112,'99']],{c:{d:{a:[1,2,3]}}}, {a:'str', b:[912,[5656,33]]}, true, undefined]";
-const result = parseString(str, 'array');
-console.log(JSON.stringify(result, null, 2));
+// var str = "['1a3',[null,false,['11',112,'99']],{c:{d:{a:[1,2,3]}}}, {a:'str', b:[912,[5656,33]]}, true, undefined]";
+// const result = parseString(str, 'array');
+// console.log(JSON.stringify(result, null, 2));
 
-const counts = totalCounter(result)
-console.log(JSON.stringify(counts, null, 2));
+// const counts = totalCounter(result)
+// console.log(JSON.stringify(counts, null, 2));
 
 const str1 = "[1,2,3,4,5]";
 const str2 = "[[1,2,3],[2],{a:'str', b:[1,2,3]},true, undefined, false]";
 const str3 = '[1,2,3]'
+const str4 = '{a: \'b\'}'
+
+// var str = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
+
+// var s1 = "[1,[null,false,['11',112,'99']], {a:'str', b:{[912]}}},true]";
+
+
+
+// var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b:[912,[5656,33]]}, true]";
+//정상출력
+
+// var s = "['1a3',[null,false,['11',112,'99' , {a:'str', b:[912,[5656,33]]}, true]";
+// 정상적으로 종료되지 않은 배열이 있습니다.
+
+// var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b: [912,[5656,33]], true]";
+// 정상적으로 종료되지 않은 객체가 있습니다.
+
+// var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b  [912,[5656,33]]}, true]";
+// ':'이 누락된 객체표현이 있습니다.
 
 const sampleResult1 = parseString(str1);
 const sampleResult2 = parseString(str2);
 const sampleResult3 = parseString(str3);
+const sampleResult4 = parseString(str4);
 console.log(sampleResult1.constructor===IdentityObject)
 console.log(typeCheck.checkType(sampleResult1))
 console.log(sampleResult1)
 console.log(sampleResult2)
 console.log(sampleResult3)
+console.log(sampleResult4)
 
 
 module.exports = {
