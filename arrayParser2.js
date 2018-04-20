@@ -1,40 +1,41 @@
 var str = "[[123, 1, 2], [11,24,5235 , 22 , 22, 0], [11,2,33],1,2,532,5]";
-removed = removeBracketToken(str);
 
 function ArrayParser(str) {
-  let type = isArrayToken(str);
-
-  if (type) removeBracketToken(str);
-  let b = typeCheck(removed);
-  objecting(b);
-  console.log(b);
+  if (!isArray(str)) return 'error';
+  let arrayStructure = changeArrayStructure(str);
+  return getObjectStructure(arrayStructure);
 }
 
-function objecting(str) {
-  let re = str.reduce((ac, cv) => {
-    if (isArrayToken(cv)) {
-      const obj = {};
-      obj.type = isArrayToken(cv);
-      obj.value = 'ArrayObject'
-      obj.child = removeBracketToken(cv).split(',').map(v => numberObjecting(v));
-      ac.push(obj);
-      return ac;
+function getObjectStructure(str) {
+  let completeObject = str.reduce((accumulator, currentValue) => {
+    if (isArray(currentValue)) {
+      accumulator.push(processArray(currentValue));
+      return accumulator;
     }
-    ac.push(numberObjecting(cv));
-    return ac;
-  }, [])
-  console.log(re);
+    accumulator.push(processNumber(currentValue));
+    return accumulator;
+  }, []);
+  return completeObject;
 }
 
-function numberObjecting(str) {
+function processArray(arr) {
+  const obj = {};
+  obj.type = isArray(arr);
+  obj.value = 'ArrayObject';
+  obj.child = removeBracketToken(arr).split(',').map(v => processNumber(v));
+  return obj;
+}
+
+function processNumber(str) {
   return {
-    type: 'number',
+    type: isNumber(str),
     value: str,
     child: []
   }
 }
 
-function typeCheck(str) {
+function changeArrayStructure(str) {
+  str = removeBracketToken(str);
   let checkedArr = [];
   let normalString = '';
   let arrayString = '';
@@ -46,14 +47,16 @@ function typeCheck(str) {
       count--;
       if (count === 0) {
         checkedArr.push(arrayString + str[i]);
-        arrayString = ''
+        arrayString = '';
         continue;
       }
     }
+
     if (count === 0 && str[i] === ',' && normalString !== '') {
       checkedArr.push(normalString);
       normalString = '';
     }
+
     if (count) {
       arrayString += str[i]
     } else {
@@ -65,14 +68,7 @@ function typeCheck(str) {
   return checkedArr;
 }
 
-// function getInfoToken(str) {
-//   str = removeBracketToken(str);
-//   console.log(str);
-//   // let objected = getObjectToken(trimmedArray);
-//   // return trimmedArray;
-// }
-
-function isArrayToken(str) {
+function isArray(str) {
   if (str[0] === '[' && str[str.length - 1] === ']') return 'array';
 }
 
@@ -80,24 +76,9 @@ function removeBracketToken(str) {
   return str.substring(1, str.length - 1);
 }
 
-function trimToken(arr) {
-  return arr.map(v => v.trim());
-}
-
-function isNumberToken(item) {
+function isNumber(item) {
   if (!isNaN(+item)) return 'number';
 }
 
-function getObjectToken(arr) {
-  return arr.map(v => {
-    return {
-      type: typeof (+v),
-      value: v,
-      child: []
-    }
-
-  });
-}
 let result = ArrayParser(str);
-// console.log(result);
-// console.log(JSON.stringify(result, null, 2));
+console.log(JSON.stringify(result, null, 2));
