@@ -130,7 +130,7 @@ console.log(sampleResult2)
 console.log(sampleResult3)
 console.log(sampleResult4)
 console.log(sampleResult5)
-
+console.log(totalCounter(sampleResult1));
 
 module.exports = {
     sampleResult1,
