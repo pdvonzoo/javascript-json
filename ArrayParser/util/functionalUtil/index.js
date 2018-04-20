@@ -7,17 +7,17 @@ const each = (list, iter) => {
 
 const map = (list, mapper) =>{
     const new_list = [];
-    each(list, function(val){
-        new_list.push(mapper(val));
-    })
+    for(let i =0,{length}=list; i<length; i++){
+            new_list.push(mapper(val));
+    }
     return new_list;
 }
 
 const filter = (list, predicate) => {
     const new_list = [];
-    each(list, function(val){
-        if(predicate(val)) new_list.push(val);
-    })
+    for(let i =0,{length}=list; i<length; i++){
+        if(predicate(list[i])) new_list.push(list[i]);
+    }
     return new_list;
 }
 
