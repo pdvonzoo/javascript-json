@@ -1,10 +1,10 @@
-const {pipe} = require('../util/functionalUtil')
-const {isString} = require('../util/typeCheck')
-const { IdentityObjObject, IdentityObject} = require('../IdentityObject/IdentityObject')
-const { makeIdObjPrimitiveType} = require('../makePrimitiveType/makePrimitiveType')
-const {isArrayClosed, isObjClosed} = require('../checkClosed')
-const totalCounter = require('../counts/counts')
-const splitItem = require('../splitItem/splitItem')
+const {pipe} = require('../src/util/functionalUtil')
+const {isString} = require('../src/util/typeCheck')
+const { IdentityObjObject, IdentityObject} = require('../src/IdentityObject/IdentityObject')
+const { makeIdObjPrimitiveType} = require('../src/makePrimitiveType/makePrimitiveType')
+const {isArrayClosed, isObjClosed} = require('../src/checkClosed')
+const totalCounter = require('../src/counts/counts')
+const splitItem = require('../src/splitItem/splitItem')
 
 
 const trimed = str => str.trim()
