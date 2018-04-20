@@ -1,10 +1,10 @@
 const {pipe} = require('../util/functionalUtil')
 const {isString} = require('../util/typeCheck')
-const { IdentityObjObject, IdentityObject} = require('../class/IdentityObject')
-const {isObjClosed, isArrayClosed, MakeIdObjPrimitiveType} = require('../modules')
-const totalCounter = require('../modules/counts')
-const typeCheck = require('../util/typeCheck')
-const splitItem = require('../modules/splitItem')
+const { IdentityObjObject, IdentityObject} = require('../IdentityObject/IdentityObject')
+const { makeIdObjPrimitiveType} = require('../makePrimitiveType/makePrimitiveType')
+const {isArrayClosed, isObjClosed} = require('../checkClosed')
+const totalCounter = require('../counts/counts')
+const splitItem = require('../splitItem/splitItem')
 
 
 const trimed = str => str.trim()
@@ -31,7 +31,7 @@ const checkClosedObjString = str => {
 const makeIdObjByType = str => {
     if(hasArrayBracketsEdge(str)) return checkClosedArrString(str)
     if(hasObjBracketsEdge(str)) return checkClosedObjString(str)
-    return MakeIdObjPrimitiveType(str)
+    return makeIdObjPrimitiveType(str)
   }
 
 const addEachItemArrString = (ac, c)=> {
@@ -124,7 +124,6 @@ const sampleResult3 = parseString(str3);
 const sampleResult4 = parseString(str4);
 const sampleResult5 = parseString(str5);
 console.log(sampleResult1.constructor===IdentityObject)
-console.log(typeCheck.checkType(sampleResult1))
 console.log(sampleResult1)
 console.log(sampleResult2)
 console.log(sampleResult3)

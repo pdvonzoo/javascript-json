@@ -1,16 +1,6 @@
-const {IdentityObject} = require('../class/IdentityObject')
+const {IdentityObject} = require('../IdentityObject/IdentityObject')
 
 const removeFirstAndLast = str => str.slice(1,str.length-1)
-
-const isArrayClosed = str => {
-  str.trim()
-  return str[0]==='[' && str[str.length-1] ===']'
-}
-
-const isObjClosed = str => {
-  str = str.trim();
-  return str[0]==='{' && str[str.length-1] ==='}'
-}
 
 const stringSelector = '\''
 
@@ -37,7 +27,7 @@ const checkClosedString = (str) => {
 }
 
 
-const MakeIdObjPrimitiveType = str => {
+const makeIdObjPrimitiveType = str => {
   if(hasStringEdge(str)) return checkClosedString(str)
   if(!isNaN(str)) return new IdentityObject('number', str)
   if(isBooleanString(str)) return new IdentityObject('boolean', str)
@@ -48,7 +38,5 @@ const MakeIdObjPrimitiveType = str => {
 
 
 module.exports = Object.freeze({
-    isArrayClosed,
-    isObjClosed,
-    MakeIdObjPrimitiveType,
+    makeIdObjPrimitiveType,
   });
