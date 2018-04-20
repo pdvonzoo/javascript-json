@@ -68,16 +68,29 @@ describe('parseString 테스트', ()=>{
         }
         expect(parseString(inputString)).toBe(expectedValue) 
     })
-    // test('중첩된 결과들 테스트 ',()=>{
-    //     const inputString = '{a: \'b\'}'
-    //     const expectedValue = { 
-    //         type: 'object', 
-    //         key: 'a',
-    //         value: { type: 'string', value: '\'b\'', child: [] } 
-    //     }
-    //     expect(parseString(inputString)).toBe(expectedValue) 
-    // })
-
+    test('중첩된 결과들 테스트 ',()=>{
+        const inputString = '{a: [1,2,{b: 3}]}'
+        const childObj = { 
+            type: 'object', 
+            key: 'b',
+            value: { type: 'number', value: '3', child: [] } 
+        }
+        const expectedValue = { 
+            type: 'object', 
+            key: 'a',
+            value: {
+                type: 'array',
+                value: 'ArrayObject',
+                child: [
+                    { type: 'number', value: '1', child: [] } ,
+                    { type: 'number', value: '2', child: [] } ,
+                    childObj
+                ]
+              
+            }
+        }
+        expect(parseString(inputString)).toBe(expectedValue) 
+    })
 })
 
 
