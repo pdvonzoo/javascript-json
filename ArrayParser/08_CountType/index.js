@@ -16,12 +16,12 @@ const hasArrayBracketsEdge = str =>  hasEdgeValue(str, '[',']')
 const hasObjBracketsEdge = str =>  hasEdgeValue(str, '{','}')
 
 const checkClosedArrString = str => {
-    if(isArrayClosed(str)) return parseString(str, 'array')
+    if(isArrayClosed(str)) return parseObjandArray(str, 'array')
     throw new Error(`배열이 닫혀 있지 않습니다 ${str}`)
 }
 
 const checkClosedObjString = str => {
-    if(isObjClosed(str)) return parseString(str, 'obj')
+    if(isObjClosed(str)) return parseObjandArray(str, 'object')
     throw new Error(`객체가 닫혀 있지 않습니다 ${str}`)
 }
 
@@ -63,25 +63,25 @@ const getResultToObjObjString = arr => {
 
 const makeItemList= pipe(removeBracket, splitItem)
 
-const parseString = (str, type) => {
-    debugger;
+const parseString = (str) => {
     if(!isString(str)) throw Error(`문자열로 값을 입력해주세요  현재값 :${str}`)
-    str = trimed(str)
-    if(type!=='array'&&type!=='obj') return makeIdObjByType(str)
+    str = str.trim()
+    return makeIdObjByType(str)
+}
+
+const parseObjandArray = (str, type)=>{
     const methodsByType ={
-        'obj': {
+        'object': {
             result: getResultToObjObjString,
-            isClosed: isObjClosed,
         },
         'array': {
             result: getResultToObjArrayString,
-            isClosed: isArrayClosed,
         }
     }
-    if(!methodsByType[type].isClosed(str)) throw Error(`닫혀 있지가 않습니다  현재값 :${str}`)
     const result = pipe(makeItemList, methodsByType[type].result)(str)
     return result;
 }
+
 
 
 var str = "['1a3',[null,false,['11',112,'99']],{c:{d:{a:[1,2,3]}}}, {a:'str', b:[912,[5656,33]]}, true, undefined]";
@@ -95,11 +95,13 @@ const str1 = "[1,2,3,4,5]";
 const str2 = "[[1,2,3],[2],{a:'str', b:[1,2,3]},true, undefined, false]";
 const str3 = '[1,2,3]'
 
-const sampleResult1 = parseString(str1, 'array');
-const sampleResult2 = parseString(str2, 'array');
-const sampleResult3 = parseString(str3, '');
-// console.log(sampleResult1.constructor===IdentityObject)
-// console.log(typeCheck.checkType(sampleResult1))
+const sampleResult1 = parseString(str1);
+const sampleResult2 = parseString(str2);
+const sampleResult3 = parseString(str3);
+console.log(sampleResult1.constructor===IdentityObject)
+console.log(typeCheck.checkType(sampleResult1))
+console.log(sampleResult1)
+console.log(sampleResult2)
 console.log(sampleResult3)
 
 
