@@ -1,9 +1,11 @@
-const {pipe} = require('../functionalUtil')
-const {isString} = require('../typeCheck')
+const {pipe} = require('../util/functionalUtil')
+const {isString} = require('../util/typeCheck')
 const { IdentityObjObject, IdentityObject} = require('../class/IdentityObject')
-const {isObjClosed, isArrayClosed, splitItem, MakeIdObjPrimitiveType} = require('../modules')
+const {isObjClosed, isArrayClosed, MakeIdObjPrimitiveType} = require('../modules')
 const totalCounter = require('../modules/counts')
-const typeCheck = require('../typeCheck')
+const typeCheck = require('../util/typeCheck')
+const splitItem = require('../modules/splitItem')
+
 
 const trimed = str => str.trim()
 

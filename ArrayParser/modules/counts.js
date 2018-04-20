@@ -1,4 +1,4 @@
-const typeCheck = require('../typeCheck');
+const typeCheck = require('../util/typeCheck');
 const {IdentityObject,IdentityObjObject} = require('../class/IdentityObject')
 
 class TypeCounter {

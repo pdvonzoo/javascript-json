@@ -1,4 +1,4 @@
-const { each } = require('../functionalUtil')
+const { each } = require('../util/functionalUtil')
 
 const brackets = {
     '[': function(arrayClose){

@@ -1,5 +1,3 @@
-const testUtil = require('../testUtil')
-const splitItem = require('./splitItem')
 const {IdentityObject} = require('../class/IdentityObject')
 
 const removeFirstAndLast = str => str.slice(1,str.length-1)
@@ -50,7 +48,6 @@ const MakeIdObjPrimitiveType = str => {
 
 
 module.exports = Object.freeze({
-    splitItem,
     isArrayClosed,
     isObjClosed,
     MakeIdObjPrimitiveType,
