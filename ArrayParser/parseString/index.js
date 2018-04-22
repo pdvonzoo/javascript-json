@@ -66,7 +66,6 @@ const getResultToObjObjString = arr => {
 const makeItemList= pipe(removeBracket, splitItem)
 
 const parseString = (str) => {
-    debugger;
     if(!isString(str)) throw Error(`문자열로 값을 입력해주세요  현재값 :${str}`)
     str = str.trim()
     return makeIdObjByType(str)
@@ -94,11 +93,11 @@ const parseObjandArray = (str, type)=>{
 // const counts = totalCounter(result)
 // console.log(JSON.stringify(counts, null, 2));
 
-const str1 = "[1,2,3,4,5]";
+const str1 = "[1,2,3]";
 const str2 = "[[1,2,3],[2],{a:'str', b:[1,2,3]},true, undefined, false]";
 const str3 = '[1,2,3]'
 const str4 = '{a: \'b\'}'
-const str5 = '{a: [1,2,{b: 3}]}'
+const str5 = '[[1,2,3],{a:[1,2,{b:3}]}]'
 
 // var str = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
 
@@ -127,7 +126,7 @@ const sampleResult1 = parseString(str1);
 const sampleResult2 = parseString(str2);
 // const sampleResult3 = parseString(str3);
 // const sampleResult4 = parseString(str4);
-// const sampleResult5 = parseString(str5);
+const sampleResult5 = parseString(str5);
 
 const sampleResult6 = parseString(str6);
 
@@ -136,9 +135,12 @@ console.log(sampleResult1)
 console.log(sampleResult2)
 // console.log(sampleResult3)
 // console.log(sampleResult4)
-// console.log(sampleResult5)
+console.log(sampleResult5)
 // console.log(totalCounter(sampleResult1));
+console.log(JSON.stringify(sampleResult1, null, 2));
 console.log(JSON.stringify(sampleResult6, null, 2));
+console.log(JSON.stringify(sampleResult5, null, 2));
+
 
 module.exports = {
     sampleResult1,

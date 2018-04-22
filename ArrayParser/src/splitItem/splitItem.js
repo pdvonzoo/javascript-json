@@ -63,7 +63,7 @@ var result = splitItem(s1);
 
 var test1 = "1,'[1,]]]]][1,[2,[2,3]]]',3";
 var test1_result = splitItem(test1);
-var test2 = "{a:b},{c:[1,2,3],d:{a:b}}";
+var test2 = "[1,2,3],{a:[1,2,{b:3}]}";
 var test2_result = splitItem(test2);
 
 console.log(JSON.stringify(result, null, 2));
