@@ -112,24 +112,33 @@ const str5 = '{a: [1,2,{b: 3}]}'
 // var s = "['1a3',[null,false,['11',112,'99' , {a:'str', b:[912,[5656,33]]}, true]";
 // 정상적으로 종료되지 않은 배열이 있습니다.
 
-// var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b: [912,[5656,33]], true]";
+var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b: [912,[5656,33]], true]";
 // 정상적으로 종료되지 않은 객체가 있습니다.
 
 // var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b  [912,[5656,33]]}, true]";
 // ':'이 누락된 객체표현이 있습니다.
+// parseString(s);
+
+var str6 = "['1a3',[null,false,['11',112,'99]']], {a:'str', b:[912,[5656,33]]}, true]";
+
+
 
 const sampleResult1 = parseString(str1);
 const sampleResult2 = parseString(str2);
-const sampleResult3 = parseString(str3);
-const sampleResult4 = parseString(str4);
-const sampleResult5 = parseString(str5);
+// const sampleResult3 = parseString(str3);
+// const sampleResult4 = parseString(str4);
+// const sampleResult5 = parseString(str5);
+
+const sampleResult6 = parseString(str6);
+
 console.log(sampleResult1.constructor===IdentityObject)
 console.log(sampleResult1)
 console.log(sampleResult2)
-console.log(sampleResult3)
-console.log(sampleResult4)
-console.log(sampleResult5)
-console.log(totalCounter(sampleResult1));
+// console.log(sampleResult3)
+// console.log(sampleResult4)
+// console.log(sampleResult5)
+// console.log(totalCounter(sampleResult1));
+console.log(JSON.stringify(sampleResult6, null, 2));
 
 module.exports = {
     sampleResult1,

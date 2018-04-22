@@ -13,8 +13,10 @@ class TypeCounter {
     }
 }
 
+const isIdObj = target => target.constructor!==IdentityObject && target.constructor!==IdentityObjObject
+
 const totalcounter = function(target){
-    if((target.constructor!==IdentityObject)&&(target.constructor!==IdentityObjObject)) throw Error('잘못된 값을 입력하였습니다 ')
+    if(isIdObj(target)) throw Error('잘못된 값을 입력하였습니다 ')
     const typeCounter = new TypeCounter()
     const counter = function(target){
         typeCounter.addCount(target.type)
