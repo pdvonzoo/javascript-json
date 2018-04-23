@@ -6,4 +6,9 @@ describe('totalCounter 테스트', ()=>{
         const expectedValue = [1,2,3,4,5]
         expect(targetValue).toEqual(expectedValue) 
     })
+    test('기본 값 테스트 {a:b, c:d}',()=>{
+        const targetValue ={'a':'b', 'c':"d"}
+        const expectedValue ={'a':'b', 'c':"d"}
+        expect(targetValue).toEqual(expectedValue) 
+    })
 })

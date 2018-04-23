@@ -33,27 +33,24 @@ class Expect {
         return msg===true ? console.log(`: OK  targetValue : ${targetValue} expectedValue : ${expectValue}`) : true;
     }
     toEqual(expectedValue, msg = true){
-        const {targetValue, checkEqualArrayValue, toBeObjectValue}= this;
-        if(typeChecks.isArray(targetValue)) return  checkEqualArrayValue(targetValue, expectedValue)
-        if(typeChecks.isObject(targetValue)) return toBeObjectValue(targetValue, expectedValue)
-        console.log(`${msg}`)
-        targetValue.forEach((v, i)=> {
-            new Expect(v).toBe(expectedValue[i])
-        })
-        console.log(`${targetValue, expectedValue}`)
+        const {targetValue, checkEqualArrayValue, checkEqualObjValue, toBe}= this;
+        if(typeChecks.isArray(targetValue)) return  checkEqualArrayValue(targetValue, expectedValue);
+        if(typeChecks.isObject(targetValue)) return checkEqualObjValue(targetValue, expectedValue, checkEqualArrayValue);
+        return toBe(targetValue, expectedValue);
     }
-    checkEqualArrayValue(targetValue, expectedValue){
+    checkEqualArrayValue(targetValue, expectedValue, msg=false){
+        console.log(msg)
         const result = targetValue.every((v,i)=>new Expect(v).toBe(expectedValue[i], false))
         if(result) console.log(`${targetValue} is Equal ${expectedValue}`)
     }
 
-    toBeObjectValue(targetValue, expectedValue){
+    checkEqualObjValue(targetValue, expectedValue, checkEqualArrayValue){
         const targetKeys = Object.keys(targetValue)
         const targetValues = Object.values(targetValue)
         const expectKeys = Object.keys(expectedValue)
         const expectValues = Object.values(expectedValue)
-        this.toBeArrayValue(targetKeys, expectKeys, 'key값 비교')
-        this.toBeArrayValue(targetValues, expectValues, 'value값 비교')
+        checkEqualArrayValue(targetKeys, expectKeys,'key값 비교')
+        checkEqualArrayValue(targetValues, expectValues, 'value값 비교')
     }
 }
 
