@@ -28,29 +28,33 @@ class Expect {
         return this.targetValue = !this.targetValue
     }
     toBe(expectValue, msg=true){
+        let result =``
         const targetValue = this.targetValue
         if(targetValue!== expectValue) throw Error(`: FAIL  targetValue is ${targetValue}, expectValue is ${expectValue}`)
-        return msg===true ? console.log(`: OK  targetValue : ${targetValue} expectedValue : ${expectValue}`) : true;
+        if(msg) console.log(`: OK  targetValue : ${targetValue} expectedValue : ${expectValue}`)
     }
     toEqual(expectedValue, msg = true){
-        const {targetValue, checkEqualArrayValue, checkEqualObjValue, toBe}= this;
-        if(typeChecks.isArray(targetValue)) return  checkEqualArrayValue(targetValue, expectedValue);
-        if(typeChecks.isObject(targetValue)) return checkEqualObjValue(targetValue, expectedValue, checkEqualArrayValue);
-        return toBe(targetValue, expectedValue);
+        const {targetValue}= this;
+        if(typeChecks.isArray(targetValue)) return  this.checkEqualArrayValue(targetValue, expectedValue);
+        if(typeChecks.isObject(targetValue)) return this.checkEqualObjValue(targetValue, expectedValue);
+        return this.toBe(expectedValue, msg);
     }
     checkEqualArrayValue(targetValue, expectedValue, msg=false){
-        console.log(msg)
-        const result = targetValue.every((v,i)=> new Expect(v).toBe(expectedValue[i], false))
-        if(result) console.log(`OK: ${targetValue} is Equal ${expectedValue}`)
+        if(msg) console.log(msg)
+        targetValue.forEach((v,i)=> {
+            new Expect(v).toEqual(expectedValue[i],false)
+        })
+       console.log(`OK: ${targetValue} is Equal ${expectedValue}`)
     }
 
-    checkEqualObjValue(targetValue, expectedValue, checkEqualArrayValue){
+    checkEqualObjValue(targetValue, expectedValue){
+        debugger;
         const targetKeys = Object.keys(targetValue)
         const targetValues = Object.values(targetValue)
         const expectKeys = Object.keys(expectedValue)
         const expectValues = Object.values(expectedValue)
-        checkEqualArrayValue(targetKeys, expectKeys,'key값 비교')
-        checkEqualArrayValue(targetValues, expectValues, 'value값 비교')
+        this.checkEqualArrayValue(targetKeys, expectKeys,'key값 비교')
+        this.checkEqualArrayValue(targetValues, expectValues, 'value값 비교')
     }
 }
 
@@ -62,11 +66,6 @@ const describe = (testParagraph, fn)=>{
     console.log(testParagraph, "\t")
     fn();
 }
-
-// expect(3).toBe(3)
-// expect([1,2,3]).toBe([1,2,3])
-// expect({'a':'b'}).toBe({'a':'b'})
-
 
 module.exports = Object.freeze({
     test,

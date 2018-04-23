@@ -1,8 +1,6 @@
 const {describe, test, expect} = require('../src/util/testUtil')
 const splitItem = require('../src/splitItem/splitItem')
 
-
-
 describe('splitItem 테스트', ()=>{
     test('기본 값 테스트 ',()=>{
         const targetValue = '[1,2,3]'
