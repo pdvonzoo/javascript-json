@@ -1,79 +1,84 @@
 /* 
-    요구사항
-    1. ArrayParser 함수
-    
-    2. 배열안에는 숫자데이터만 존재
-    
-    3. 배열형태의 문자열을 token 단위로 해석
-       이를 분석한 자료구조를 만든다
-    
-    4. 정규표현식 사용은 최소한으로 한다 (token 타입체크에 한해 사용가능)
+    1차 피드백
+    todo의 리뷰를 보면서, 그 렉쳐의 코드를 class로 잘 정리해두시고요.
+    그 다음에 여기까지의 array parser 코드를 class로 수정하고 더 진행해보시죠.
+
+    todo의 리뷰를 보면서, 그 렉쳐의 코드를 class로 잘 정리하고나서 여기 렉처를 이어나가세요.
+    todo렉처가 정리되면, 여기 array parser 코드를 class로 수정하고 더 진행해보시죠.
+    arrayParser 함수는 좀 하위함수로 나누면서 하면 좋겠고요.
+
+    class arrayParser
+    1. spliter
+    2. checkType 
 */
 
-function arrayParser(str) {
-
-    // 0. variable
-    let resultObject = new Object();
-    resultObject.type = null;
-    resultObject.child = new Array();
-
-    let dividedCharacterDatas = [];
-
-    const strDataLength = parseInt(str.length);    
-
-    // 1. String 찢기
-    for (let i=0; i<strDataLength; i++) {
-        dividedCharacterDatas.push(str[i]);
-     }
-
-     // 1-1. type check
-     // 입력받은 데이터(str)의 맨 앞,뒤 문자를 구분하여
-     // type을 결정합니다
-     let firstCharacter = str[0];
-     let lastCharacter = str[strDataLength-1];
-     resultObject.type = checkType(str);
-
-    let mergeData = "";
-
-    dividedCharacterDatas.forEach(element => {
-        if (element === ',') {
-
-            let dataObject = {
-                type: checkType(mergeData),
-                value: mergeData,
-                child: []
-            };
-
-            resultObject.child.push(dataObject);
-            mergeData = "";
+class ArrayParser {
+    
+    constructor(stringData) {
+        this.resultObject = {
+            type: null,
+            child: [],
         }
-
-        mergeData += element
-        
-    });
-
-    // 5. return resultObject
-    return resultObject;
-}
-
-function checkType(str) {
-
-    if (str.includes("[") && str.includes("]")) {
-        return 'array';
+        this.dividedCharacterDatas = [];
+        this.inputString = stringData;
     }
 
-    if (parseInt(str) !== NaN) {
-        return 'number';
+    spliter() {
+        this.dividedCharacterDatas = this.inputString.split("");
     }
-}
 
-function createStringObject() {
+    merger() {
+        let mergeData = "";
+        let count = 1;
 
+        this.dividedCharacterDatas.forEach(element => {
+            if (element === ',' || count === this.dividedCharacterDatas.length) {
+                const dataObject = {
+                    type: this.checkType(mergeData),
+                    value: mergeData,
+                    child: []
+                };
+    
+                this.resultObject.child.push(dataObject);
+                mergeData = "";
+            } else if (element >= '0' && element <= '9') {
+                mergeData += element;   
+            }
+            count++;
+        });
+    }
+
+    checkType(params) {
+
+        if (params.includes("[") && params.includes("]")) {
+            return 'array';
+        }
+    
+        if (parseInt(params) !== NaN) {
+            return 'number';
+        }
+    }
+
+    getResult() {
+        const inputStringLength = this.inputString.length;
+        const firstCharacter = this.inputString[0];
+        const lastCharacter = this.inputString[inputStringLength-1];
+
+        this.spliter();
+        this.resultObject.type = this.checkType(this.inputString);
+        this.merger();
+
+        return this.resultObject;
+    }
 }
 
 function run() {
-    var str = "[123, 22, 33]";
-    var result = arrayParser(str);
+
+    const stringData = "[123, 22, 33]";
+
+    const arrayParser = new ArrayParser(stringData);
+    const result = arrayParser.getResult();
+
     console.log(JSON.stringify(result, null, 2));
 }
 
