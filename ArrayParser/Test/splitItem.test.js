@@ -7,7 +7,7 @@ describe('splitItem 테스트', ()=>{
     test('기본 값 테스트 ',()=>{
         const targetValue = '[1,2,3]'
         const expectedValue = ['[1,2,3]']
-        expect(splitItem(targetValue)).toBeArrayValue(expectedValue) 
+        expect(splitItem(targetValue)).toEqual(expectedValue) 
     })
     test('[] 중첩 배열 test',()=>{
         const targetValue = '[1,2,3],[1,[4,5]]'
