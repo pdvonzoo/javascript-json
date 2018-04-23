@@ -85,42 +85,24 @@ const parseObjandArray = (str, type)=>{
 }
 
 
-const str1 = "[1,2,3]";
+const str1 = "[1,2,3,4,5]";
 const str2 = "[[1,2,3],[2],{a:'str', b:[1,2,3]},true, undefined, false]";
-const str3 = '[1,2,3]'
-const str4 = '{a: \'b\'}'
-const str5 = '[[1,2,3],{a:[1,2,{b:3}]}]'
-
-// var str = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
-
-// var s1 = "[1,[null,false,['11',112,'99']], {a:'str', b:{[912]}}},true]";
-
-
-
-
-
-var str6 = "['1a3',[null,false,['11',112,'99]']], {a:'str', b:[912,[5656,33]]}, true]";
-
+const str3 = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
 
 
 const sampleResult1 = parseString(str1);
 const sampleResult2 = parseString(str2);
-// const sampleResult3 = parseString(str3);
-// const sampleResult4 = parseString(str4);
-const sampleResult5 = parseString(str5);
+const sampleResult3 = parseString(str3);
 
-const sampleResult6 = parseString(str6);
 
-console.log(sampleResult1.constructor===IdentityObject)
+
 console.log(sampleResult1)
 console.log(sampleResult2)
-// console.log(sampleResult3)
-// console.log(sampleResult4)
-console.log(sampleResult5)
-// console.log(totalCounter(sampleResult1));
+console.log(sampleResult3)
+
 console.log(JSON.stringify(sampleResult1, null, 2));
-console.log(JSON.stringify(sampleResult6, null, 2));
-console.log(JSON.stringify(sampleResult5, null, 2));
+console.log(JSON.stringify(sampleResult2, null, 2));
+console.log(JSON.stringify(sampleResult3, null, 2));
 
 
 module.exports = {

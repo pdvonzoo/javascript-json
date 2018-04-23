@@ -122,6 +122,14 @@ describe('parseString 테스트', ()=>{
 })
 
 
+
+// simpleTest StringInput
+const str1 = "[1,2,3]";
+const str2 = "[[1,2,3],[2],{a:'str', b:[1,2,3]},true, undefined, false]";
+const str3 = '[1,2,3]'
+const str4 = '{a: \'b\'}'
+const str5 = '[[1,2,3],{a:[1,2,{b:3}]}]'
+
 // var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b:[912,[5656,33]]}, true]";
 //정상출력
 

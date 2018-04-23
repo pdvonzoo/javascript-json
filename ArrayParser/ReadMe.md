@@ -210,6 +210,10 @@ Equal 3가지만 가지는 가벼운 인스턴스입니다.
 
 ex) expect(targetValue).toBe(expectedValue)
 
+기본적인 사용법은 
+expect안에 targetValue를 넣어주며 인스턴스를 생성하고  expect 메소드에 expectedValue값을 넣어주면서 
+테스트 통과 여부를 진행합니다
+
 expect.not은
 expect가 가지고 있는 targetValue를 반전시켜줍니다.
 
@@ -247,6 +251,15 @@ describe('parseString 테스트', ()=>{
     })
 
 ```
+
+### 이슈 
+
+*  Equal문자열 Object key,value값 비교 ! 유니코드 기준으로 sort필요 
+
+countTest에서 ? aobnu순으로 나온 것을 보면 어찌해줘야 될지 알아보고 수정  
+
+* testCase 함수들 더 추가 및 리팩토링 + toThrow error Test 추가
+
 
 
 [프로젝트_Repo](https://github.com/amorfati0310/javascript-json/tree/amorfati0310)
