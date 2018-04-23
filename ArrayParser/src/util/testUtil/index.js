@@ -40,8 +40,8 @@ class Expect {
     }
     checkEqualArrayValue(targetValue, expectedValue, msg=false){
         console.log(msg)
-        const result = targetValue.every((v,i)=>new Expect(v).toBe(expectedValue[i], false))
-        if(result) console.log(`${targetValue} is Equal ${expectedValue}`)
+        const result = targetValue.every((v,i)=> new Expect(v).toBe(expectedValue[i], false))
+        if(result) console.log(`OK: ${targetValue} is Equal ${expectedValue}`)
     }
 
     checkEqualObjValue(targetValue, expectedValue, checkEqualArrayValue){
