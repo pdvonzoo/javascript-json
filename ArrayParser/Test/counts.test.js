@@ -6,7 +6,6 @@ const {IdentityObject, IdentityObjObject} = require('../class/IdentityObject')
 
 describe('totalCounter 테스트', ()=>{
     test('기본 값 테스트 [1,2,3,4,5]',()=>{
-        debugger;
         const targetValue = sample.sampleResult1 
         const expectedValue = {
               "string": 0,
@@ -21,7 +20,6 @@ describe('totalCounter 테스트', ()=>{
         expect(totalCounter(targetValue)).toBe(expectedValue) 
     })
     test('기본 값 테스트 \"[[1,2,3],[2],{a:\'str\', b:[1,2,3]},true, undefined, false]\"',()=>{
-        debugger;
         const targetValue = sample.sampleResult2 
         const expectedValue = {
             'string': 0,

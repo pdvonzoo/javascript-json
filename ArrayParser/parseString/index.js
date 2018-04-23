@@ -85,14 +85,6 @@ const parseObjandArray = (str, type)=>{
 }
 
 
-
-// var str = "['1a3',[null,false,['11',112,'99']],{c:{d:{a:[1,2,3]}}}, {a:'str', b:[912,[5656,33]]}, true, undefined]";
-// const result = parseString(str, 'array');
-// console.log(JSON.stringify(result, null, 2));
-
-// const counts = totalCounter(result)
-// console.log(JSON.stringify(counts, null, 2));
-
 const str1 = "[1,2,3]";
 const str2 = "[[1,2,3],[2],{a:'str', b:[1,2,3]},true, undefined, false]";
 const str3 = '[1,2,3]'
@@ -105,18 +97,7 @@ const str5 = '[[1,2,3],{a:[1,2,{b:3}]}]'
 
 
 
-// var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b:[912,[5656,33]]}, true]";
-//정상출력
 
-// var s = "['1a3',[null,false,['11',112,'99' , {a:'str', b:[912,[5656,33]]}, true]";
-// 정상적으로 종료되지 않은 배열이 있습니다.
-
-var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b: [912,[5656,33]], true]";
-// 정상적으로 종료되지 않은 객체가 있습니다.
-
-// var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b  [912,[5656,33]]}, true]";
-// ':'이 누락된 객체표현이 있습니다.
-// parseString(s);
 
 var str6 = "['1a3',[null,false,['11',112,'99]']], {a:'str', b:[912,[5656,33]]}, true]";
 

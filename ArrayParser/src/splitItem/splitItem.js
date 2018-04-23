@@ -58,16 +58,5 @@ const splitItem = str => {
     return splitItemList
 }
 
-var s1 = "['1a'3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]";
-var result = splitItem(s1);
-
-var test1 = "1,'[1,]]]]][1,[2,[2,3]]]',3";
-var test1_result = splitItem(test1);
-var test2 = "[1,2,3],{a:[1,2,{b:3}]}";
-var test2_result = splitItem(test2);
-
-console.log(JSON.stringify(result, null, 2));
-console.log(JSON.stringify(test1_result, null, 2));
-console.log(JSON.stringify(test2_result, null, 2));
 
 module.exports = splitItem

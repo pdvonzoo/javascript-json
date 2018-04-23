@@ -7,16 +7,13 @@ const typeChecks = require('../typeCheck')
 //
 // toEqual -> Object and Array recursively checks
 
-const equal = (a,b, msg = true)=> {
-    if(a!== b) throw Error(`: FAIL  targetValue is ${a}, expectValue is ${b}`)
-    if(msg===true) console.log(`: OK  targetValue : ${a} expectedValue : ${b}`)
-    return true;
-}
-
-const isArrayOrObject = input => typeChecks.isArray(input) || typeChecks.isObject(input)
-
 const test = (testMsg, fn)=>{
     console.log(testMsg, "\t")
+    fn();
+}
+
+const describe = (testParagraph, fn)=>{
+    console.log(testParagraph, "\t")
     fn();
 }
 
@@ -62,10 +59,7 @@ const expect = function(targetValue){
     return new Expect(targetValue)
 }
 
-const describe = (testParagraph, fn)=>{
-    console.log(testParagraph, "\t")
-    fn();
-}
+
 
 module.exports = Object.freeze({
     test,

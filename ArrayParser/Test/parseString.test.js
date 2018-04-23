@@ -122,3 +122,25 @@ describe('parseString 테스트', ()=>{
 })
 
 
+// var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b:[912,[5656,33]]}, true]";
+//정상출력
+
+// var s = "['1a3',[null,false,['11',112,'99' , {a:'str', b:[912,[5656,33]]}, true]";
+// 정상적으로 종료되지 않은 배열이 있습니다.
+
+var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b: [912,[5656,33]], true]";
+// 정상적으로 종료되지 않은 객체가 있습니다.
+
+// var s = "['1a3',[null,false,['11',112,'99']], {a:'str', b  [912,[5656,33]]}, true]";
+// ':'이 누락된 객체표현이 있습니다.
+// parseString(s);
+
+// ThrowError 추가할 예정...
+
+ // Error는 어떻게 테스트해야 하지???
+    // test('parseString string값이 아닐때 ',()=>{
+    //     const inputString = 3
+    //     const inputType = ''
+    //     const expectedValue = `문자열 입력해주세요 Error` 
+    //     expect(parseString(inputString,inputType)).toBe(expectedValue) 
+    // })
