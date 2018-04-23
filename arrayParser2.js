@@ -1,32 +1,35 @@
+// ArrayParser 2중 중첩배열 분석
+
 var str = "[[123, 1, 2], [11,24,5235 , 22 , 22, 0], [11,2,33],1,2,532,5]";
 
+// 메인 함수
 function ArrayParser(str) {
   if (!isArray(str)) return 'error';
-  let arrayStructure = changeArrayStructure(str);
+  let arrayStructure = changeToArrayStructure(str);
   return getObjectStructure(arrayStructure);
 }
 
 function getObjectStructure(str) {
-  let completeObject = str.reduce((accumulator, currentValue) => {
+  let completedObject = str.reduce((accumulator, currentValue) => {
     if (isArray(currentValue)) {
-      accumulator.push(processArray(currentValue));
+      accumulator.push(processForArray(currentValue));
       return accumulator;
     }
-    accumulator.push(processNumber(currentValue));
+    accumulator.push(processForNumber(currentValue));
     return accumulator;
   }, []);
-  return completeObject;
+  return completedObject;
 }
 
-function processArray(arr) {
+function processForArray(arr) {
   const obj = {};
   obj.type = isArray(arr);
   obj.value = 'ArrayObject';
-  obj.child = removeBracketToken(arr).split(',').map(v => processNumber(v));
+  obj.child = removeBracket(arr).split(',').map(v => processForNumber(v));
   return obj;
 }
 
-function processNumber(str) {
+function processForNumber(str) {
   return {
     type: isNumber(str),
     value: str,
@@ -34,14 +37,14 @@ function processNumber(str) {
   }
 }
 
-function changeArrayStructure(str) {
-  str = removeBracketToken(str);
+function changeToArrayStructure(str) {
+  str = removeBracket(str);
   let checkedArr = [];
   let normalString = '';
   let arrayString = '';
   let count = 0;
   for (let i = 0; i < str.length; i++) {
-    if (str[i] === ' ') continue;
+    if (isEmpty(str[i])) continue;
     if (str[i] === '[') count++;
     if (str[i] === ']') {
       count--;
@@ -68,11 +71,26 @@ function changeArrayStructure(str) {
   return checkedArr;
 }
 
-function isArray(str) {
-  if (str[0] === '[' && str[str.length - 1] === ']') return 'array';
+function isEmpty(str) {
+  if (str === ' ') return 1;
 }
 
-function removeBracketToken(str) {
+function isArray(str) {
+  if (str[0] !== '[' || str[str.length - 1] !== ']') return undefined;
+  if (!isPairBracket(str)) return undefined;
+  return 'array';
+}
+
+function isPairBracket(str) {
+  let count = str.split('').reduce((ac, cv) => {
+    if (cv === '[') ac += 1;
+    if (cv === ']') ac -= 1;
+    return ac;
+  }, 0)
+  return count ? undefined : 1;
+}
+
+function removeBracket(str) {
   return str.substring(1, str.length - 1);
 }
 
