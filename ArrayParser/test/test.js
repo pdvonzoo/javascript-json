@@ -10,5 +10,6 @@ describe('totalCounter 테스트', ()=>{
         const targetValue ={'a':'b', 'c':"d"}
         const expectedValue ={'a':'b', 'c':"d"}
         expect(targetValue).toEqual(expectedValue) 
+        expect(1).toBe(1)
     })
 })
