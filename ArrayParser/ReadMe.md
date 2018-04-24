@@ -1,32 +1,126 @@
-### parseString 
+# parseString 
 
-* OverView
+parseString은 문자열의 타입과 값을 분석합니다 :D
 
-parseString모듈은 string값을 받아 string안에 가지고 있는 타입 형태들을 분석해서 알려주는 모듈 입니다. javascript가 가지고 있는 type(es6 이전) function을 제외한 타입들을 판별해줍니다. (추후에 update 할 예정)
+* [How to Use](### How to Use) 
 
+## OverView
 
-* folderStructure 
+parseString모듈은 string값을 받아 string안에 가지고 있는 타입 형태들을 분석해서 알려주는 모듈 입니다.<br> javascript가 가지고 있는 type(es6 이전) function을 제외한 타입들을 판별해줍니다. (추후에 update 할 예정)<br>
 
 ```
-parseString     parseString 함수
+const stringInput = '[1,2,3]'
+const result = parseString(stringInput)
+console.log(JSON.stringify(result, null, 2));
+// result
+{
+  "type": "array",
+  "value": "ArrayObject",
+  "child": [
+    {
+      "type": "number",
+      "value": "1",
+      "child": []
+    },
+    {
+      "type": "number",
+      "value": "2",
+      "child": []
+    },
+    {
+      "type": "number",
+      "value": "3",
+      "child": []
+    }
+  ]
+}
 
---- parseString -> makeIdObjByType -> 
+```
+
+### FolderStructure & Instruction
+
+
+* FolderStructure
+
+구조를 간략히 설명합니다.
+
+```
+ArrayParser
+ - parseString        parseString Main Function ( 문자열 분석 )
+              
+ -- index.js
+ 
+ - src                parseString에서 필요한 함수 모음들
+      
+ -- checkClosed       닫힘상태 체크 함수
+ -- typeCounter       결과값을 받아 type 을 세어 주는 함수
+ -- IdentiyObject     결과의 형태를 가지는 클래스 
+ -- makePrimitiveType 원시타입일때 결과를 만들어주는 함수
+ -- splitItem *       문자열들을 분리해서 개별아이템 모음으로 만들어주는 함수
+
+ -- util              함수 , 타입체크, 테스트 util들 
+
+ - test               testCase들
+ --- splitItem.test.js                               
+ --- typeCounter.test.js...등  
+```
+
+### Flow 및 주요 함수들 기능 설명 
+
+* Flow 
+* Functions
+
+> Flow 
+
+1. parseString이 문자열을 받으면 우선 문자열인지 아닌지 체크를 합니다.<br> 
+문자열인 경우에 `trim`을 한 후에 `makeIdObjByType`으로 받은 문자열을 넘겨줍니다.<br> 
+
+2. `makeIdObjByType`은 문자열의 'edge'를 체크하면서 `objString` 인지 `arrayString` 인지 판별하고 내부구조를 살펴봐야 되는 `array`나 , `obj`인 경우에 array나 Obj가 제대로 닫혀있는지를 체크 한 후에 정상적인 경우  `parseObjandArray` 함수로 문자열을 보내줍니다. 원시타입String인 경우에는 
+`makePrimitiveType`함수에서 바로 결과값을 기록합니다. <br>
+
+3. arrayString이나 objString이면 parseObjandArray 에서 함수형 util `pipe`를 통하여 `removeBrackets`과 `splitItem`을  순차적으로 실행해줍니다. 그리고 splitItem에서 받은 분리된 항목들에 타입에 따라 결과를 담아주는 arrayString의 경우에는 `getResultToObjArrayString`가, ObjString의 경우에는 `getResultToObjObjString` 함수 를 실행합니다. <br>
+
+* `getResultToObjArrayString, getResultToObjObjString`에서는 중첩된 내부 구조에 따라 다시 한 번 같은 로직을 수행해야 되므로 결과를 쓸 때 마다 
+arrayString의 경우에는 자식에 `makeIdObjbyType`을 다시 호출하며 값을 기록해주고 마찬가지로 ObjString의 경우네는 value값에 `makeIdObjbyType`을 호출하여 값을 기록해줍니다. <br>
+
+* splitItem  각각의 아이템들을 분리하는 핵심로직인 `splitItem`에서는 `,`와 
+```[,],{,},'`',"'",'"',``` 와 같은  중첩이 가능한  String들을 체크해주면서 ,이를 바탕으로 닫힘상태를 체크해가며 닫혀있고 ,를 만났을 때 분리된 하나의 아이템의 마지막을 나타내므로 이를 체크하여 분리된 ItemList들을 기록하여 최종적으로 이 ItemList를 반환합니다. <br>
+
+<br>
+
+> Functions
+
+간략히 함수들의 기능 및 Flow 설명
+
+* pareString 
+* checkClosed
+
+문자열 String을 분석하는 최종 Function pareString
+
+
+#### pareString
+
+``` 
+
+parseString -> makeIdObjByType -> 
 i) makePrimitiveType
-ii) parseObjandArray -> pipe(makeItemList, methodsByType[type].result)(str) ->
+ii) parseObjandArray -> pipe(makeItemList, methodsByType[type].result)(str) -> 
+getResultToObjArrayString or getResultToObjObjString-> makeIdObjByType
 
-src             parseString에 필요한 function들 
-- checkClosed   
---- isArrayClosed Array Edge 양끝으로 닫혀있는지 판별 함수
---- isObjClosed  Obj Edge로 닫혀있는지 판별 함수 
+```
+#### checkClosed 
 
-- counts 
+*  isArrayClosed Array Edge 양끝으로 닫혀있는지 판별 함수
+*  isObjClosed  Obj Edge로 닫혀있는지 판별 함수 
 
-parseString으로 결과 값을 받아서 type별 Counts를 분석해주는 함수  
+#### IdentityObject
 
-- IdentityObject IdObject ex) {type: number value:1 child: []} 타입, value, child 값을 가진 object
+IdentityObject `{type: number value:1 child: []}` type, value, child 값을 가진 object`<br>
+IdObject `{type: object, key:'a', value: b}` type, key, value를 가진 object 
 
-- makePrimitiveType
+#### makePrimitiveType
 
+```` example.js
 const makeIdObjPrimitiveType = str => {
   if(hasStringEdge(str)) return checkClosedString(str)
   if(!isNaN(str)) return new IdentityObject('number', str)
@@ -35,60 +129,48 @@ const makeIdObjPrimitiveType = str => {
   if(isUndefinedString(str)) return new IdentityObject('undefined', str) 
   throw new Error(`${str} 는 알 수 없는 타입입니다`) 
 }
+````
 각 타입별로 IdentityObject 를 반환해주는 함수 
 
+#### splitItem *
 
-- splitItem *
-```
-`[,],{,},',",`` 중첩이 가능한  String들을 체크해주면서 , 와 같이 닫힘상태를 체크해가며 닫혀있고 ,를 만났을 때 각각의 분리된 아이템으로 분리해주는 함수 
-``` 
+`array, object`같은 중첩이 가능한 string내에서 ```[,],{,},'`',"'",'"',``` 토큰과 `,`를 이용하여 개별 아이템 리스트를 만들어주는 함수 
 
-- util
-
----- functional
-
-map, filter, each, pipe등 함수형 프로그래밍 util
-
----- test
-
-expect, describe, test등 테스트를 도와주는 util
-
----- typeCheck
-javascript에 8가지(es6이전) type들을 체크해주는 함수들
-test
-
+```example.js
+ const input = '[1,2,3],[1,[4,5]]'
+ const splitItemResult = splitItem(input)
+ // splitItemResult
+['[1,2,3]','[1,[4,5]]']
 ```
 
+#### typeCounter
+ 
+parseString으로 결과 값을 받아서 type별 Counts를 분석해주는 함수  
 
-* Flow Instruction
-
-1. parseString이 문자열을 받으면 문자열인지 아닌지 체크와 트림을 한 후에 ->makeIdObjByType으로 받은 문자열을 넘겨줍니다.<br> 
-
-2. makeIdObjByType으로 'edge'를 체크하면서 objString인지 arrayString인지 판별하고 내부구조를 살펴봐야 되는 array나 , obj인 경우 parseObjandArray로 닫힘 체크를 하고 보내주고 아닌 경우 원시타입으로 바로 결과를 내는 함수에 보내줍니다.<br>
-
-3. arrayString이나 objString이면 parseObjandArray 에서  pipe함수를 통하여 bracket제거 splitItem함수 그리고 splitItem에서 받은 분리된 항목들에 타입에 따라 결과를 담아주는 resultObj함수를 실행합니다. <br>
-
-* resultObj에서는 중첩된 내부 구조에 따라 다시 한 번 같은 로직을 수행하므로 결과를 쓸 때 마다 makeIdObjbyType을 호출해줍니다. 재귀 
-
-* splitItem 핵심로직 각각의 아이템들을 분리 
-
+``` example.js
+  const parseStringResult = parseString[1,2,3,4,5]
+  const countsResult = typeCounter(parseStringResult)
+   
+   // countsResult
+       {
+            type: {
+                "array": 1,
+                "number": 5,
+            }
+        }
 ```
 
-const typeString = {
-    '[': {'type': 'array', 'closed': addOpenState},
-    ']': {'type': 'array', 'closed': addCloseState},
-    '{': {'type': 'object', 'closed': addOpenState},
-    '}': {'type': 'object', 'closed': addCloseState},
-    "'": {'type': 'single', 'closed': toggleState},
-    '"': {'type': 'double', 'closed': toggleState},
-    '`': {'type': 'backTick', 'closed': toggleState}, 
-}
-특수한 typeString을 열고 닫고를 나타내는 string들을 통해서 열려있고 닫혀있는지 상태를 순차적으로 닫힌 상태를 update해줍니다. [], {}, 배열 오브젝트는 CLOSED로  ''문자열 열고 닫고는 true로 닫힘 상태를 구분합니다. 
-닫힘상태와 ,가 나왔을 경우 각각의 독립된 아이템을 뜻하므로  그 떄까지 순회하며 기록한 아이템을 splitItemList에 넣어주고 다시 처음부터 기록할 수 있게  splitItem을 update을 해줍니다.
-이 과정을 문자열이 끝날 때 까지 순회하며 splitItemList를 채우고 값을 반환합니다. 
-``` 
+### util
 
-* 사용법 
+* functional map, filter, each, pipe등 함수형 프로그래밍 util <br>
+
+* test expect, describe, test등 테스트를 도와주는 util
+
+* typeCheck javascript에 8가지(es6이전) type들을 체크해주는 함수들 test
+
+
+### How to Use
+
 ```
 bad
 한꺼번에 여러타입이 있는 문자열을 test를 할 수 없습니다 
@@ -121,7 +203,6 @@ console.log(JSON.stringify(result, null, 2));
     }
   ]
 }
-
 
 중첩된 내부 문자열들은 test할 수 있습니다.
 const stringInput = [[1,2,3],{a:[1,2,{b: 3}]}]
@@ -186,46 +267,53 @@ console.log(JSON.stringify(result, null, 2));
   ]
 }
 
-
 ```
 
 ### how to Test
 
-테스트 유틸에는 describe, test, expect가 있습니다. 
+테스트 유틸에는 사용할 수 있는 함수는 `describe`, `test`, `expect`가 있습니다. <br>
 
-describe , test를 통해서 테스트 단락, 테스트 구문을 작성하고 
+`describe`,`test`를 통해서 테스트 단락, 테스트 구문을 작성하고 <br>
 
-expect인스턴스를 통해서 테스트의 통과 유무 테스트 결과 값을 출력해줍니다. 
+`expect` 인스턴스를 통해서 테스트의 통과 유무 테스트 결과 값을 출력해줍니다. <br>
 
-```
-expect 인스턴스는
 
-not 
+* describe
+* test
+* expect
 
-expect에는 
 
-toBe
+#### expect
 
-Equal 3가지만 가지는 가벼운 인스턴스입니다.
+expect 인스턴스는 `not, toBe, toEqual`3가지 메소드를 가지는 테스트를 위한 가벼운 인스턴스입니다. 이 3가지 메소드를 살펴보면
 
-ex) expect(targetValue).toBe(expectedValue)
 
-기본적인 사용법은 
-expect안에 targetValue를 넣어주며 인스턴스를 생성하고  expect 메소드에 expectedValue값을 넣어주면서 
-테스트 통과 여부를 진행합니다
-
-expect.not은
-expect가 가지고 있는 targetValue를 반전시켜줍니다.
+* toBe  === 값 비교
+```ToBe.js
 
 toBe는 targetValue와 expectValue값이 같은지 판별해줍니다.
 
-Equal은 targetValue와 expectValue 내부 순수 밸류들을 비교해주어서 내부 값들이 같은지 비교해줍니다. 
-array, obj값들을 비교할 때 사용됩니다.
+ex) expect(targetValue).toBe(expectedValue)
+```
 
+* not 
+
+`expect.not`은
+`expect`가 가지고 있는 `targetValue`를 반전시켜줍니다.
+
+* toEqual
+`toEqual`은 `targetValue`와 `expectValue` 내부 순수 밸류들을 비교해주어서 내부 값들이 같은지 비교해줍니다. 
+`array`, `obj`값들을 비교할 때 사용됩니다.
+
+```toEqual_example.js
+
+const targetValue = {a:b}
+const expectedValue = {a:b}
+expect(targetValue).toEqual(expectedValue) 
 
 ```
-testModule을 
 
+testModule을 
 
 test Folder에서 예제를 쉽게 찾을 수 있을 것입니다.
 
@@ -259,7 +347,5 @@ describe('parseString 테스트', ()=>{
 countTest에서 ? aobnu순으로 나온 것을 보면 어찌해줘야 될지 알아보고 수정  
 
 * testCase 함수들 더 추가 및 리팩토링 + toThrow error Test 추가
-
-
 
 [프로젝트_Repo](https://github.com/amorfati0310/javascript-json/tree/amorfati0310)

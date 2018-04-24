@@ -1,22 +1,22 @@
 const each = (list, iter) => {
-    for(let i =0; i<list.length; i++){
-        iter(list[i])
+    for(item of list){
+        iter(item)
     }
     return list;
 } 
 
 const map = (list, mapper) =>{
     const new_list = [];
-    for(let i =0,{length}=list; i<length; i++){
-            new_list.push(mapper(val));
+    for(item of list){
+            new_list.push(mapper(item));
     }
     return new_list;
 }
 
 const filter = (list, predicate) => {
     const new_list = [];
-    for(let i =0,{length}=list; i<length; i++){
-        if(predicate(list[i])) new_list.push(list[i]);
+    for(item of list){
+        if(predicate(list[i])) new_list.push(item);
     }
     return new_list;
 }

@@ -1,5 +1,5 @@
 const {describe, test, expect} = require('../src/util/testUtil')
-const totalCounter = require('../src/counts/counts')
+const totalCounter = require('../src/typeCounter/typeCounter')
 const sample = require('../parseString')
 const {IdentityObject, IdentityObjObject} = require('../src/IdentityObject/IdentityObject')
 
