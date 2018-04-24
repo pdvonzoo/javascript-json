@@ -8,7 +8,7 @@ parseString은 문자열의 타입과 값을 분석합니다 :D
 
 parseString모듈은 string값을 받아 string안에 가지고 있는 타입 형태들을 분석해서 알려주는 모듈 입니다.<br> javascript가 가지고 있는 type(es6 이전) function을 제외한 타입들을 판별해줍니다. (추후에 update 할 예정)<br>
 
-```
+```example.js
 const stringInput = '[1,2,3]'
 const result = parseString(stringInput)
 console.log(JSON.stringify(result, null, 2));
@@ -44,7 +44,7 @@ console.log(JSON.stringify(result, null, 2));
 
 구조를 간략히 설명합니다.
 
-```
+```example.js
 ArrayParser
  - parseString        parseString Main Function ( 문자열 분석 )
               
@@ -171,7 +171,7 @@ parseString으로 결과 값을 받아서 type별 Counts를 분석해주는 함�
 
 ### How to Use
 
-```
+```example.js
 bad
 한꺼번에 여러타입이 있는 문자열을 test를 할 수 없습니다 
 '[1,2,3],{a:[1,2,{b: 3}]}'
@@ -320,7 +320,7 @@ test Folder에서 예제를 쉽게 찾을 수 있을 것입니다.
 
 #### TestCase example
 
-```
+```example.js
 describe('parseString 테스트', ()=>{
     test('parseString 기본값 테스트',()=>{
         //given
