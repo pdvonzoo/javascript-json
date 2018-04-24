@@ -3,7 +3,6 @@ const {isString} = require('../src/util/typeCheck')
 const { IdentityObjObject, IdentityObject} = require('../src/IdentityObject/IdentityObject')
 const { makeIdObjPrimitiveType} = require('../src/makePrimitiveType/makePrimitiveType')
 const {isArrayClosed, isObjClosed} = require('../src/checkClosed')
-const totalCounter = require('../src/counts/counts')
 const splitItem = require('../src/splitItem/splitItem')
 
 
