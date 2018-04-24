@@ -1,9 +1,17 @@
 /* 
-    2. 2중 중첩배열 분석
+    2-1. 피드백 반영
 
-    배열안에 배열이 있는 경우도 분석한다.
-    중첩된 배열 원소도 역시, 숫자데이터만 존재한다.
-    중첩된 결과는 child 부분에 추가해서 결과가 표현돼야 한다.
+    - 루프를 돌면서 같은 일을 하지 않도록 하세요. 
+    this.dividedCharacterDatas.length 이값은 계속 똑같은 결과일텐데, forEach돌면서 계속 계산될 듯.
+
+    - count는 무슨 count이죠? 항상 이름에 좀더 신경쓰세요.
+
+    - 다른방법도 한번 알아보세요.
+    정규표현식으로도 할 수 있을 듯.
+
+    - 생성자 칭찬받음 헤헤
+
+    - 함수(메서드)는 동사+명사로. .. 하아 이놈의 네이밍
 */
 
 class ArrayParser {
@@ -17,21 +25,17 @@ class ArrayParser {
         this.inputString = stringData;
     }
 
-    spliter() {
+    divideString() {
         this.dividedCharacterDatas = this.inputString.split("");
     }
 
-    // 하..
-    // merger 에 대한 구현이 예전에 개인적으로 계산기를 구현하는 것 처럼
-    // 자꾸 추가하는 식으로 된다고 해야될까요
-    // 그러니까 조건을 납땜(?) 하는 기분이 들어요
-    // 어쩔 수 없는 것인가요.. 욕심이 나는데, 완벽히 구현하기가 어렵네요..
-    // 코드가 개인적으로 굉장히 지저분한듯한 느낌이 들어요 ㅠㅠ
-    merger() {
+    createObject() {
         let mergeData = "";
-        let count = 1;
+        let repeatCount = 1;
         let startParenthesisCount = 0;
         let endParenthesisCount = 0;
+        const divisionCharacterDataNumber = this.dividedCharacterDatas.length;
+        const onlyNumberRegex = /^[0-9]/;
 
         this.dividedCharacterDatas.forEach(element => {
 
@@ -45,10 +49,8 @@ class ArrayParser {
 
             if (startParenthesisCount >= 2) {
                 mergeData += element;
-            } else if (element === ',' || count === this.dividedCharacterDatas.length) {
+            } else if (element === ',' || repeatCount === divisionCharacterDataNumber) {
 
-                // Depth가 3이상이 되어버려서 계속 걸립니다..
-                // 어떻게 고칠까 생각중입니다 ㅠㅠ
                 if (mergeData.constructor === Object) {
                     this.resultObject.child.push(mergeData);
                     mergeData = "";
@@ -62,18 +64,18 @@ class ArrayParser {
                     this.resultObject.child.push(dataObject);
                     mergeData = "";
                 }
-            } else if (element >= '0' && element <= '9' && startParenthesisCount === 1) {
+            } else if (onlyNumberRegex.test(element) && startParenthesisCount === 1) {
                 mergeData += element;   
             }
 
-            if (endParenthesisCount === 1 && count !== this.dividedCharacterDatas.length) {
+            if (endParenthesisCount === 1 && repeatCount !== divisionCharacterDataNumber) {
                 startParenthesisCount--;
                 endParenthesisCount--;
 
                 const secondArrayParser = new ArrayParser(mergeData);
                 mergeData = secondArrayParser.getResult();
             }
-            count++;
+            repeatCount++;
         });
     }
 
@@ -97,9 +99,9 @@ class ArrayParser {
         const firstCharacter = this.inputString[0];
         const lastCharacter = this.inputString[inputStringLength-1];
 
-        this.spliter();
+        this.divideString();
         this.resultObject.type = this.checkType(this.inputString);
-        this.merger();
+        this.createObject();
 
         return this.resultObject;
     }
@@ -108,7 +110,8 @@ class ArrayParser {
 function run() {
 
     // const stringData = "[123, [22], 33]";
-    const stringData = "[123, [1,2,3,4,5], 33]";
+    // const stringData = "[123, [1,2,3,4,5], 33]";
+    var stringData = "[123,[22,23,[11,[112233],112],55],33]";
 
     const arrayParser = new ArrayParser(stringData);
     const result = arrayParser.getResult();
