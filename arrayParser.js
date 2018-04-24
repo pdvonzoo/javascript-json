@@ -1,15 +1,9 @@
 /* 
-    1차 피드백
-    todo의 리뷰를 보면서, 그 렉쳐의 코드를 class로 잘 정리해두시고요.
-    그 다음에 여기까지의 array parser 코드를 class로 수정하고 더 진행해보시죠.
+    2. 2중 중첩배열 분석
 
-    todo의 리뷰를 보면서, 그 렉쳐의 코드를 class로 잘 정리하고나서 여기 렉처를 이어나가세요.
-    todo렉처가 정리되면, 여기 array parser 코드를 class로 수정하고 더 진행해보시죠.
-    arrayParser 함수는 좀 하위함수로 나누면서 하면 좋겠고요.
-
-    class arrayParser
-    1. spliter
-    2. checkType 
+    배열안에 배열이 있는 경우도 분석한다.
+    중첩된 배열 원소도 역시, 숫자데이터만 존재한다.
+    중첩된 결과는 child 부분에 추가해서 결과가 표현돼야 한다.
 */
 
 class ArrayParser {
@@ -27,22 +21,57 @@ class ArrayParser {
         this.dividedCharacterDatas = this.inputString.split("");
     }
 
+    // 하..
+    // merger 에 대한 구현이 예전에 개인적으로 계산기를 구현하는 것 처럼
+    // 자꾸 추가하는 식으로 된다고 해야될까요
+    // 그러니까 조건을 납땜(?) 하는 기분이 들어요
+    // 어쩔 수 없는 것인가요.. 욕심이 나는데, 완벽히 구현하기가 어렵네요..
+    // 코드가 개인적으로 굉장히 지저분한듯한 느낌이 들어요 ㅠㅠ
     merger() {
         let mergeData = "";
         let count = 1;
+        let startParenthesisCount = 0;
+        let endParenthesisCount = 0;
 
         this.dividedCharacterDatas.forEach(element => {
-            if (element === ',' || count === this.dividedCharacterDatas.length) {
-                const dataObject = {
-                    type: this.checkType(mergeData),
-                    value: mergeData,
-                    child: []
-                };
-    
-                this.resultObject.child.push(dataObject);
-                mergeData = "";
-            } else if (element >= '0' && element <= '9') {
+
+            if (element === '[') {
+                startParenthesisCount++;
+            }
+
+            if (element === ']') {
+                endParenthesisCount++;
+            }
+
+            if (startParenthesisCount >= 2) {
+                mergeData += element;
+            } else if (element === ',' || count === this.dividedCharacterDatas.length) {
+
+                // Depth가 3이상이 되어버려서 계속 걸립니다..
+                // 어떻게 고칠까 생각중입니다 ㅠㅠ
+                if (mergeData.constructor === Object) {
+                    this.resultObject.child.push(mergeData);
+                    mergeData = "";
+                } else {
+                    const dataObject = {
+                        type: this.checkType(mergeData),
+                        value: mergeData,
+                        child: []
+                    };
+
+                    this.resultObject.child.push(dataObject);
+                    mergeData = "";
+                }
+            } else if (element >= '0' && element <= '9' && startParenthesisCount === 1) {
                 mergeData += element;   
+            }
+
+            if (endParenthesisCount === 1 && count !== this.dividedCharacterDatas.length) {
+                startParenthesisCount--;
+                endParenthesisCount--;
+
+                const secondArrayParser = new ArrayParser(mergeData);
+                mergeData = secondArrayParser.getResult();
             }
             count++;
         });
@@ -50,12 +79,16 @@ class ArrayParser {
 
     checkType(params) {
 
+        if (params.constructor === Object) {
+            return 'Object';
+        }
+
         if (params.includes("[") && params.includes("]")) {
-            return 'array';
+            return 'Array';
         }
     
         if (parseInt(params) !== NaN) {
-            return 'number';
+            return 'Number';
         }
     }
 
@@ -74,7 +107,8 @@ class ArrayParser {
 
 function run() {
 
-    const stringData = "[123, 22, 33]";
+    // const stringData = "[123, [22], 33]";
+    const stringData = "[123, [1,2,3,4,5], 33]";
 
     const arrayParser = new ArrayParser(stringData);
     const result = arrayParser.getResult();
@@ -83,3 +117,86 @@ function run() {
 }
 
 run();
+
+/*
+TestCase : [123, [22], 33]
+Output :
+
+{
+  "type": "Array",
+  "child": [
+    {
+      "type": "Number",
+      "value": "123",
+      "child": []
+    },
+    {
+      "type": "Array",
+      "child": [
+        {
+          "type": "Number",
+          "value": "22",
+          "child": []
+        }
+      ]
+    },
+    {
+      "type": "Number",
+      "value": "33",
+      "child": []
+    }
+  ]
+}
+
+*/
+
+/*
+TestCase : [123, [1,2,3,4,5], 33]
+Output :
+
+{
+  "type": "Array",
+  "child": [
+    {
+      "type": "Number",
+      "value": "123",
+      "child": []
+    },
+    {
+      "type": "Array",
+      "child": [
+        {
+          "type": "Number",
+          "value": "1",
+          "child": []
+        },
+        {
+          "type": "Number",
+          "value": "2",
+          "child": []
+        },
+        {
+          "type": "Number",
+          "value": "3",
+          "child": []
+        },
+        {
+          "type": "Number",
+          "value": "4",
+          "child": []
+        },
+        {
+          "type": "Number",
+          "value": "5",
+          "child": []
+        }
+      ]
+    },
+    {
+      "type": "Number",
+      "value": "33",
+      "child": []
+    }
+  ]
+}
+*/
