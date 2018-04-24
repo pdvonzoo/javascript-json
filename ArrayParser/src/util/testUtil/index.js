@@ -45,11 +45,10 @@ class Expect {
     }
 
     checkEqualObjValue(targetValue, expectedValue){
-        debugger;
-        const targetKeys = Object.keys(targetValue)
-        const targetValues = Object.values(targetValue)
-        const expectKeys = Object.keys(expectedValue)
-        const expectValues = Object.values(expectedValue)
+        const targetKeys = Object.keys(targetValue).sort()
+        const targetValues = Object.values(targetValue).sort()
+        const expectKeys = Object.keys(expectedValue).sort()
+        const expectValues = Object.values(expectedValue).sort()
         this.checkEqualArrayValue(targetKeys, expectKeys,'key값 비교')
         this.checkEqualArrayValue(targetValues, expectValues, 'value값 비교')
     }

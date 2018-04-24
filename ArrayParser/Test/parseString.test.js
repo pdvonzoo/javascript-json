@@ -99,7 +99,23 @@ describe('parseString 테스트', ()=>{
         expect(parseString(inputString)).toEqual(expectedValue) 
     })
     test('중첩된 결과들 테스트 '+
-         `{a: [1,2,{b: 3}]}이 입력되면 결과 값으로 `,
+         `{a: [1,2,{b: 3}]}이 입력되면 결과 값으로 { 
+            type: 'object', 
+            key: 'a',
+            value: {
+                type: 'array',
+                value: 'ArrayObject',
+                child: [
+                    { type: 'number', value: '1', child: [] } ,
+                    { type: 'number', value: '2', child: [] } ,
+                    { 
+                        type: 'object', 
+                        key: 'b',
+                        value: { type: 'number', value: '3', child: [] } 
+                    }
+                ]
+              
+            }이 나와야 한다`,
          ()=>{
         //given
         const inputString = '{a: [1,2,{b: 3}]}'
