@@ -45,21 +45,11 @@ class ArrayParser {
         let startParenthesisCount = 0;
         let endParenthesisCount = 0;
         let recursionMode = false;
-        const divisionCharacterDataNumber = this.dividedCharacterDatas.length;
-        const onlyNumberRegex = /^[0-9]/;
-
+        const arrayEndPoint = this.dividedCharacterDatas.length;
         const dataObject = {
             type: this.checkType(mergeData),
             value: mergeData,
             child: [],
-
-            setData(type, value) {
-                this.type = type;
-                this.value = value;
-            },
-            getObject() {
-                return this.dataObject;
-            }
         }
 
         this.dividedCharacterDatas.forEach(element => {
@@ -70,24 +60,11 @@ class ArrayParser {
             }
 
             if (startParenthesisCount >= 2 && !recursionMode) { mergeData += element; }
-            else if (element === ',' || repeatCount === divisionCharacterDataNumber) {
-                mergeData = this.removeFirstParenthesis(mergeData);
-                if (typeof(mergeData) === Object) {
-                    this.resultObject.child.push(mergeData);
-                } else {
-                    mergeData = (mergeData === "null") ? null : mergeData;
-                    mergeData = this.removeSpace(mergeData);
-                    const dataObject = {
-                        type: this.checkType(mergeData),
-                        value: mergeData,
-                        child: []
-                    };
-                    this.resultObject.child.push(dataObject);
-                }
-                mergeData = "";
+            else if (element === ',' || repeatCount === arrayEndPoint) {
+                mergeData = this.typeDetermination(mergeData);
             } else if (startParenthesisCount >= 1) { mergeData += element; }
 
-            if (mergeData === "" ||  repeatCount === divisionCharacterDataNumber) { } 
+            if (mergeData === "" ||  repeatCount === arrayEndPoint) { } 
             else if (endParenthesisCount >= 1 && endParenthesisCount === startParenthesisCount-1) {
                 startParenthesisCount--;
                 endParenthesisCount--;
@@ -98,6 +75,23 @@ class ArrayParser {
             }
             repeatCount++;
         });
+    }
+
+    typeDetermination(inputData) {
+        inputData = this.removeFirstParenthesis(inputData);
+        if (typeof(inputData) === Object) {
+            this.resultObject.child.push(inputData);
+        } else {
+            inputData = (inputData === "null") ? null : inputData;
+            inputData = this.removeSpace(inputData);
+            const dataObject = {
+                type: this.checkType(inputData),
+                value: inputData,
+                child: []
+            };
+            this.resultObject.child.push(dataObject);
+        }
+        return "";
     }
 
     removeSpace(inputData) {
@@ -147,8 +141,8 @@ function run() {
 
     // const stringData = "[123, [22], 33]";
     // const stringData = "[123, [1,2,3,4,5], 33]";
-    // var stringData = "[123,[22,23,[11,[112233],112],55],33]";
-    const stringData = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
+    var stringData = "[123,[22,23,[11,[112233],112],55],33]";
+    // const stringData = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
     // const stringData = "['1a'3',[22,23,[11,[112233],112],55],33]";
     // const stringData = "['1a3',[22,23,[11,[112233],112],55],3d3]";
 
