@@ -1,17 +1,27 @@
 /* 
-    2-1. 피드백 반영
+    4. 여러가지 타입분석
+    
+    - 요구사항
+    숫자타입이외에 string, boolean, null 타입도 지원하도록 구현한다.
+    ['1a3',[null,false,['11',[112233],112],55, '99'],33, true]"
 
-    - 루프를 돌면서 같은 일을 하지 않도록 하세요. 
-    this.dividedCharacterDatas.length 이값은 계속 똑같은 결과일텐데, forEach돌면서 계속 계산될 듯.
+    올바른 문자열이 아닌 경우 오류를 발생한다. (아래 실행결과 참고)
+    타입체크를 정규표현식을 사용하는 경우, backreference를 활용하는 것을 추천.
+    복잡한 세부로직은 함수로 분리해본다.
+    중복된 코드역시 함수로 분리해서 일반화한다.
 
-    - count는 무슨 count이죠? 항상 이름에 좀더 신경쓰세요.
+    - 실행결과
+    var s = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
+    var result = ArrayParser(str);
+    console.log(JSON.stringify(result, null, 2)); 
 
-    - 다른방법도 한번 알아보세요.
-    정규표현식으로도 할 수 있을 듯.
+    var s = "['1a'3',[22,23,[11,[112233],112],55],33]";  //'1a'3'은 올바른 문자열이 아닙니다.
+    var result = ArrayParser(str);
+    ==>  //'1a'3'은 올바른 문자열이 아닙니다.
 
-    - 생성자 칭찬받음 헤헤
-
-    - 함수(메서드)는 동사+명사로. .. 하아 이놈의 네이밍
+    var s = "['1a3',[22,23,[11,[112233],112],55],3d3]";  // 3d3은 알수 없는 타입입니다
+    var result = ArrayParser(str);
+    ==> // 3d3은 알수 없는 타입입니다
 */
 
 class ArrayParser {
@@ -34,43 +44,31 @@ class ArrayParser {
         let repeatCount = 1;
         let startParenthesisCount = 0;
         let endParenthesisCount = 0;
-        const divisionCharacterDataNumber = this.dividedCharacterDatas.length;
-        const onlyNumberRegex = /^[0-9]/;
+        let recursionMode = false;
+        const arrayEndPoint = this.dividedCharacterDatas.length;
+        const dataObject = {
+            type: this.checkType(mergeData),
+            value: mergeData,
+            child: [],
+        }
 
         this.dividedCharacterDatas.forEach(element => {
-
-            if (element === '[') {
-                startParenthesisCount++;
-            }
-
+            if (element === '[') { startParenthesisCount++; }
             if (element === ']') {
-                endParenthesisCount++;
+                if (startParenthesisCount >= 3) { startParenthesisCount--; }
+                else { endParenthesisCount++; }
             }
 
-            if (startParenthesisCount >= 2) {
-                mergeData += element;
-            } else if (element === ',' || repeatCount === divisionCharacterDataNumber) {
+            if (startParenthesisCount >= 2 && !recursionMode) { mergeData += element; }
+            else if (element === ',' || repeatCount === arrayEndPoint) {
+                mergeData = this.typeDetermination(mergeData);
+            } else if (startParenthesisCount >= 1) { mergeData += element; }
 
-                if (mergeData.constructor === Object) {
-                    this.resultObject.child.push(mergeData);
-                    mergeData = "";
-                } else {
-                    const dataObject = {
-                        type: this.checkType(mergeData),
-                        value: mergeData,
-                        child: []
-                    };
-
-                    this.resultObject.child.push(dataObject);
-                    mergeData = "";
-                }
-            } else if (onlyNumberRegex.test(element) && startParenthesisCount === 1) {
-                mergeData += element;   
-            }
-
-            if (endParenthesisCount === 1 && repeatCount !== divisionCharacterDataNumber) {
+            if (mergeData === "" ||  repeatCount === arrayEndPoint) { } 
+            else if (endParenthesisCount >= 1 && endParenthesisCount === startParenthesisCount-1) {
                 startParenthesisCount--;
                 endParenthesisCount--;
+                recursionMode = true;
 
                 const secondArrayParser = new ArrayParser(mergeData);
                 mergeData = secondArrayParser.getResult();
@@ -79,19 +77,53 @@ class ArrayParser {
         });
     }
 
+    typeDetermination(inputData) {
+        inputData = this.removeFirstParenthesis(inputData);
+        if (typeof(inputData) === Object || inputData.type === 'Array') {
+            this.resultObject.child.push(inputData);
+        } else {
+            inputData = (inputData === "null") ? null : inputData;
+            inputData = this.removeSpace(inputData);
+            const dataObject = {
+                type: this.checkType(inputData),
+                value: inputData,
+                child: []
+            };
+            this.resultObject.child.push(dataObject);
+        }
+        return "";
+    }
+
+    removeSpace(inputData) {
+        if (typeof(inputData) === "string") {
+            return inputData.trim();
+        } else {
+            return inputData;
+        }
+    }
+
+    removeFirstParenthesis(inputData) {
+        if (inputData[0] === '[') {
+            const inputDataEndIndex = inputData.length;
+            return inputData.substring(1, inputDataEndIndex);
+        } else {
+            return inputData;
+        }
+    }
+
     checkType(params) {
 
-        if (params.constructor === Object) {
+        if (params === null) { return 'Null'; }
+
+        const parameterEndIndex = params.length - 1;
+
+        if (params === "true" || params == "false") { return 'Boolean'; }
+        if (params.constructor === Object) { 
             return 'Object';
         }
-
-        if (params.includes("[") && params.includes("]")) {
-            return 'Array';
-        }
-    
-        if (parseInt(params) !== NaN) {
-            return 'Number';
-        }
+        if (params.includes("[") && params.includes("]")) { return 'Array'; }
+        if (params[0] === "'" && params[parameterEndIndex] === "'") { return 'String'; }
+        if (parseInt(params) !== NaN) { return 'Number'; }
     }
 
     getResult() {
@@ -111,7 +143,10 @@ function run() {
 
     // const stringData = "[123, [22], 33]";
     // const stringData = "[123, [1,2,3,4,5], 33]";
-    var stringData = "[123,[22,23,[11,[112233],112],55],33]";
+    // const stringData = "[123,[22,23,[11,[112233],112],55],33]";
+    const stringData = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
+    // const stringData = "['1a'3',[22,23,[11,[112233],112],55],33]";
+    // const stringData = "['1a3',[22,23,[11,[112233],112],55],3d3]";
 
     const arrayParser = new ArrayParser(stringData);
     const result = arrayParser.getResult();
@@ -120,86 +155,3 @@ function run() {
 }
 
 run();
-
-/*
-TestCase : [123, [22], 33]
-Output :
-
-{
-  "type": "Array",
-  "child": [
-    {
-      "type": "Number",
-      "value": "123",
-      "child": []
-    },
-    {
-      "type": "Array",
-      "child": [
-        {
-          "type": "Number",
-          "value": "22",
-          "child": []
-        }
-      ]
-    },
-    {
-      "type": "Number",
-      "value": "33",
-      "child": []
-    }
-  ]
-}
-
-*/
-
-/*
-TestCase : [123, [1,2,3,4,5], 33]
-Output :
-
-{
-  "type": "Array",
-  "child": [
-    {
-      "type": "Number",
-      "value": "123",
-      "child": []
-    },
-    {
-      "type": "Array",
-      "child": [
-        {
-          "type": "Number",
-          "value": "1",
-          "child": []
-        },
-        {
-          "type": "Number",
-          "value": "2",
-          "child": []
-        },
-        {
-          "type": "Number",
-          "value": "3",
-          "child": []
-        },
-        {
-          "type": "Number",
-          "value": "4",
-          "child": []
-        },
-        {
-          "type": "Number",
-          "value": "5",
-          "child": []
-        }
-      ]
-    },
-    {
-      "type": "Number",
-      "value": "33",
-      "child": []
-    }
-  ]
-}
-*/
