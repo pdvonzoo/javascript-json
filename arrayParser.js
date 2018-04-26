@@ -79,7 +79,7 @@ class ArrayParser {
 
     typeDetermination(inputData) {
         inputData = this.removeFirstParenthesis(inputData);
-        if (typeof(inputData) === Object) {
+        if (typeof(inputData) === Object || inputData.type === 'Array') {
             this.resultObject.child.push(inputData);
         } else {
             inputData = (inputData === "null") ? null : inputData;
@@ -118,7 +118,9 @@ class ArrayParser {
         const parameterEndIndex = params.length - 1;
 
         if (params === "true" || params == "false") { return 'Boolean'; }
-        if (params.constructor === Object) { return 'Object'; }
+        if (params.constructor === Object) { 
+            return 'Object';
+        }
         if (params.includes("[") && params.includes("]")) { return 'Array'; }
         if (params[0] === "'" && params[parameterEndIndex] === "'") { return 'String'; }
         if (parseInt(params) !== NaN) { return 'Number'; }
@@ -141,8 +143,8 @@ function run() {
 
     // const stringData = "[123, [22], 33]";
     // const stringData = "[123, [1,2,3,4,5], 33]";
-    var stringData = "[123,[22,23,[11,[112233],112],55],33]";
-    // const stringData = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
+    // const stringData = "[123,[22,23,[11,[112233],112],55],33]";
+    const stringData = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
     // const stringData = "['1a'3',[22,23,[11,[112233],112],55],33]";
     // const stringData = "['1a3',[22,23,[11,[112233],112],55],3d3]";
 
