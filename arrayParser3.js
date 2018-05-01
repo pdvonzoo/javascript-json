@@ -41,39 +41,36 @@ var str = "[[123, [1,[1,2,3],2], 2], 1, 2]";
 const ERROR_MESSAGE = {
   NON_PAIR: '배열의 괄호 개수 오류'
 }
-
+class CreateObject {
+  constructor(context) {
+    this.context = context;
+  }
+  objective(value) {
+    let type = FiddleString.isArray(value);
+    return type ? {
+      type: 'array',
+      value: 'ArrayObject',
+      child: this.context.parse(value)
+    } : {
+      type: 'number',
+      value: value,
+      child: []
+    }
+  }
+}
 class ArrayParser {
-  constructor() {}
+  constructor() {
+    this.generateObject = new CreateObject(this);
+  }
 
   parse(str) {
     if (!FiddleString.isArray(str)) return ERROR_MESSAGE.NON_PAIR;
     let arrayed = this.changeToArrayStructure(str);
     let fixedArray = arrayed.reduce((ac, cv) => {
-      const obj = {};
-      if (FiddleString.isArray(cv)) {
-        ac.push(this.processArray(cv));
-      } else {
-        ac.push(this.processNumber(cv));
-      }
+      ac.push(this.generateObject.objective(cv));
       return ac;
     }, []);
     return fixedArray;
-  }
-
-  processArray(value) {
-    const obj = {};
-    obj.type = 'array';
-    obj.value = 'ArrayObject';
-    obj.child = this.parse(value);
-    return obj;
-  }
-
-  processNumber(value) {
-    const obj = {};
-    obj.type = 'number';
-    obj.value = value;
-    obj.child = [];
-    return obj;
   }
 
   changeToArrayStructure(str) {
@@ -142,5 +139,4 @@ class FiddleString {
 }
 const ap = new ArrayParser();
 const result = ap.parse(str);
-
 console.log(JSON.stringify(result, null, 2));
