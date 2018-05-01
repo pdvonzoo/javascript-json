@@ -75,38 +75,56 @@ class ArrayParser {
 
   changeToArrayStructure(str) {
     str = FiddleString.removeBracket(str);
-    let checkedArr = [];
-    let normalString = '';
-    let arrayString = '';
-    let count = 0;
+    const obj = {
+      checkedArr: [],
+      normalString: '',
+      arrayString: '',
+      count: 0
+    };
     for (let i = 0; i < str.length; i++) {
       if (FiddleString.isEmpty(str[i])) continue;
-      if (str[i] === '[') count++;
+      if (str[i] === '[') obj.count++;
       if (str[i] === ']') {
-        count--;
-        if (count === 0) {
-          checkedArr.push(arrayString + str[i]);
-          arrayString = '';
-          continue;
-        }
+        obj.count--;
+        this.pushArrayString.call(obj, str[i]);
       }
-
-      if (count === 0 && str[i] === ',' && normalString !== '') {
-        checkedArr.push(normalString);
-        normalString = '';
-      }
-
-      if (count) {
-        arrayString += str[i]
-      } else {
-        if (isNaN(+str[i])) continue;
-        normalString += str[i];
-      }
-      if (i === str.length - 1) checkedArr.push(normalString);
+      this.pushNormalString.call(obj, str[i]);
+      this.addStringByCount.call(obj, str[i]);
     }
-    return checkedArr;
+    this.pushLastString.call(obj);
+    return obj.checkedArr;
+  }
+
+  pushLastString() {
+    this.checkedArr.push(this.normalString);
+  }
+  addStringByCount(currentValue) {
+    if (this.count) {
+      this.arrayString += currentValue;
+    } else {
+      if (isNaN(currentValue)) return;
+      this.normalString += currentValue;
+    }
+  }
+
+  pushArrayString(currentValue) {
+    if (this.count === 0) {
+      this.checkedArr.push(this.arrayString + currentValue);
+      this.arrayString = '';
+    }
+  }
+
+  pushNormalString(currentValue) {
+    if (this.count === 0 && currentValue === ',' && this.normalString !== '') {
+      this.checkedArr.push(this.normalString);
+      this.normalString = '';
+    }
   }
 }
+
+
+
+
 class FiddleString {
   constructor() {}
 
