@@ -63,7 +63,7 @@ class ArrayParser {
 
             if (startParenthesisCount >= 2 && !recursionMode) { mergeData += element; }
             else if (element === ',' || repeatCount === arrayEndPoint) {
-                mergeData = this.typeDetermination(mergeData);
+                mergeData = this.typeDecision(mergeData);
             } else if (startParenthesisCount >= 1) { mergeData += element; }
 
             if (mergeData === "" ||  repeatCount === arrayEndPoint) { } 
@@ -79,7 +79,9 @@ class ArrayParser {
         });
     }
 
-    typeDetermination(inputData) {
+    typeDecision(inputData) {
+        const initString = "";
+
         inputData = this.removeFirstParenthesis(inputData);
         if (typeof(inputData) === Object || inputData.type === 'Array') {
             this.resultObject.child.push(inputData);
@@ -94,7 +96,7 @@ class ArrayParser {
             };
             this.resultObject.child.push(dataObject);
         }
-        return "";
+        return initString;
     }
 
     checkCorrectString(inputData) {
@@ -117,6 +119,8 @@ class ArrayParser {
         if (count >= 3) { 
             this.errorMode = true;
             this.errorContent = inputData;
+            console.log(inputData + "(은/는) 올바른 문자열이 아닙니다");
+            process.exit();
         }
         return inputData;
     }
@@ -170,8 +174,6 @@ class ArrayParser {
 
 function run() {
 
-    const errorMode = "string";
-
     // const stringData = "[123, [22], 33]";
     // const stringData = "[123, [1,2,3,4,5], 33]";
     // const stringData = "[123,[22,23,[11,[112233],112],55],33]";
@@ -182,11 +184,7 @@ function run() {
     const arrayParser = new ArrayParser(stringData);
     const result = arrayParser.getResult();
     
-    if (typeof(result) === errorMode) {
-        console.log(result + "(은/는) 올바른 문자열이 아닙니다");
-    } else {
-        console.log(JSON.stringify(result, null, 2));
-    }    
+    console.log(JSON.stringify(result, null, 2));
 }
 
 run();
