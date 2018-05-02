@@ -105,18 +105,18 @@ class ArrayParser {
             return inputData;
         }
 
-        let count = 0;
+        let errorCount = 0;
         if (inputData.includes("'")) {
-            let pos = inputData.indexOf("'");
+            let smallQuotesPosition = inputData.indexOf("'");
             const endCondtion = -1;
             
-            while (pos !== endCondtion) {
-                count++;
-                pos = inputData.indexOf("'", pos+1);
+            while (smallQuotesPosition !== endCondtion) {
+                errorCount++;
+                smallQuotesPosition = inputData.indexOf("'", smallQuotesPosition + 1);
             }
         }
 
-        if (count >= 3) { 
+        if (errorCount >= 3) { 
             this.errorMode = true;
             this.errorContent = inputData;
             console.log(inputData + "(은/는) 올바른 문자열이 아닙니다");
@@ -144,6 +144,8 @@ class ArrayParser {
 
     checkType(params) {
 
+        const onlyNumberRegex = /^[0-9]*$/;
+
         if (params === null) { return 'Null'; }
 
         const parameterEndIndex = params.length - 1;
@@ -152,7 +154,11 @@ class ArrayParser {
         if (params.constructor === Object) { return 'Object'; }
         if (params.includes("[") && params.includes("]")) { return 'Array'; }
         if (params[0] === "'" && params[parameterEndIndex] === "'") { return 'String'; }
-        if (parseInt(params) !== NaN) { return 'Number'; }
+        if (onlyNumberRegex.test(params)) { return "Number"; } 
+        else {
+            console.log(params + "(은/는) 알 수 없는 타입입니다");
+            process.exit();
+        }
     }
 
     getResult() {
@@ -178,8 +184,8 @@ function run() {
     // const stringData = "[123, [1,2,3,4,5], 33]";
     // const stringData = "[123,[22,23,[11,[112233],112],55],33]";
     // const stringData = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
-    const stringData = "['1a'3',[22,23,[11,[112233],112],55],33]";
-    // const stringData = "['1a3',[22,23,[11,[112233],112],55],3d3]";
+    // const stringData = "['1a'3',[22,23,[11,[112233],112],55],33]";
+    const stringData = "['1a3',[22,23,[11,[112233],112],55],3d3]";
 
     const arrayParser = new ArrayParser(stringData);
     const result = arrayParser.getResult();
