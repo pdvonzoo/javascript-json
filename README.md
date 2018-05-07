@@ -104,18 +104,117 @@
      [11, [112233], 112]
      또 똑같이 찢습니다.
      [112233]
-
+   
      각 데이터를 새로 생성한 ArrayParser Class 에 파라미터로 넘깁니다.
-
+   
      여기서부터 똑같은 함수(createObject)가 재활용되며
      최종적으로 만들어진 객체는 resultObject 로 반환됩니다.
      반환된 Object 는 해당 Class 의 resultObject(결과 Object) 에 추가되며
      역시 똑같이 계속 반환되며, 최종적으로 한개의 Object로 만들어집니다.
    ```
 
-   ​
+   
 
-​
+4. 여러가지 타입 분석
+
+5. ### Object Type 지원
+
+   알 수 없는 타입에 걸림
+
+   ['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true] 
+
+   [null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99']
+
+   ['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112]
+
+   {easy : ['hello', {a:'a'}, 'world']}
+
+   {easy : ['hello', {a:'a'}, 'world'] : 2개의 괄호에 조건이 걸림
+
+   ```
+   {
+       "type": Object
+       "Key": easy
+       "Value: ['hello', {a:'a'}, 'world']
+   }
+   
+   {
+       "type": Object
+       "Key": easy
+       "Value: [
+           {
+               "type": "String"
+               "value": "'hello'"
+               "child": []
+           },
+           {
+               "type": "Object"
+               "key": "a"
+               "value": "'a'"
+           },
+           {
+               "type": "String"
+               "value": "'world'"
+               "child": []
+           }
+       ]
+   }
+   ```
+
+   - foreach 에서 continue 를 원한다면 `return;` 해주면 됨
+   - `[]` 를 모으는 과정에서 `{}` 가 걸림
+
+   ```
+   {
+     "type": "Array",
+     "child": [
+       {
+         "type": "Number",
+         "value": "123",
+         "child": []
+       },
+       {
+         "type": "Array",
+         "child": [
+           {
+             "type": "Number",
+             "value": "1",
+             "child": []
+           },
+           {
+             "type": "Number",
+             "value": "2",
+             "child": []
+           },
+           {
+             "type": "Number",
+             "value": "3",
+             "child": []
+           },
+           {
+             "type": "Number",
+             "value": "4",
+             "child": []
+           },
+           {
+             "type": "Number",
+             "value": "5",
+             "child": []
+           }
+         ]
+       },
+       {
+         "type": "Number",
+         "value": "33",
+         "child": []
+       }
+     ]
+   }
+   ```
+
+   
+
+
 
 - ### [forEach, map](https://medium.com/@hongkevin/js-1-%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EB%B0%B0%EC%97%B4-%EB%A9%94%EC%84%9C%EB%93%9C-1-foreach-map-b1cb1c2237d1)
 
