@@ -33,6 +33,8 @@ class ArrayParser {
         }
         this.dividedCharacterDatas = [];
         this.inputString = stringData;
+        this.errorMode = false;
+        this.errorContent = "";
     }
 
     divideString() {
@@ -61,7 +63,7 @@ class ArrayParser {
 
             if (startParenthesisCount >= 2 && !recursionMode) { mergeData += element; }
             else if (element === ',' || repeatCount === arrayEndPoint) {
-                mergeData = this.typeDetermination(mergeData);
+                mergeData = this.typeDecision(mergeData);
             } else if (startParenthesisCount >= 1) { mergeData += element; }
 
             if (mergeData === "" ||  repeatCount === arrayEndPoint) { } 
@@ -77,13 +79,16 @@ class ArrayParser {
         });
     }
 
-    typeDetermination(inputData) {
+    typeDecision(inputData) {
+        const initString = "";
+
         inputData = this.removeFirstParenthesis(inputData);
         if (typeof(inputData) === Object || inputData.type === 'Array') {
             this.resultObject.child.push(inputData);
         } else {
             inputData = (inputData === "null") ? null : inputData;
             inputData = this.removeSpace(inputData);
+            inputData = this.checkCorrectString(inputData);
             const dataObject = {
                 type: this.checkType(inputData),
                 value: inputData,
@@ -91,7 +96,33 @@ class ArrayParser {
             };
             this.resultObject.child.push(dataObject);
         }
-        return "";
+        return initString;
+    }
+
+    checkCorrectString(inputData) {
+
+        if(typeof(inputData) !== "string") {
+            return inputData;
+        }
+
+        let errorCount = 0;
+        if (inputData.includes("'")) {
+            let smallQuotesPosition = inputData.indexOf("'");
+            const endCondtion = -1;
+            
+            while (smallQuotesPosition !== endCondtion) {
+                errorCount++;
+                smallQuotesPosition = inputData.indexOf("'", smallQuotesPosition + 1);
+            }
+        }
+
+        if (errorCount >= 3) { 
+            this.errorMode = true;
+            this.errorContent = inputData;
+            console.log(inputData + "(은/는) 올바른 문자열이 아닙니다");
+            process.exit();
+        }
+        return inputData;
     }
 
     removeSpace(inputData) {
@@ -113,17 +144,21 @@ class ArrayParser {
 
     checkType(params) {
 
+        const onlyNumberRegex = /^[0-9]*$/;
+
         if (params === null) { return 'Null'; }
 
         const parameterEndIndex = params.length - 1;
 
         if (params === "true" || params == "false") { return 'Boolean'; }
-        if (params.constructor === Object) { 
-            return 'Object';
-        }
+        if (params.constructor === Object) { return 'Object'; }
         if (params.includes("[") && params.includes("]")) { return 'Array'; }
         if (params[0] === "'" && params[parameterEndIndex] === "'") { return 'String'; }
-        if (parseInt(params) !== NaN) { return 'Number'; }
+        if (onlyNumberRegex.test(params)) { return "Number"; } 
+        else {
+            console.log(params + "(은/는) 알 수 없는 타입입니다");
+            process.exit();
+        }
     }
 
     getResult() {
@@ -135,6 +170,10 @@ class ArrayParser {
         this.resultObject.type = this.checkType(this.inputString);
         this.createObject();
 
+        if (this.errorMode) {
+            return this.errorContent;
+        }
+
         return this.resultObject;
     }
 }
@@ -144,13 +183,13 @@ function run() {
     // const stringData = "[123, [22], 33]";
     // const stringData = "[123, [1,2,3,4,5], 33]";
     // const stringData = "[123,[22,23,[11,[112233],112],55],33]";
-    const stringData = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
+    // const stringData = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
     // const stringData = "['1a'3',[22,23,[11,[112233],112],55],33]";
-    // const stringData = "['1a3',[22,23,[11,[112233],112],55],3d3]";
+    const stringData = "['1a3',[22,23,[11,[112233],112],55],3d3]";
 
     const arrayParser = new ArrayParser(stringData);
     const result = arrayParser.getResult();
-
+    
     console.log(JSON.stringify(result, null, 2));
 }
 
