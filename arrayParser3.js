@@ -47,7 +47,7 @@ class CreateObject {
   }
   objective(value) {
     let type = FiddleString.isArray(value);
-    return type ? {
+    let objectedByType = type ? {
       type: 'array',
       value: 'ArrayObject',
       child: this.context.parse(value)
@@ -56,6 +56,7 @@ class CreateObject {
       value: value,
       child: []
     }
+    return objectedByType;
   }
 }
 class ArrayParser {
