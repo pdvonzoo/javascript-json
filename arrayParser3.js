@@ -125,19 +125,18 @@ class ArrayParser {
 
 
 
-class FiddleString {
-  constructor() {}
+const FiddleString = {
 
-  static isEmpty(str) {
+  isEmpty(str) {
     if (str === ' ') return 1;
-  }
+  },
 
-  static isArray(str) {
+  isArray(str) {
     if (!this.isPairBracket(str)) return undefined;
     return 1;
-  }
+  },
 
-  static isPairBracket(str) {
+  isPairBracket(str) {
     let minimumBracket = false;
     let count = str.split('').reduce((ac, cv) => {
       if (cv === '[') {
@@ -149,9 +148,9 @@ class FiddleString {
     }, 0);
     if (!minimumBracket) return undefined;
     return count ? undefined : 1;
-  }
+  },
 
-  static removeBracket(str) {
+  removeBracket(str) {
     return str.substring(1, str.length - 1);
   }
 }
