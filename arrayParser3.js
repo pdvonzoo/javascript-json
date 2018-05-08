@@ -62,11 +62,20 @@ class CreateObject {
 class ArrayParser {
   constructor() {
     this.generateObject = new CreateObject(this);
+    this.initializeParsedData();
   }
-
+  initializeParsedData() {
+    this.paresdData = {
+      checkedArr: [],
+      normalString: '',
+      arrayString: '',
+      count: 0
+    };
+  }
   parse(str) {
     if (!FiddleString.isArray(str)) return ERROR_MESSAGE.NON_PAIR;
     let arrayed = this.changeToArrayStructure(str);
+    this.initializeParsedData();
     let fixedArray = arrayed.reduce((ac, cv) => {
       ac.push(this.generateObject.objective(cv));
       return ac;
@@ -76,48 +85,43 @@ class ArrayParser {
 
   changeToArrayStructure(str) {
     str = FiddleString.removeBracket(str);
-    const obj = {
-      checkedArr: [],
-      normalString: '',
-      arrayString: '',
-      count: 0
-    };
+
     for (let i = 0; i < str.length; i++) {
       if (FiddleString.isEmpty(str[i])) continue;
-      if (str[i] === '[') obj.count++;
+      if (str[i] === '[') this.paresdData.count++;
       if (str[i] === ']') {
-        obj.count--;
-        this.pushArrayString.call(obj, str[i]);
+        this.paresdData.count--;
+        this.pushArrayString(this.paresdData, str[i]);
       }
-      this.pushNormalString.call(obj, str[i]);
-      this.addStringByCount.call(obj, str[i]);
+      this.pushNormalString(this.paresdData, str[i]);
+      this.addStringByCount(this.paresdData, str[i]);
     }
-    this.pushLastString.call(obj);
-    return obj.checkedArr;
+    this.pushLastString(this.paresdData);
+    return this.paresdData.checkedArr;
   }
 
   pushLastString() {
-    this.checkedArr.push(this.normalString);
+    this.paresdData.checkedArr.push(this.paresdData.normalString);
   }
-  addStringByCount(currentValue) {
-    if (this.count) {
-      this.arrayString += currentValue;
+  addStringByCount(paresdData, currentValue) {
+    if (paresdData.count) {
+      paresdData.arrayString += currentValue;
     } else {
       if (isNaN(currentValue)) return;
-      this.normalString += currentValue;
+      paresdData.normalString += currentValue;
     }
   }
 
-  pushArrayString(currentValue) {
-    if (this.count !== 0) return;
-    this.checkedArr.push(this.arrayString + currentValue);
-    this.arrayString = '';
+  pushArrayString(paresdData, currentValue) {
+    if (paresdData.count !== 0) return;
+    paresdData.checkedArr.push(paresdData.arrayString + currentValue);
+    paresdData.arrayString = '';
   }
 
-  pushNormalString(currentValue) {
-    if (this.count === 0 && currentValue === ',' && this.normalString !== '') {
-      this.checkedArr.push(this.normalString);
-      this.normalString = '';
+  pushNormalString(paresdData, currentValue) {
+    if (paresdData.count === 0 && currentValue === ',' && paresdData.normalString !== '') {
+      paresdData.checkedArr.push(paresdData.normalString);
+      paresdData.normalString = '';
     }
   }
 }
