@@ -109,10 +109,9 @@ class ArrayParser {
   }
 
   pushArrayString(currentValue) {
-    if (this.count === 0) {
-      this.checkedArr.push(this.arrayString + currentValue);
-      this.arrayString = '';
-    }
+    if (this.count !== 0) return;
+    this.checkedArr.push(this.arrayString + currentValue);
+    this.arrayString = '';
   }
 
   pushNormalString(currentValue) {
