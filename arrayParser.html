@@ -13,7 +13,7 @@
 		인자값으로 받고 두번째 함수의 리턴값을 세번째함수의 인자값으로 받아 쭉 실행한다.
 		3. arrayFromString : 문자열에서 문자한개한개가 원소값인 배열을 만들어준다. 공백은 제거한다. 맨앞의 "["와 맨끝의 "]"는 제거한다.
 		4. combineElements : 한개한개문자열에서 배열형태의 문자 "["과 "]"이 있다면 그 사이에 있는 문자인 원소를 하나의 문자열로 합쳐준다.
-		5. makeArray : ','이라는 문자를 기준으로 문자를 합쳐 문자열을 만들어주고 그 문자열을 원소값으로 가지는 배열을 만든다.
+		5. makeElement : ','이라는 문자를 기준으로 문자를 합쳐 문자열을 만들어주고 그 문자열을 원소값으로 가지는 배열을 만든다.
 		6. changeStringToArray : 3번과 4번과 5번은 pipe함수로 연결하여 changeStringToArray을 만들어준다.
 		7. arrayParser : str을 인자로 받아 type과 value와 child를 분석한다!
 		8. typeCheck : number형 이외에도 string, null, boolean, undefined 타입들을 분석한다.
@@ -54,24 +54,24 @@ function combineElements(newArray){
 
 }
 
-function makeArray(newArray){
+function makeElement(newArray){
 
 	let valueOfArray = "";
-	let makeArray = [];
+	let makeElement = [];
 	for(let i = 0; i < newArray.length; i++){
 		if(newArray[i] === ","){
-			makeArray.push(valueOfArray);
+			makeElement.push(valueOfArray.trim());
 			valueOfArray = "";
 			continue;
 		}
 		valueOfArray += newArray[i];
 	}
-	makeArray.push(valueOfArray.trim());
-	return makeArray;
+	makeElement.push(valueOfArray.trim());
+	return makeElement;
 
 }
 
-const changeStringToArray = pipe(arrayFromString, combineElements, makeArray);
+const changeStringToArray = pipe(arrayFromString, combineElements, makeElement);
 
 function arrayParser(str){
 
@@ -134,4 +134,7 @@ str = "['1a3',[22,23,[11,[112233],112],55],3d3]";
 result = arrayParser(str);
 str = "['1a3',[null,fa   lse,['11',[112233],112],55, '99'],33, true]";
 result = arrayParser(str);
+str = "[   '1a3'  ,   true   , '55'  ,  33  ]";
+result = arrayParser(str);
+console.log(JSON.stringify(result, null, 2));
 </script>
