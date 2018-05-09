@@ -25,7 +25,7 @@ const pipe = (...fns) => (value) => fns.reduce( (acc, fn) => fn(acc), value);
 
 function arrayFromString(str){
 
-	let newArray = Array.from(str).map(v => v.trim()).filter(v => v.length > 0);
+	let newArray = Array.from(str)
 	newArray = newArray.slice(1,newArray.length - 1);
 	return newArray;
 }
@@ -66,7 +66,7 @@ function makeArray(newArray){
 		}
 		valueOfArray += newArray[i];
 	}
-	makeArray.push(valueOfArray);
+	makeArray.push(valueOfArray.trim());
 	return makeArray;
 
 }
@@ -132,5 +132,6 @@ str = "['1a'3',[22,23,[11,[112233],112],55],33]";
 result = arrayParser(str);
 str = "['1a3',[22,23,[11,[112233],112],55],3d3]";
 result = arrayParser(str);
-
+str = "['1a3',[null,fa   lse,['11',[112233],112],55, '99'],33, true]";
+result = arrayParser(str);
 </script>
