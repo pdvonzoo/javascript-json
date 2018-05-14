@@ -124,8 +124,8 @@ class ArrayParser {
   }
   parse(str) {
     if (!FiddleString.isArray(this, str)) return this.errorMessage;
-    if (this.errorMessage) return this.errorMessage;
     let arrayed = this.changeToArrayStructure(str);
+    if (this.errorMessage) return this.errorMessage;
     this.initializeParsedData();
     let fixedArray = arrayed.reduce((ac, cv) => {
       ac.push(this.generateObject.getObjectBytype(cv));
@@ -136,13 +136,15 @@ class ArrayParser {
 
   changeToArrayStructure(str) {
     str = FiddleString.removeBracket(str);
-    for (let i = 0; i < str.length; i++) {
-      if (FiddleString.isEmpty(str[i])) continue;
-      this.addString(str, i);
-      let nextComma = str.substr(i).search(',');
-      if (nextComma === -1) break;
-      i += nextComma;
-    }
+    const splited = str.split('');
+    let nextComma = 0;
+    splited.forEach((v, i, a) => {
+      if (nextComma === -1) return;
+      if (this.errorMessage) return;
+      this.addString(str, nextComma + i);
+      if (str.substr(nextComma + i).search(',') === -1) nextComma = -1;
+      else nextComma += str.substr(nextComma + i).search(',');
+    })
     return this.parsedData.checkedArr;
   }
 
@@ -151,6 +153,7 @@ class ArrayParser {
     let chunked = '';
     if (lengthBeforeMeetComma === -1) chunked = str.substr(idx);
     for (let i = idx; i < idx + lengthBeforeMeetComma; i++) {
+      if (FiddleString.isEmpty(str[i])) continue;
       if (str[i] === '[') this.parsedData.arrayCount++;
       if (str[i] === ']') {
         this.parsedData.arrayCount--;
@@ -205,6 +208,7 @@ const FiddleString = {
     return 1;
   },
   checkPairQuote(context, str) {
+    str = removeSideBracket(str);
     let countQuote = (str.match(/\'/g) || []).length;
     if (countQuote === 0 || countQuote === 2) {
       return 1;
@@ -251,7 +255,7 @@ function removeSideBracket(str) {
   str = str.replace(/\[|\]/g, '');
   return str;
 }
-const str = "['wef',[13,null,true,'a', [1,[1,2,3],12], 2],false, 1,2]";
+const str = "['wef',['sd',null,true,'a', [1,[1,32,3],12], 2],false, 1,2]";
 
 const ap = new ArrayParser();
 const result = ap.parse(str);
