@@ -201,10 +201,10 @@ const FiddleString = {
     return !isNaN(+str) ? 1 : undefined;
   },
 
-  checkWrongType(context, str) {
-    str = removeSideBracket(str);
-    if (str.match(/[0-9]\D|\D[0-9]/)) {
-      context.errorMessage = ERROR_MESSAGE.UNKNOWN_TYPE(str);
+  checkWrongType(context, targetString) {
+    targetString = removeSideBracket(targetString);
+    if (targetString.match(/[0-9]\D|\D[0-9]/)) {
+      context.errorMessage = ERROR_MESSAGE.UNKNOWN_TYPE(targetString);
       return 0;
     };
     return 1;
