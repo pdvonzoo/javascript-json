@@ -54,10 +54,6 @@ class ArrayParser {
         this.dividedCharacterDatas.forEach(element => {
             repeatCount++;
 
-            if (element === '9') {
-                console.log("BP");
-            }
-
             if (element === ' ') {
                 return;
             }
@@ -116,37 +112,7 @@ class ArrayParser {
         });
     }
 
-    /* 
-        @INPUT : {easy : ['hello', {a:'a'}, 'world']}
-        @OUTPUT :
-            {
-                "type": Object
-                "Key": easy
-                "Value: [
-                    {
-                        "type": "String"
-                        "value": "'hello'"
-                        "child": []
-                    },
-                    {
-                        "type": "Object"
-                        "key": "a"
-                        "value": "'a'"
-                    },
-                    {
-                        "type": "String"
-                        "value": "'world'"
-                        "child": []
-                    }
-                ]
-            }
-    */
     createCurlyObject(inputData, param1, param2) {
-
-        // log
-        if (this.inputString === "{a:'str',b:[912,[5656,33],{key:'innervalue',newkeys:[1,2,3,4,5]}]}") {
-            console.log("log");
-        }
 
         let key;
         let mergeData = "";
@@ -161,7 +127,6 @@ class ArrayParser {
                     squareBracketMode = false;
                     mergeData += element;
                     this.curlyObjectMode = true;
-                    // mergeData = this.createObject(mergeData);
                     const secondArrayParser = new ArrayParser(mergeData);
                     mergeData = secondArrayParser.getResult();
                     return;
@@ -195,11 +160,7 @@ class ArrayParser {
                 mergeData = "";
                 return;
             }
-
-            // if (element === ',') {
-                
-            // }
-
+            
             if (element === ":") {
                 if (this.resultObject.key === null) {
                     this.resultObject.key = mergeData.trim();
