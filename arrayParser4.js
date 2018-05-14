@@ -80,13 +80,13 @@
 */
 
 const ERROR_MESSAGE = {
-  NON_PAIR: function () {
+  NON_PAIR() {
     return `배열의 괄호 개수 오류`
   },
-  UNKNOWN_TYPE: function (str) {
+  UNKNOWN_TYPE(str) {
     return `${str}은 알 수 없는 타입입니다`
   },
-  NOT_PAIR_QUOTE: function (str) {
+  NOT_PAIR_QUOTE(str) {
     return `${str}은 올바른 문자열이 아닙니다`
   }
 }
