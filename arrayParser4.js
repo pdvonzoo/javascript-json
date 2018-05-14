@@ -151,22 +151,26 @@ class ArrayParser {
   addString(str, idx) {
     let lengthBeforeMeetComma = str.substr(idx).search(',');
     let chunked = '';
+    let isArrayFlag = false;
     if (lengthBeforeMeetComma === -1) chunked = str.substr(idx);
     for (let i = idx; i < idx + lengthBeforeMeetComma; i++) {
       if (FiddleString.isEmpty(str[i])) continue;
-      if (str[i] === '[') this.parsedData.arrayCount++;
+      if (str[i] === '[') {
+        this.parsedData.arrayCount++;
+        isArrayFlag = !isArrayFlag;
+      }
       if (str[i] === ']') {
         this.parsedData.arrayCount--;
-        if (!FiddleString.checkWrongType(this, chunked)) return;
-        if (!this.parsedData.arrayCount) {
-          this.parsedData.checkedArr.push(this.parsedData.arrayString + chunked + str[i]);
-          return;
-        };
+        FiddleString.checkWrongType(this, chunked);
+        this.pushStringByCount(this.parsedData.arrayString + chunked + str[i]);
       }
       chunked += str[i];
     }
     if (this.isErrorInString(this, chunked)) return;
     this.addStringByArrayCount(chunked);
+  }
+  pushStringByCount(str) {
+    if (!this.parsedData.arrayCount) this.parsedData.checkedArr.push(str);
   }
 
   addStringByArrayCount(chunkedString) {
