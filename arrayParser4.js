@@ -224,7 +224,7 @@ const FiddleString = {
   },
 
   isArray(context, str) {
-    if (!this.isPairBracket(context, str)) return undefined;
+    if (!this.isPairBracket(context, str)) return;
     return 1;
   },
 
