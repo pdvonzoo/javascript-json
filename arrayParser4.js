@@ -96,7 +96,7 @@ class GenerateObject {
   }
   getObjectBytype(value) {
     let type = FiddleString.getType(this, value);
-    return type === 'array' ? {
+    let finalObject = (type === 'array') ? {
       type: type,
       value: 'ArrayObject',
       child: this.context.parse(value)
@@ -105,6 +105,7 @@ class GenerateObject {
       value: value,
       child: []
     }
+    return finalObject;
   }
 }
 class ArrayParser {
