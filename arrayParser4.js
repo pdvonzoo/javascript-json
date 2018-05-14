@@ -187,9 +187,7 @@ class ArrayParser {
 
 const FiddleString = {
   getType(context, str) {
-    if (str === 'null') return 'null';
-    if (str === 'true') return 'true';
-    if (str === 'false') return 'false';
+    if (['null', 'true', 'false'].indexOf(str) > -1) return str;
     if (this.isArray(context, str)) return 'array';
     if (this.isNumber(str)) return 'number';
     else return 'string';
