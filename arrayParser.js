@@ -11,7 +11,6 @@
     다만, createObject 함수의 크기는 더 커지지 않도록 하고,
     다른 함수들도 이정도 크기를 넘지 않도록 해야
     기능개선과 추가도 쉬울 겁니다.
-    
 */
 
 class ArrayParser {
@@ -20,11 +19,21 @@ class ArrayParser {
         this.resultObject = {
             type: null,
             child: [],
-        }
+        };
+
         this.dividedCharacterDatas = [];
-        this.inputString = stringData;
+        this.inputString = stringData.trim();
+        this.curlyObjectMode = false;
         this.errorMode = false;
         this.errorContent = "";
+
+        if (this.inputString[0] === '{') {
+            this.resultObject.type = "Object";
+            delete this.resultObject.child;
+            this.resultObject.key = null;
+            this.resultObject.value = null;
+            this.curlyObjectMode = true;
+        }
     }
 
     divideString() {
@@ -36,17 +45,44 @@ class ArrayParser {
         let repeatCount = 0;
         let startSquareBracketsCount = 0;
         let endSquareBracketsCount = 0;
+        let startCurlyBracketsCount = 0;
+        let endCurlyBracketsCount = 0;
         let curlyBracketsMode = false;
         let recursionMode = false;
         const arrayEndPoint = this.dividedCharacterDatas.length;
-        const dataObject = {
-            type: this.checkType(mergeData),
-            value: mergeData,
-            child: [],
-        }
 
         this.dividedCharacterDatas.forEach(element => {
             repeatCount++;
+
+            if (element === '9') {
+                console.log("BP");
+            }
+
+            if (element === ' ') {
+                return;
+            }
+
+            if (element === '{') {
+                startCurlyBracketsCount++;
+                if (mergeData.trim() === "") {
+                    curlyBracketsMode = true;
+                }
+            }
+
+            if (element === '}') {
+                endCurlyBracketsCount++;
+            }
+
+            if (curlyBracketsMode) {
+                mergeData += element;
+                if (startCurlyBracketsCount === endCurlyBracketsCount) {
+                    curlyBracketsMode = false;
+
+                    const secondArrayParser = new ArrayParser(mergeData);
+                    mergeData = secondArrayParser.getResult();
+                }
+                return;
+            }
 
             if (element === '[') { startSquareBracketsCount++; }
             if (element === ']') {
@@ -80,11 +116,122 @@ class ArrayParser {
         });
     }
 
+    /* 
+        @INPUT : {easy : ['hello', {a:'a'}, 'world']}
+        @OUTPUT :
+            {
+                "type": Object
+                "Key": easy
+                "Value: [
+                    {
+                        "type": "String"
+                        "value": "'hello'"
+                        "child": []
+                    },
+                    {
+                        "type": "Object"
+                        "key": "a"
+                        "value": "'a'"
+                    },
+                    {
+                        "type": "String"
+                        "value": "'world'"
+                        "child": []
+                    }
+                ]
+            }
+    */
+    createCurlyObject(inputData, param1, param2) {
+
+        // log
+        if (this.inputString === "{a:'str',b:[912,[5656,33],{key:'innervalue',newkeys:[1,2,3,4,5]}]}") {
+            console.log("log");
+        }
+
+        let key;
+        let mergeData = "";
+        let squareBracketMode = false;
+        let startSquareBracket = 0;
+        let endSquareBracket = 0;
+
+        this.dividedCharacterDatas.forEach(element => {
+            if (element === "]") {
+                endSquareBracket++;
+                if (startSquareBracket === endSquareBracket) {
+                    squareBracketMode = false;
+                    mergeData += element;
+                    this.curlyObjectMode = true;
+                    // mergeData = this.createObject(mergeData);
+                    const secondArrayParser = new ArrayParser(mergeData);
+                    mergeData = secondArrayParser.getResult();
+                    return;
+                }
+                mergeData += element;
+                return;
+            }
+
+            if (element === "[") {
+                mergeData += element;
+                startSquareBracket++;
+                squareBracketMode = true;
+                return;
+            }
+            
+            if (squareBracketMode) {
+                mergeData += element;
+                return;
+            }
+            
+            if (element === '{') {
+                return;
+            }
+
+            if (element === '}' || element === ',') {
+                if (this.resultObject.value === null) {
+                    this.resultObject.value = mergeData;
+                } else {
+                    this.resultObject.value2 = mergeData;
+                }
+                mergeData = "";
+                return;
+            }
+
+            // if (element === ',') {
+                
+            // }
+
+            if (element === ":") {
+                if (this.resultObject.key === null) {
+                    this.resultObject.key = mergeData.trim();
+                } else {
+                    this.resultObject.key2 = mergeData.trim();
+                }
+                mergeData = "";
+                return;
+            }
+
+            mergeData += element;
+        });
+
+
+    }
+
+    // 3개 이상일 경우는 ?
+    createObjectKeyAndValue() {
+        if (this.resultObject.key === null) {
+            return false;
+        } else {
+            this.resultObject.key2 = null;
+            this.resultObject.value2 = null;
+            return true;
+        }
+    }
+
     typeDecision(inputData) {
         const initString = "";
 
         inputData = this.removeFirstParenthesis(inputData);
-        if (typeof(inputData) === Object || inputData.type === 'Array') {
+        if (inputData.constructor === Object || inputData.type === 'Array') {
             this.resultObject.child.push(inputData);
         } else {
             inputData = (inputData === "null") ? null : inputData;
@@ -168,8 +315,13 @@ class ArrayParser {
         const lastCharacter = this.inputString[inputStringLength-1];
 
         this.divideString();
-        this.resultObject.type = this.checkType(this.inputString);
-        this.createObject();
+
+        if (this.curlyObjectMode) {
+            this.createCurlyObject();
+        } else {
+            this.resultObject.type = this.checkType(this.inputString);
+            this.createObject();
+        }
 
         if (this.errorMode) {
             return this.errorContent;
