@@ -90,10 +90,12 @@ const ERROR_MESSAGE = {
     return `${str}은 올바른 문자열이 아닙니다`
   }
 }
+
 class GenerateObject {
   constructor(context) {
     this.context = context;
   }
+
   getObjectBytype(value) {
     let type = FiddleString.getType(this, value);
     let finalObject = (type === 'array') ? {
@@ -115,6 +117,7 @@ class ArrayParser {
     this.initializeParsedData();
     this.errorMessage = null;
   }
+
   initializeParsedData() {
     this.parsedData = {
       checkedArr: [],
@@ -123,6 +126,7 @@ class ArrayParser {
       finishArrayFlag: false
     };
   }
+
   parse(str) {
     if (!FiddleString.isArray(this, str)) return this.errorMessage;
     let arrayed = this.changeToArrayStructure(str);
@@ -202,6 +206,7 @@ const FiddleString = {
     else return 'string';
 
   },
+
   isNumber(str) {
     return !isNaN(+str) ? 1 : undefined;
   },
@@ -214,6 +219,7 @@ const FiddleString = {
     };
     return 1;
   },
+
   checkPairQuote(context, str) {
     str = removeSideBracket(str);
     let countQuote = (str.match(/\'/g) || []).length;
@@ -224,6 +230,7 @@ const FiddleString = {
       return 0;
     }
   },
+
   isEmpty(str) {
     if (str === ' ') return 1;
   },
@@ -262,8 +269,8 @@ function removeSideBracket(str) {
   str = str.replace(/\[|\]/g, '');
   return str;
 }
-const str = "['wef',['sd',null,true,'a', [1,[1,32,3],12], 2],false, 1,2]";
 
+const str = "['wef',['sd',null,true,'a', [1,[1,32,3],12], 2],false, 1,2]";
 const ap = new ArrayParser();
 const result = ap.parse(str);
 console.log(JSON.stringify(result, null, 2));
