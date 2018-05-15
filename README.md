@@ -115,7 +115,7 @@
 
    
 
-4. 여러가지 타입 분석
+4. ### 여러가지 타입 분석
 
 5. ### Object Type 지원
 
@@ -184,6 +184,210 @@
    - 숫자로 모드를 구분?
    - 어차피 mergeData를 넣는것이므로, 한 메서드에서 처리
    - createCurlyObject 메서드에서도 `]` 를 두번 체크해야 함
+
+
+
+6. ### Object Type 기능에 대한 고민
+
+   http://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-standard-tokenizer.html
+
+   위 링크가 무슨 말인지 이해가 잘 안된다
+
+   일단은 Tokenizer 가 무엇인지, 무엇을 하는것인지도 아직 이해하지 못한 상태
+
+   text가 구분자 (`" "`) 에 의해서 하나씩 짤려나오는 상태 ?
+
+   **@crong "단위가 저런거구나"**
+
+   **@crong "저런식으로 Tokenizer 를 통해 토큰묶음을 만들 수 있다"**
+
+   ---
+
+   https://blog.naver.com/echris7/140012828393
+
+   ```java
+     import java.util.StringTokenizer;
+   
+     public class NumberForm {
+         public static void main(String[] args) {
+             String token = new String("스트링을 구분자를 사용하여 구분하기");
+             StringTokenizer tokenizer = new StringTokenizer(token, " "); // 구분자 공백(" ")
+             
+             System.out.println("Total Token Count :  "+ tokenizer.countTokens());
+             while(tokenizer.hasMoreTokens()){
+                 System.out.println("Token is : "+ tokenizer.nextToken());
+              }
+         }
+     }
+   ```
+
+   `토큰` 의미를 갖는 최소한의 문자열
+
+   `String Tokenizer` 는 String에서 구분자를 사용해 토큰을 얻어올 수 있다
+
+   출력결과
+
+   ---
+
+   Total Token Count :  4
+
+   Token is : 스트링을 
+
+   Token is : 구분자를
+
+   Token is : 사용하여 
+
+   Token is : 구분하기
+
+   ---
+
+   그러면 일단 `Tokenizer` 은 알겠다.
+
+   **@crong "`Tokenizer` 을 통해 `토큰묶음`을 만들 수 있죠"**
+
+   토큰묶음?
+
+   https://ariya.io/2011/08/math-evaluator-in-javascript-part1
+
+   Math Evaluator in JavaScript: Part 1 (the Tokenizer)
+
+   ```javascript
+   // 도우미 함수들
+   function isWhiteSpace(ch) {
+       return (ch === 'u0009') || (ch === ' ') || (ch === 'u00A0');
+   }
+    
+   function isLetter(ch) {
+       return (ch >= 'a' && ch < = 'z') || (ch >= 'A' && ch < = 'Z');
+   }
+    
+   function isDecimalDigit(ch) {
+       return (ch >= '0') && (ch < = '9');
+   }
+   ```
+
+   ```javascript
+   // 유용한 보조함수
+   function createToken(type, value) {
+       return {
+           type: type,
+           value: value
+       };
+   }
+   ```
+
+   후반에 반복되는것을 피하기 위한 `createToken` 함수를 통해서 기본적인 `Token 객체` (type-value) 를 생성
+
+   일단 여기까지..
+
+   ---
+
+   `토큰` = `문자 하나`
+
+   ​	OK
+
+   `토큰`이라는 단위를 `어떤 기준`으로 `자르는 것`도 가능
+
+   ​	`어떤 기준` 구분자 ("", " " 등) 를 뜻하는 것 같다
+
+   `하나의 의미있는 토큰`으로 다 `분리`하고 이를 `분석`해보는 것은 어떨까?
+
+   ​	현재 나의 코드방식은 `split` 함수에 `구분자("")` 를 넣어서 한 문자씩 분리한다
+
+   ​	이후 특정 문자 ([ ] { } ,) 에 따라서 분석한다
+
+   ​	그 중에 재귀로 구성되어 있는 점
+
+   ​	다른 방식이 있을까?
+
+   `더 많은 함수`로 활용을 적극적으로 = `더 작은 단위`로
+
+   ​	예를들어, if문의 하위내용을 모두 함수로 분리
+
+   ​	되도록이면 createObject와 createCurlyObject에서 동시에 사용할 수 있는 메서드로 분리하고 싶은데
+
+   ​	같은 조건이여도 두개의 수행내용이 달라서 (즉, 중복이 아닌 중복느낌) 찝찝한 기분을 지울수가 없다
+
+   ```javascript
+   /*
+   	간단하게, continue 조건 (즉, 따로 수행되는 구문없이 바로 return 되는) 을 함수로 만들어서 처리
+   	했을 때 createObject메서드와 createCurlyObject메서드에서 서로 다르게 동작하는 점을 처리할
+   	수 없다
+   */
+   continueCase(param) {
+       if (param === ' ') { return true; }
+       if (param === '{') { return true; }
+       return false;
+   }
+   ```
+
+   ​	일단은 메서드 내에서 변수를 조작 (++) 시키거나, 간단한것들을 제외한 나머지를 메서드로 구성시켜보자
+
+   ```javascript
+   // foreach 반복문 중 '{' 가 감지되었을 경우, curlyBracketsMode 를 작동시킨다
+   if (curlyBracketsMode) {
+       mergeData += element;
+       /*
+       	일단 괄호의 갯수가 같다는 것은 재귀케이스
+       	하지만 메서드 내의 변수라서.. 메서드로 따로 구분할 필요는 없을 듯 함
+       */
+       if (startCurlyBracketsCount === endCurlyBracketsCount) {
+           curlyBracketsMode = false;
+   
+           /*
+           	@INPUT : mergeData
+           	@OUTPUT : mergeData ( from .getResult() )
+           */
+           const secondArrayParser = new ArrayParser(mergeData);
+           mergeData = secondArrayParser.getResult();
+       }
+       return;
+   }
+   ```
+
+   ​	if 안에 내용들을 하나씩 메서드로 만들고 싶은데 네이밍이 애매한 것 같음
+
+   ```javascript
+   
+   ```
+
+   ​	
+
+   
+
+   
+
+   비슷한 두개의 함수의 관계를 통합해서 해볼 수 있는 방법은 없을까?
+
+   [현재 나의 코드에서 `createObject Method` 와 `createCurlyObject Method`]
+
+   
+
+   
+
+
+
+7. ### 테스트코드 작성
+
+   - 테스트 코드를 이해한다
+
+     - https://item4.github.io/2016-03-19/Coding-with-Test-Code/
+
+     - https://nesoy.github.io/articles/2017-01/TDD
+
+     - `테스트 주도 개발방법론` `TDD(Test-Driven Development)`
+
+       ```
+       정확한 프로그래밍 목적을 디자인 단계에서 반드시 미리 정의해야만 하고 또 무엇을 미리 정의해야한다.
+       ```
+
+       - `RED` 실패하는 테스트를 만들기
+       - `GREEN` 테스트에 통과할 만한 작은 코드를 작성하기
+       - `REFACTOR` 반복되는 코드, 긴 메소드, 큰 클래스, 긴 매개변수 목록 등등 코드를 좀 더 효율적으로 바꾸기
+
+     - 
+
+   - 테스트 코드를 구현하면서 내 코드를 테스트 가능한 상태로 개선한다
 
 
 

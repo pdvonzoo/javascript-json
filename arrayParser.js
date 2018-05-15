@@ -1,16 +1,14 @@
 /* 
-    Object 타입 ( { key: value} ) 도 지원한다.
-    배열안에 object, object안에 배열이 자유롭게 포함될 수 있다.
-    지금까지의 코드를 리팩토링한다.
-        복잡한 세부로직은 반드시 함수로 분리해본다.
-        최대한 작은 단위의 함수로 만든다.
-        중복된 코드역시 함수로 분리해서 일반화한다.
-        객체형태의 class로 만든다.
-
     @crong 피드백
-    다만, createObject 함수의 크기는 더 커지지 않도록 하고,
-    다른 함수들도 이정도 크기를 넘지 않도록 해야
-    기능개선과 추가도 쉬울 겁니다.
+
+    이 함수가 createObject 함수와 중복아닌 중복인 느낌이죠?
+    이 두개의 비슷한 큰 덩어리가 분리되어 있는 점이 아쉽네요.
+    개선하기 쉽지 않지만요.
+
+    if 하위 내용을 모조로 함수로 다 분리할 수 있겠네요.
+    if(endCase) xxxx();
+    if(endCase2) xxxx2();    
+
 */
 
 class ArrayParser {
@@ -38,6 +36,12 @@ class ArrayParser {
 
     divideString() {
         this.dividedCharacterDatas = this.inputString.split("");
+    }
+
+    recursionCase(mergeData) {
+        const secondArrayParser = new ArrayParser(mergeData);
+        mergeData = secondArrayParser.getResult();
+        return mergeData;
     }
 
     createObject() {
@@ -73,21 +77,24 @@ class ArrayParser {
                 mergeData += element;
                 if (startCurlyBracketsCount === endCurlyBracketsCount) {
                     curlyBracketsMode = false;
-
-                    const secondArrayParser = new ArrayParser(mergeData);
-                    mergeData = secondArrayParser.getResult();
+                    mergeData = this.recursionCase(mergeData);
                 }
                 return;
             }
 
-            if (element === '[') { startSquareBracketsCount++; }
+            if (element === '[') {
+                startSquareBracketsCount++;
+            }
+            
             if (element === ']') {
-                if (startSquareBracketsCount >= 3) { startSquareBracketsCount--; }
-                else { endSquareBracketsCount++; }
+                if (startSquareBracketsCount >= 3) {
+                    startSquareBracketsCount--;
+                } else {
+                    endSquareBracketsCount++;
+                }
             }
 
-            if (startSquareBracketsCount >= 2 &&
-                endSquareBracketsCount === 0) {
+            if (startSquareBracketsCount >= 2 && endSquareBracketsCount === 0) {
                 mergeData += element;
                 return;
             }
@@ -105,14 +112,12 @@ class ArrayParser {
                 endSquareBracketsCount == startSquareBracketsCount-1) {
                 startSquareBracketsCount--;
                 endSquareBracketsCount--;
-
-                const secondArrayParser = new ArrayParser(mergeData);
-                mergeData = secondArrayParser.getResult();
+                mergeData = this.recursionCase(mergeData);
             }
         });
     }
 
-    createCurlyObject(inputData, param1, param2) {
+    createCurlyObject() {
 
         let key;
         let mergeData = "";
@@ -124,11 +129,10 @@ class ArrayParser {
             if (element === "]") {
                 endSquareBracket++;
                 if (startSquareBracket === endSquareBracket) {
-                    squareBracketMode = false;
                     mergeData += element;
+                    squareBracketMode = false;
                     this.curlyObjectMode = true;
-                    const secondArrayParser = new ArrayParser(mergeData);
-                    mergeData = secondArrayParser.getResult();
+                    mergeData = this.recursionCase(mergeData);
                     return;
                 }
                 mergeData += element;
@@ -152,40 +156,36 @@ class ArrayParser {
             }
 
             if (element === '}' || element === ',') {
-                if (this.resultObject.value === null) {
-                    this.resultObject.value = mergeData;
-                } else {
-                    this.resultObject.value2 = mergeData;
-                }
-                mergeData = "";
-                return;
+                mergeData = this.setObjectData("value", mergeData);
             }
             
             if (element === ":") {
-                if (this.resultObject.key === null) {
-                    this.resultObject.key = mergeData.trim();
-                } else {
-                    this.resultObject.key2 = mergeData.trim();
-                }
-                mergeData = "";
+                mergeData = this.setObjectData("key", mergeData);
                 return;
             }
 
             mergeData += element;
         });
-
-
     }
 
-    // 3개 이상일 경우는 ?
-    createObjectKeyAndValue() {
-        if (this.resultObject.key === null) {
-            return false;
+    setObjectData(mode, inputData) {
+        const initString = "";
+
+        if (mode === "key") {
+            if (this.resultObject.key === null) {
+                this.resultObject.key = inputData;
+            } else {
+                this.resultObject.key2 = inputData;
+            }
         } else {
-            this.resultObject.key2 = null;
-            this.resultObject.value2 = null;
-            return true;
+            if (this.resultObject.value === null) {
+                this.resultObject.value = inputData;
+            } else {
+                this.resultObject.value2 = inputData;
+            }
         }
+
+        return initString;
     }
 
     typeDecision(inputData) {
