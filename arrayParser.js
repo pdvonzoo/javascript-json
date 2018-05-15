@@ -1,27 +1,14 @@
 /* 
-    4. 여러가지 타입분석
-    
-    - 요구사항
-    숫자타입이외에 string, boolean, null 타입도 지원하도록 구현한다.
-    ['1a3',[null,false,['11',[112233],112],55, '99'],33, true]"
+    @crong 피드백
 
-    올바른 문자열이 아닌 경우 오류를 발생한다. (아래 실행결과 참고)
-    타입체크를 정규표현식을 사용하는 경우, backreference를 활용하는 것을 추천.
-    복잡한 세부로직은 함수로 분리해본다.
-    중복된 코드역시 함수로 분리해서 일반화한다.
+    이 함수가 createObject 함수와 중복아닌 중복인 느낌이죠?
+    이 두개의 비슷한 큰 덩어리가 분리되어 있는 점이 아쉽네요.
+    개선하기 쉽지 않지만요.
 
-    - 실행결과
-    var s = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
-    var result = ArrayParser(str);
-    console.log(JSON.stringify(result, null, 2)); 
+    if 하위 내용을 모조로 함수로 다 분리할 수 있겠네요.
+    if(endCase) xxxx();
+    if(endCase2) xxxx2();    
 
-    var s = "['1a'3',[22,23,[11,[112233],112],55],33]";  //'1a'3'은 올바른 문자열이 아닙니다.
-    var result = ArrayParser(str);
-    ==>  //'1a'3'은 올바른 문자열이 아닙니다.
-
-    var s = "['1a3',[22,23,[11,[112233],112],55],3d3]";  // 3d3은 알수 없는 타입입니다
-    var result = ArrayParser(str);
-    ==> // 3d3은 알수 없는 타입입니다
 */
 
 class ArrayParser {
@@ -30,60 +17,182 @@ class ArrayParser {
         this.resultObject = {
             type: null,
             child: [],
-        }
+        };
+
         this.dividedCharacterDatas = [];
-        this.inputString = stringData;
+        this.inputString = stringData.trim();
+        this.curlyObjectMode = false;
         this.errorMode = false;
         this.errorContent = "";
+
+        if (this.inputString[0] === '{') {
+            this.resultObject.type = "Object";
+            delete this.resultObject.child;
+            this.resultObject.key = null;
+            this.resultObject.value = null;
+            this.curlyObjectMode = true;
+        }
     }
 
     divideString() {
         this.dividedCharacterDatas = this.inputString.split("");
     }
 
+    recursionCase(mergeData) {
+        const secondArrayParser = new ArrayParser(mergeData);
+        mergeData = secondArrayParser.getResult();
+        return mergeData;
+    }
+
     createObject() {
         let mergeData = "";
-        let repeatCount = 1;
-        let startParenthesisCount = 0;
-        let endParenthesisCount = 0;
+        let repeatCount = 0;
+        let startSquareBracketsCount = 0;
+        let endSquareBracketsCount = 0;
+        let startCurlyBracketsCount = 0;
+        let endCurlyBracketsCount = 0;
+        let curlyBracketsMode = false;
         let recursionMode = false;
         const arrayEndPoint = this.dividedCharacterDatas.length;
-        const dataObject = {
-            type: this.checkType(mergeData),
-            value: mergeData,
-            child: [],
-        }
 
         this.dividedCharacterDatas.forEach(element => {
-            if (element === '[') { startParenthesisCount++; }
-            if (element === ']') {
-                if (startParenthesisCount >= 3) { startParenthesisCount--; }
-                else { endParenthesisCount++; }
-            }
-
-            if (startParenthesisCount >= 2 && !recursionMode) { mergeData += element; }
-            else if (element === ',' || repeatCount === arrayEndPoint) {
-                mergeData = this.typeDecision(mergeData);
-            } else if (startParenthesisCount >= 1) { mergeData += element; }
-
-            if (mergeData === "" ||  repeatCount === arrayEndPoint) { } 
-            else if (endParenthesisCount >= 1 && endParenthesisCount === startParenthesisCount-1) {
-                startParenthesisCount--;
-                endParenthesisCount--;
-                recursionMode = true;
-
-                const secondArrayParser = new ArrayParser(mergeData);
-                mergeData = secondArrayParser.getResult();
-            }
             repeatCount++;
+
+            if (element === ' ') {
+                return;
+            }
+
+            if (element === '{') {
+                startCurlyBracketsCount++;
+                if (mergeData.trim() === "") {
+                    curlyBracketsMode = true;
+                }
+            }
+
+            if (element === '}') {
+                endCurlyBracketsCount++;
+            }
+
+            if (curlyBracketsMode) {
+                mergeData += element;
+                if (startCurlyBracketsCount === endCurlyBracketsCount) {
+                    curlyBracketsMode = false;
+                    mergeData = this.recursionCase(mergeData);
+                }
+                return;
+            }
+
+            if (element === '[') {
+                startSquareBracketsCount++;
+            }
+            
+            if (element === ']') {
+                if (startSquareBracketsCount >= 3) {
+                    startSquareBracketsCount--;
+                } else {
+                    endSquareBracketsCount++;
+                }
+            }
+
+            if (startSquareBracketsCount >= 2 && endSquareBracketsCount === 0) {
+                mergeData += element;
+                return;
+            }
+
+            if (element === ',' || repeatCount === arrayEndPoint) {
+                mergeData = this.typeDecision(mergeData);
+                return;
+            }
+
+            if (startSquareBracketsCount >= 1) {
+                mergeData += element;
+            }
+
+            if (endSquareBracketsCount >= 1 && 
+                endSquareBracketsCount == startSquareBracketsCount-1) {
+                startSquareBracketsCount--;
+                endSquareBracketsCount--;
+                mergeData = this.recursionCase(mergeData);
+            }
         });
+    }
+
+    createCurlyObject() {
+
+        let key;
+        let mergeData = "";
+        let squareBracketMode = false;
+        let startSquareBracket = 0;
+        let endSquareBracket = 0;
+
+        this.dividedCharacterDatas.forEach(element => {
+            if (element === "]") {
+                endSquareBracket++;
+                if (startSquareBracket === endSquareBracket) {
+                    mergeData += element;
+                    squareBracketMode = false;
+                    this.curlyObjectMode = true;
+                    mergeData = this.recursionCase(mergeData);
+                    return;
+                }
+                mergeData += element;
+                return;
+            }
+
+            if (element === "[") {
+                mergeData += element;
+                startSquareBracket++;
+                squareBracketMode = true;
+                return;
+            }
+            
+            if (squareBracketMode) {
+                mergeData += element;
+                return;
+            }
+            
+            if (element === '{') {
+                return;
+            }
+
+            if (element === '}' || element === ',') {
+                mergeData = this.setObjectData("value", mergeData);
+            }
+            
+            if (element === ":") {
+                mergeData = this.setObjectData("key", mergeData);
+                return;
+            }
+
+            mergeData += element;
+        });
+    }
+
+    setObjectData(mode, inputData) {
+        const initString = "";
+
+        if (mode === "key") {
+            if (this.resultObject.key === null) {
+                this.resultObject.key = inputData;
+            } else {
+                this.resultObject.key2 = inputData;
+            }
+        } else {
+            if (this.resultObject.value === null) {
+                this.resultObject.value = inputData;
+            } else {
+                this.resultObject.value2 = inputData;
+            }
+        }
+
+        return initString;
     }
 
     typeDecision(inputData) {
         const initString = "";
 
         inputData = this.removeFirstParenthesis(inputData);
-        if (typeof(inputData) === Object || inputData.type === 'Array') {
+        if (inputData.constructor === Object || inputData.type === 'Array') {
             this.resultObject.child.push(inputData);
         } else {
             inputData = (inputData === "null") ? null : inputData;
@@ -167,8 +276,13 @@ class ArrayParser {
         const lastCharacter = this.inputString[inputStringLength-1];
 
         this.divideString();
-        this.resultObject.type = this.checkType(this.inputString);
-        this.createObject();
+
+        if (this.curlyObjectMode) {
+            this.createCurlyObject();
+        } else {
+            this.resultObject.type = this.checkType(this.inputString);
+            this.createObject();
+        }
 
         if (this.errorMode) {
             return this.errorContent;
@@ -185,7 +299,8 @@ function run() {
     // const stringData = "[123,[22,23,[11,[112233],112],55],33]";
     // const stringData = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
     // const stringData = "['1a'3',[22,23,[11,[112233],112],55],33]";
-    const stringData = "['1a3',[22,23,[11,[112233],112],55],3d3]";
+    // const stringData = "['1a3',[22,23,[11,[112233],112],55],3d3]";
+    const stringData = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
 
     const arrayParser = new ArrayParser(stringData);
     const result = arrayParser.getResult();
