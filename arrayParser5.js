@@ -120,6 +120,7 @@ class ArrayParser {
       checkedArr: [],
       arrayString: '',
       arrayCount: null,
+      finishArrayFlag: false
     };
   }
   parse(str) {
@@ -151,26 +152,30 @@ class ArrayParser {
   addString(str, idx) {
     let lengthBeforeMeetComma = str.substr(idx).search(',');
     let chunked = '';
-    let isArrayFlag = false;
+    let finishArrayFlag = false;
     if (lengthBeforeMeetComma === -1) chunked = str.substr(idx);
     for (let i = idx; i < idx + lengthBeforeMeetComma; i++) {
       if (FiddleString.isEmpty(str[i])) continue;
       if (str[i] === '[') {
         this.parsedData.arrayCount++;
-        isArrayFlag = !isArrayFlag;
       }
       if (str[i] === ']') {
         this.parsedData.arrayCount--;
-        FiddleString.checkWrongType(this, chunked);
-        this.pushStringByCount(this.parsedData.arrayString + chunked + str[i]);
+        chunked = this.pushStringByCount(chunked);
       }
       chunked += str[i];
     }
-    if (this.isErrorInString(this, chunked)) return;
+    if (!this.parsedData.finishArrayFlag) this.isErrorInString(this, chunked);
+    if (this.errorMessage) return;
     this.addStringByArrayCount(chunked);
   }
+
   pushStringByCount(str) {
-    if (!this.parsedData.arrayCount) this.parsedData.checkedArr.push(str);
+    if (!this.parsedData.arrayCount) {
+      this.parsedData.finishArrayFlag = true;
+      return this.parsedData.arrayString + str;
+    }
+    return str;
   }
 
   addStringByArrayCount(chunkedString) {
