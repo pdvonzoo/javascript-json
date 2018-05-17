@@ -94,18 +94,34 @@ const ERROR_MESSAGE = {
 class GenerateObject {
   constructor(context) {
     this.context = context;
+    this.fiddle = new FiddleString();
   }
 
   getObjectBytype(value) {
-    let type = FiddleString.getType(this, value);
-    let finalObject = (type === 'array') ? {
-      type: type,
-      value: 'ArrayObject',
-      child: this.context.parse(value)
-    } : {
-      type: type,
-      value: value,
-      child: []
+    let type = this.fiddle.getType(this, value);
+    let finalObject = null;
+    switch (type) {
+      case 'array':
+        finalObject = {
+          type: type,
+          value: 'ArrayObject',
+          child: this.context.parse(value)
+        }
+        break;
+      case 'object':
+        finalObject = {
+          type: type,
+          value: 'Object',
+          child: this.context.parse(value)
+        }
+        break;
+      default:
+        finalObject = {
+          type: type,
+          value: value,
+          child: []
+        }
+        break;
     }
     return finalObject;
   }
@@ -116,19 +132,24 @@ class ArrayParser {
     this.parsedData = null;
     this.initializeParsedData();
     this.errorMessage = null;
+    this.fiddle = new FiddleString();
   }
 
   initializeParsedData() {
     this.parsedData = {
       checkedArr: [],
       arrayString: '',
-      arrayCount: null,
+      objectString: '',
+      arrayCount: 0,
+      arrayFlag: false,
+      objectCount: 0,
+      objectFlag: false,
       finishArrayFlag: false
     };
   }
 
   parse(str) {
-    if (!FiddleString.isArray(this, str)) return this.errorMessage;
+    if (!this.fiddle.isArray(this, str)) return this.errorMessage;
     let arrayed = this.changeToArrayStructure(str);
     if (this.errorMessage) return this.errorMessage;
     this.initializeParsedData();
@@ -140,38 +161,50 @@ class ArrayParser {
   }
 
   changeToArrayStructure(str) {
-    str = FiddleString.removeBracket(str);
+    const token = this.parsedData;
+    const fiddle = new FiddleString();
+    str = fiddle.removeBracket(str);
     const splited = str.split('');
     let nextComma = 0;
-    splited.forEach((v, i, a) => {
-      if (nextComma === -1) return;
-      if (this.errorMessage) return;
-      this.addString(str, nextComma + i);
-      if (str.substr(nextComma + i).search(',') === -1) nextComma = -1;
-      else nextComma += str.substr(nextComma + i).search(',');
+    let chunked = '';
+    let objectCount = 0;
+    splited.forEach((currentString, idx, a) => {
+      if (currentString === '{') {
+        token.objectCount++;
+        token.objectFlag = true;
+      }
+      if (currentString === '}') {
+        token.objectCount--;
+      }
+      if (currentString === '[') {
+        token.arrayCount++;
+        token.arrayFlag = true;
+      }
+      if (currentString === ']') {
+        token.arrayCount--;
+      }
+      chunked += currentString;
+      if (idx === a.length - 1 && !token.arrayFlag && !token.objectFlag) {
+        token.checkedArr.push(fiddle.removeLastComma(chunked).trim());
+      }
+      if (currentString === ',' && !token.arrayFlag && !token.objectFlag) {
+        const processed = fiddle.removeLastComma(chunked).trim();
+        if (processed.length) token.checkedArr.push(processed);
+        chunked = '';
+      }
+      if (!token.arrayCount && token.arrayFlag) {
+        token.checkedArr.push(chunked.trim());
+        token.arrayFlag = false;
+        chunked = '';
+      }
+      if (!token.objectCount && token.objectFlag) {
+        token.checkedArr.push(chunked.trim());
+        token.objectFlag = false;
+        chunked = '';
+      }
+
     })
     return this.parsedData.checkedArr;
-  }
-
-  addString(str, idx) {
-    let lengthBeforeMeetComma = str.substr(idx).search(',');
-    let chunked = '';
-    let finishArrayFlag = false;
-    if (lengthBeforeMeetComma === -1) chunked = str.substr(idx);
-    for (let i = idx; i < idx + lengthBeforeMeetComma; i++) {
-      if (FiddleString.isEmpty(str[i])) continue;
-      if (str[i] === '[') {
-        this.parsedData.arrayCount++;
-      }
-      if (str[i] === ']') {
-        this.parsedData.arrayCount--;
-        chunked = this.pushStringByCount(chunked);
-      }
-      chunked += str[i];
-    }
-    if (!this.parsedData.finishArrayFlag) this.isErrorInString(this, chunked);
-    if (this.errorMessage) return;
-    this.addStringByArrayCount(chunked);
   }
 
   pushStringByCount(str) {
@@ -198,18 +231,18 @@ class ArrayParser {
 
 }
 
-const FiddleString = {
+class FiddleString {
   getType(context, str) {
     if (['null', 'true', 'false'].indexOf(str) > -1) return str;
     if (this.isArray(context, str)) return 'array';
+    if (this.isObject(context, str)) return 'object';
     if (this.isNumber(str)) return 'number';
     else return 'string';
 
-  },
-
+  }
   isNumber(str) {
     return !isNaN(+str) ? 1 : undefined;
-  },
+  }
 
   checkWrongType(context, targetString) {
     targetString = removeSideBracket(targetString);
@@ -218,7 +251,7 @@ const FiddleString = {
       return 0;
     };
     return 1;
-  },
+  }
 
   checkPairQuote(context, str) {
     str = removeSideBracket(str);
@@ -229,26 +262,36 @@ const FiddleString = {
       context.errorMessage = ERROR_MESSAGE.NOT_PAIR_QUOTE(str);
       return 0;
     }
-  },
+  }
 
   isEmpty(str) {
     if (str === ' ') return 1;
-  },
+  }
 
   isArray(context, str) {
-    if (!this.isPairBracket(context, str)) return;
-    return 1;
-  },
+    if (this.isPairBracket(context, 'square', str)) return 1;
+  }
+  isObject(context, str) {
+    if (this.isPairBracket(context, 'brace', str)) return 1;
+  }
 
-  isPairBracket(context, str) {
+  isPairBracket(context, bracket, str) {
     if (!str) return;
     let minimumBracket = false;
+    let leftBracket, rightBracket = null;
+    if (bracket === 'square') {
+      leftBracket = '[';
+      rightBracket = ']';
+    } else if (bracket === 'brace') {
+      leftBracket = '{';
+      rightBracket = '}';
+    }
     let arrayCount = str.split('').reduce((ac, cv) => {
-      if (cv === '[') {
+      if (cv === leftBracket) {
         ac += 1;
         minimumBracket = true;
       }
-      if (cv === ']') ac -= 1;
+      if (cv === rightBracket) ac -= 1;
       return ac;
     }, 0);
     if (!minimumBracket) return undefined;
@@ -258,8 +301,10 @@ const FiddleString = {
       context.errorMessage = ERROR_MESSAGE.NON_PAIR();
       return 0;
     }
-  },
-
+  }
+  removeLastComma(str) {
+    return (str[str.length - 1] === ',') ? str.substr(0, str.length - 1) : str;
+  }
   removeBracket(str) {
     return str.substring(1, str.length - 1);
   }
@@ -270,7 +315,7 @@ function removeSideBracket(str) {
   return str;
 }
 
-const str = "['wef',['sd',null,true,'a', [1,[1,32,3],12], 2],false, 1,2]";
+const str = "['wef',{wef:12},['sd',null,true,'a', [1,[1,32,3],12], 2],false, 1,2]";
 const ap = new ArrayParser();
 const result = ap.parse(str);
 console.log(JSON.stringify(result, null, 2));
