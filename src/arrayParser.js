@@ -78,7 +78,8 @@
       3. 에러가 검출되어서 errorMessage에 한 개라도 메세지가 추가된다면 1을 리턴한다
   
 */
-
+const tokenizer = require('./tokenizer.js').tokenizer;
+const SyntaxChecker = require('./syntaxChecker.js').SyntaxChecker;
 const ERROR_MESSAGE = {
   NON_PAIR() {
     return `배열의 괄호 개수 오류`
@@ -94,11 +95,11 @@ const ERROR_MESSAGE = {
 class GenerateObject {
   constructor(context) {
     this.context = context;
-    this.fiddle = new FiddleString();
+    this.fiddle = new SyntaxChecker();
   }
 
   getObjectBytype(value) {
-    let type = this.fiddle.getType(this, value);
+    let type = this.fiddle.getType(value);
     let finalObject = null;
     switch (type) {
       case 'array':
@@ -130,81 +131,18 @@ class ArrayParser {
   constructor() {
     this.generateObject = new GenerateObject(this);
     this.parsedData = null;
-    this.initializeParsedData();
     this.errorMessage = null;
-    this.fiddle = new FiddleString();
-  }
-
-  initializeParsedData() {
-    this.parsedData = {
-      checkedArr: [],
-      arrayString: '',
-      objectString: '',
-      arrayCount: 0,
-      arrayFlag: false,
-      objectCount: 0,
-      objectFlag: false,
-      finishArrayFlag: false
-    };
+    this.syntaxChecker = new SyntaxChecker();
   }
 
   parse(str) {
-    if (!this.fiddle.isArray(this, str)) return this.errorMessage;
-    let arrayed = this.changeToArrayStructure(str);
+    let arrayed = tokenizer(str);
     if (this.errorMessage) return this.errorMessage;
-    this.initializeParsedData();
     let fixedArray = arrayed.reduce((ac, cv) => {
       ac.push(this.generateObject.getObjectBytype(cv));
       return ac;
     }, []);
     return fixedArray;
-  }
-
-  changeToArrayStructure(str) {
-    const token = this.parsedData;
-    const fiddle = new FiddleString();
-    str = fiddle.removeBracket(str);
-    const splited = str.split('');
-    let nextComma = 0;
-    let chunked = '';
-    let objectCount = 0;
-    splited.forEach((currentString, idx, a) => {
-      if (currentString === '{') {
-        token.objectCount++;
-        token.objectFlag = true;
-      }
-      if (currentString === '}') {
-        token.objectCount--;
-      }
-      if (currentString === '[') {
-        token.arrayCount++;
-        token.arrayFlag = true;
-      }
-      if (currentString === ']') {
-        token.arrayCount--;
-      }
-      chunked += currentString;
-      if (idx === a.length - 1 && !token.arrayFlag && !token.objectFlag) {
-        token.checkedArr.push(fiddle.removeLastComma(chunked).trim());
-      }
-      if (currentString === ',' && !token.arrayFlag && !token.objectFlag) {
-        const processed = fiddle.removeLastComma(chunked).trim();
-        if (processed.length) token.checkedArr.push(processed);
-        chunked = '';
-      }
-      if (!token.arrayCount && token.arrayFlag) {
-        token.checkedArr.push(chunked.trim());
-        token.arrayFlag = false;
-        chunked = '';
-      }
-      if (!token.objectCount && token.objectFlag) {
-        token.checkedArr.push(chunked.trim());
-        token.objectFlag = false;
-        chunked = '';
-      }
-
-    })
-    return this.parsedData.checkedArr;
   }
 
   pushStringByCount(str) {
@@ -223,99 +161,15 @@ class ArrayParser {
     }
   }
 
-  isErrorInString(context, chunkedString) {
-    FiddleString.checkPairQuote(context, chunkedString);
-    FiddleString.checkWrongType(context, chunkedString);
+  isErrorInString(chunkedString) {
+    FiddleString.checkPairQuote(chunkedString);
+    FiddleString.checkWrongType(chunkedString);
     return this.errorMessage ? 1 : 0;
   }
 
 }
 
-class FiddleString {
-  getType(context, str) {
-    if (['null', 'true', 'false'].indexOf(str) > -1) return str;
-    if (this.isArray(context, str)) return 'array';
-    if (this.isObject(context, str)) return 'object';
-    if (this.isNumber(str)) return 'number';
-    else return 'string';
-
-  }
-  isNumber(str) {
-    return !isNaN(+str) ? 1 : undefined;
-  }
-
-  checkWrongType(context, targetString) {
-    targetString = removeSideBracket(targetString);
-    if (targetString.match(/[0-9]\D|\D[0-9]/)) {
-      context.errorMessage = ERROR_MESSAGE.UNKNOWN_TYPE(targetString);
-      return 0;
-    };
-    return 1;
-  }
-
-  checkPairQuote(context, str) {
-    str = removeSideBracket(str);
-    let countQuote = (str.match(/\'/g) || []).length;
-    if (countQuote === 0 || countQuote === 2) {
-      return 1;
-    } else {
-      context.errorMessage = ERROR_MESSAGE.NOT_PAIR_QUOTE(str);
-      return 0;
-    }
-  }
-
-  isEmpty(str) {
-    if (str === ' ') return 1;
-  }
-
-  isArray(context, str) {
-    if (this.isPairBracket(context, 'square', str)) return 1;
-  }
-  isObject(context, str) {
-    if (this.isPairBracket(context, 'brace', str)) return 1;
-  }
-
-  isPairBracket(context, bracket, str) {
-    if (!str) return;
-    let minimumBracket = false;
-    let leftBracket, rightBracket = null;
-    if (bracket === 'square') {
-      leftBracket = '[';
-      rightBracket = ']';
-    } else if (bracket === 'brace') {
-      leftBracket = '{';
-      rightBracket = '}';
-    }
-    let arrayCount = str.split('').reduce((ac, cv) => {
-      if (cv === leftBracket) {
-        ac += 1;
-        minimumBracket = true;
-      }
-      if (cv === rightBracket) ac -= 1;
-      return ac;
-    }, 0);
-    if (!minimumBracket) return undefined;
-    if (!arrayCount) {
-      return 1;
-    } else {
-      context.errorMessage = ERROR_MESSAGE.NON_PAIR();
-      return 0;
-    }
-  }
-  removeLastComma(str) {
-    return (str[str.length - 1] === ',') ? str.substr(0, str.length - 1) : str;
-  }
-  removeBracket(str) {
-    return str.substring(1, str.length - 1);
-  }
-}
-
-function removeSideBracket(str) {
-  str = str.replace(/\[|\]/g, '');
-  return str;
-}
-
-const str = "['wef',{wef:12},['sd',null,true,'a', [1,[1,32,3],12], 2],false, 1,2]";
+const str = "['wef',['sd',null,true,'a', [1,[1,32,3],12], 2],false, 1,2]";
 const ap = new ArrayParser();
 const result = ap.parse(str);
 console.log(JSON.stringify(result, null, 2));
