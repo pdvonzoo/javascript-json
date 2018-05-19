@@ -1,4 +1,4 @@
-class SyntaxChecker {
+class Syntax {
   constructor() {
     this.ERROR_MESSAGE = {
       NON_PAIR() {
@@ -13,14 +13,7 @@ class SyntaxChecker {
     }
     this.errorMessage = null;
   }
-  getType(str) {
-    if (['null', 'true', 'false'].indexOf(str) > -1) return str;
-    if (this.isArray(str)) return 'array';
-    if (this.isObject(str)) return 'object';
-    if (this.isNumber(str)) return 'number';
-    else return 'string';
 
-  }
   isNumber(str) {
     return !isNaN(+str) ? 1 : undefined;
   }
@@ -98,10 +91,9 @@ class SyntaxChecker {
     str = str.replace(/\[|\]/g, '');
     return str;
   }
-
 }
 
-exports.SyntaxChecker = SyntaxChecker;
 
-const sy = new SyntaxChecker();
-console.log(sy.errorMessage);
+// const ob = new ObjectStructure();
+// console.log(ob.getObjectBytype('[12,421]'));
+exports.Syntax = Syntax;
