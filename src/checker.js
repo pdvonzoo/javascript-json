@@ -48,9 +48,11 @@ class Syntax {
   }
 
   isArray(str) {
+    if (str[0] !== '[' || str[str.length - 1] !== ']') return;
     if (this.isPairBracket('square', str)) return 1;
   }
   isObject(str) {
+    if (str[0] !== '{' || str[str.length - 1] !== '}') return;
     if (this.isPairBracket('brace', str)) return 1;
   }
 
@@ -84,6 +86,9 @@ class Syntax {
   removeLastComma(str) {
     return (str[str.length - 1] === ',') ? str.substr(0, str.length - 1) : str;
   }
+  removeLastEqual(str) {
+    return (str[str.length - 1] === ':') ? str.substr(0, str.length - 1) : str;
+  }
   removeBracket(str) {
     return str.substring(1, str.length - 1);
   }
@@ -92,8 +97,5 @@ class Syntax {
     return str;
   }
 }
-
-
-// const ob = new ObjectStructure();
-// console.log(ob.getObjectBytype('[12,421]'));
+const st = new Syntax();
 exports.Syntax = Syntax;

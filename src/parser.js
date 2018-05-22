@@ -8,7 +8,7 @@ class ObjectStructure {
   getType(str) {
     if (['null', 'true', 'false'].indexOf(str) > -1) return str;
     if (toString.call(str) === '[object Array]') return 'array';
-    if (this.syntaxChecker.isObject(str)) return 'object';
+    if (toString.call(str) === '[object Object]') return 'object';
     if (this.syntaxChecker.isNumber(str)) return 'number';
     else return 'string';
   }
@@ -19,6 +19,13 @@ class ObjectStructure {
     }, []);
     return fixed;
   }
+  childNodeObj(obj) {
+    Object.keys(obj).forEach(v => {
+      obj[v] = this.getObjectBytype(obj[v]);
+    })
+    return obj;
+  }
+
   getObjectBytype(value) {
     let type = this.getType(value);
     let finalObject = null;
@@ -34,7 +41,7 @@ class ObjectStructure {
         finalObject = {
           type: type,
           value: 'Object',
-          child: []
+          child: this.childNodeObj(value)
         }
         break;
       default:
@@ -48,8 +55,14 @@ class ObjectStructure {
     return finalObject;
   }
 }
+
+exports.ObjectStructure = ObjectStructure;
 const obj = new ObjectStructure();
-const str = "['wef',['sd',null,true,'a', [1,[1,32,3],12], 2],false, 1,2]";
+const str = "['wef',['sd', {},null,true,'a', [1,[1,32,3],12], 2],false, 1,2]";
 let abc = tokenizer(str);
 let fi = obj.getObjectBytype(abc);
-console.log(JSON.stringify(fi, null, 2));
+let bb = {
+  1: 'wef',
+  2: ['wef', '2', '3']
+}
+// console.log(JSON.stringify(obj.childNodeObj(bb), null, 2))

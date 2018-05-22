@@ -9,54 +9,123 @@ function tokenizer(str) {
     arrayFlag: false,
     objectCount: 0,
     objectFlag: false,
-    finishArrayFlag: false
   };
   const token = parsedData;
   const syntaxChecker = new Syntax();
   str = syntaxChecker.removeBracket(str);
   const splited = str.split('');
-  let nextComma = 0;
-  let chunked = '';
-  let objectCount = 0;
+  let chunk = '';
+  let objChunk = '';
   splited.forEach((currentString, idx, originalArray) => {
-    if (currentString === '{') {
-      token.objectCount++;
+    if (currentString === '{' && !token.arrayFlag) {
       token.objectFlag = true;
+      token.objectCount++;
     }
-    if (currentString === '}') {
+    if (currentString === '}' && !token.arrayFlag) {
       token.objectCount--;
     }
-    if (currentString === '[') {
+    if (currentString === '[' && !token.objectFlag) {
       token.arrayCount++;
       token.arrayFlag = true;
     }
-    if (currentString === ']') {
+    if (currentString === ']' && !token.objectFlag) {
       token.arrayCount--;
     }
-    chunked += currentString;
+
+    chunk += currentString;
     if ((currentString === ',' || idx === originalArray.length - 1) && !token.arrayFlag && !token.objectFlag) {
-      const processed = syntaxChecker.removeLastComma(chunked).trim();
+      let processed = syntaxChecker.removeLastComma(chunk).trim();
       if (processed.length) {
         syntaxChecker.checkError(processed);
         token.checkedArr.push(processed);
       }
-      chunked = '';
+      chunk = '';
     }
     if (!token.arrayCount && token.arrayFlag) {
-      token.checkedArr.push(tokenizer(chunked.trim()));
+      token.checkedArr.push(tokenizer(chunk.trim()));
       token.arrayFlag = false;
-      chunked = '';
-    }
-    if (!token.objectCount && token.objectFlag) {
-      token.checkedArr.push(chunked.trim());
       token.objectFlag = false;
-      chunked = '';
+      chunk = '';
+    }
+    if (!token.objectCount && !token.arrayFlag && token.objectFlag) {
+      let processed = syntaxChecker.removeLastComma(chunk).trim();
+      if (syntaxChecker.isObject(processed)) {
+        processed = jsonParser(processed);
+        token.checkedArr.push(processed)
+        token.objectFlag = false;
+      }
+      chunk = '';
     }
 
   })
   return token.checkedArr;
 }
 exports.tokenizer = tokenizer;
-const str = "['wef',['sd',null,true,'a', [1,[1,32,3],12], 2],false, 1,2]";
-const lize = tokenizer(str);
-// console.log(JSON.stringify(lize, null, 2));
+
+function jsonParser(str) {
+  let parsedData = {
+    checkedObj: {},
+    arrayString: '',
+    objectString: '',
+    arrayCount: 0,
+    arrayFlag: false,
+    objectCount: 0,
+    objectFlag: false,
+  };
+  const token = parsedData;
+  const syntaxChecker = new Syntax();
+  str = syntaxChecker.removeBracket(str);
+  const splited = str.split('');
+  let chunk = '';
+  let temp = '';
+  let obj = {};
+  splited.forEach((currentString, idx, originalArray) => {
+    if (currentString === '{' && !token.arrayFlag) {
+      token.objectCount++;
+      token.objectFlag = true;
+    }
+    if (currentString === '}' && !token.arrayFlag) {
+      token.objectCount--;
+    }
+    if (currentString === '[' && !token.objectFlag) {
+      token.arrayCount++;
+      token.arrayFlag = true;
+    }
+    if (currentString === ']' && !token.objectFlag) {
+      token.arrayCount--;
+    }
+    chunk += currentString;
+    if (currentString === ':' && !token.arrayFlag && !token.objectFlag) {
+      const processed = syntaxChecker.removeLastEqual(chunk).trim();
+      if (processed.length) {
+        syntaxChecker.checkError(processed);
+        temp = processed;
+      }
+      chunk = '';
+    }
+    if ((currentString === ',' || idx === originalArray.length - 1) && !token.arrayFlag && !token.objectFlag) {
+      const processed = syntaxChecker.removeLastComma(chunk).trim();
+      if (processed.length) {
+        syntaxChecker.checkError(processed);
+        obj[temp] = processed;
+      }
+      temp = '';
+      chunk = '';
+    }
+    if (!token.arrayCount && token.arrayFlag) {
+      if (syntaxChecker.isArray(chunk)) chunk = tokenizer(chunk);
+      obj[temp] = chunk;
+      token.arrayFlag = false;
+      temp = '';
+      chunk = '';
+    }
+    if (!token.objectCount && token.objectFlag) {
+      obj[temp] = chunk;
+      token.objectFlag = false;
+      temp = '';
+      chunk = '';
+    }
+  })
+  return obj;
+}
+console.log(JSON.stringify(jsonParser("{a:'b',c:{a:b,c:d,e:[]},f:[{1:2},1]}"), null, 2));
