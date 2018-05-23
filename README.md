@@ -468,6 +468,22 @@
      - checkType(params)
      - getResult()
 
+   - 다시 클래스 분할부터
+
+     - main.js
+
+     - lexer.js
+
+       `어휘 분석기(Lexer)는 프로그램을 읽어 토큰(문장 자체를 문장을 이루고 있는 단어 단위로 쪼갠 것)을 생성하는 역할`
+
+     - tokenizer.js
+
+       `[컴퓨터 공학] 낱말 분석`
+
+     - arrayParser.js
+
+     - utility.js
+
    - test 메서드
 
    - expect 객체
@@ -494,7 +510,13 @@
      console.log(math.multiply(1, 2)); //2
      ```
 
-     
+
+
+
+
+
+
+
 
 
 
