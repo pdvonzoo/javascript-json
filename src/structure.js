@@ -1,4 +1,5 @@
 const Syntax = require('./checker').Syntax;
+const syntaxChecker = new Syntax();
 class ParsingData {
   constructor() {
     this.completeArr = [];
@@ -11,91 +12,43 @@ class ParsingData {
     this.objectOpen = false;
   }
 }
-class DataStructure {
-  constructor() {
-    this.syntaxChecker = new Syntax();
-  }
-  madeArray(str) {
-    return this.syntaxChecker.removeBracket(str).split('');
-  }
-  parser(str) {
-    const type = this.syntaxChecker.isArray(str) ? 'array' : 'object';
-    const flag = new ParsingData();
-    this.madeArray(str).forEach((currentString, idx, originalArray) => {
-      if (currentString === '{' && !flag.arrayOpen) {
-        flag.objectOpen = true;
-        flag.objectCount++;
-      }
-      if (currentString === '}' && !flag.arrayOpen) {
-        flag.objectCount--;
-      }
-      if (currentString === '[' && !flag.objectOpen) {
-        flag.arrayCount++;
-        flag.arrayOpen = true;
-      }
-      if (currentString === ']' && !flag.objectOpen) {
-        flag.arrayCount--;
-      }
-      flag.chunk += currentString;
-      if (type === 'array') {
-        if (currentString === ',' || idx === originalArray.length - 1) {
-          this.pushCompletedString(flag);
-        }
-        if (!flag.arrayCount && flag.arrayOpen) {
-          this.pushCompletedArray(flag);
-        }
-        if (!flag.objectCount && !flag.arrayOpen && flag.objectOpen) {
-          this.pushCompletedObject(flag);
-        }
-
-      } else if (type === 'object') {
-        if (currentString === ',' || idx === originalArray.length - 1) {
-          this.addValue(flag);
-        }
-        if (currentString === ':') {
-          this.addKey(flag);
-        }
-        if (!flag.objectCount && flag.objectOpen) {
-          this.addObject(flag);
-        }
-        if (!flag.arrayCount && flag.arrayOpen) {
-          this.addArray(flag);
-        }
-      }
-
-    })
-    return type === 'array' ? flag.completeArr : flag.completeObj;
-  }
+class ArrayParser {
+  constructor() {}
   pushCompletedString(context) {
     if (!context.arrayOpen && !context.objectOpen) {
-      let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
+      let processed = syntaxChecker.removeLastComma(context.chunk).trim();
       if (processed.length) {
-        this.syntaxChecker.checkError(processed);
+        syntaxChecker.checkError(processed);
         context.completeArr.push(processed);
       }
       context.chunk = '';
     }
   }
   pushCompletedArray(context) {
-    context.completeArr.push(this.parser(context.chunk.trim()));
+    const structure = new DataStructure();
+    context.completeArr.push(structure.parser(context.chunk.trim()));
     context.arrayOpen = false;
     context.objectOpen = false;
     context.chunk = '';
   }
   pushCompletedObject(context) {
-    let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
-    if (this.syntaxChecker.isObject(processed)) {
-      processed = this.parser(processed);
+    const structure = new DataStructure();
+    let processed = syntaxChecker.removeLastComma(context.chunk).trim();
+    if (syntaxChecker.isObject(processed)) {
+      processed = structure.parser(processed);
       context.completeArr.push(processed)
       context.objectOpen = false;
     }
     context.chunk = '';
   }
+}
+class JsonParser {
+  constructor() {}
   addKey(context) {
     if (!context.arrayOpen && !context.objectOpen) {
-      const processed = this.syntaxChecker.removeLastEqual(context.chunk).trim();
+      const processed = syntaxChecker.removeLastEqual(context.chunk).trim();
       if (processed.length) {
-        this.syntaxChecker.checkError(processed, 'key');
+        syntaxChecker.checkError(processed, 'key');
         context.temp = processed;
       }
       context.chunk = '';
@@ -103,9 +56,9 @@ class DataStructure {
   }
   addValue(context) {
     if (!context.arrayOpen && !context.objectOpen) {
-      const processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
+      const processed = syntaxChecker.removeLastComma(context.chunk).trim();
       if (processed.length) {
-        this.syntaxChecker.checkError(processed);
+        syntaxChecker.checkError(processed);
         context.completeObj[context.temp] = processed;
       }
       context.temp = '';
@@ -113,20 +66,78 @@ class DataStructure {
     }
   }
   addObject(context) {
-    if (this.syntaxChecker.isObject(context.chunk)) context.chunk = this.parser(context.chunk);
+    const structure = new DataStructure();
+    if (syntaxChecker.isObject(context.chunk)) context.chunk = structure.parser(context.chunk);
     context.completeObj[context.temp] = context.chunk;
     context.objectOpen = false;
     context.temp = '';
     context.chunk = '';
   }
   addArray(context) {
-    if (this.syntaxChecker.isArray(context.chunk)) context.chunk = this.parser(context.chunk);
+    const structure = new DataStructure();
+    if (syntaxChecker.isArray(context.chunk)) context.chunk = structure.parser(context.chunk);
     context.completeObj[context.temp] = context.chunk;
     context.arrayOpen = false;
     context.temp = '';
     context.chunk = '';
   }
 }
+class DataStructure {
+  constructor() {
+    this.syntaxChecker = new Syntax();
+    this.arrayParser = new ArrayParser();
+    this.jsonParser = new JsonParser();
+  }
+  madeArray(str) {
+    return this.syntaxChecker.removeBracket(str).split('');
+  }
+  parser(str) {
+    const type = this.syntaxChecker.isArray(str) ? 'array' : 'object';
+    const parsedData = new ParsingData();
+    this.madeArray(str).forEach((currentString, idx, originalArray) => {
+      if (currentString === '{' && !parsedData.arrayOpen) {
+        parsedData.objectOpen = true;
+        parsedData.objectCount++;
+      }
+      if (currentString === '}' && !parsedData.arrayOpen) {
+        parsedData.objectCount--;
+      }
+      if (currentString === '[' && !parsedData.objectOpen) {
+        parsedData.arrayCount++;
+        parsedData.arrayOpen = true;
+      }
+      if (currentString === ']' && !parsedData.objectOpen) {
+        parsedData.arrayCount--;
+      }
+      parsedData.chunk += currentString;
+      if (type === 'array') {
+        if (currentString === ',' || idx === originalArray.length - 1) {
+          this.arrayParser.pushCompletedString(parsedData);
+        }
+        if (!parsedData.arrayCount && parsedData.arrayOpen) {
+          this.arrayParser.pushCompletedArray(parsedData);
+        }
+        if (!parsedData.objectCount && !parsedData.arrayOpen && parsedData.objectOpen) {
+          this.arrayParser.pushCompletedObject(parsedData);
+        }
+
+      } else if (type === 'object') {
+        if (currentString === ',' || idx === originalArray.length - 1) {
+          this.jsonParser.addValue(parsedData);
+        }
+        if (currentString === ':') {
+          this.jsonParser.addKey(parsedData);
+        }
+        if (!parsedData.objectCount && parsedData.objectOpen) {
+          this.jsonParser.addObject(parsedData);
+        }
+        if (!parsedData.arrayCount && parsedData.arrayOpen) {
+          this.jsonParser.addArray(parsedData);
+        }
+      }
+
+    })
+    return type === 'array' ? parsedData.completeArr : parsedData.completeObj;
+  }
+}
 exports.DataStructure = DataStructure;
-const ds = new DataStructure();
-// console.log(ds.parser("[1,2,3,['wef',{a:'b'},3],null,true]"));
