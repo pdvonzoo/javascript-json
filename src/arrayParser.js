@@ -8,7 +8,7 @@ class ArrayParser {
     this.structure = new DataStructure();
   }
   parse(str) {
-    let arrayed = this.structure.processArray(str);
+    let arrayed = this.structure.parser(str);
     let fixedArray = this.tokenizer.tokenize(arrayed);
     return fixedArray;
   }

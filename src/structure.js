@@ -1,122 +1,132 @@
 const Syntax = require('./checker').Syntax;
-exports.DataStructure = class DataStructure {
+class ParsingData {
+  constructor() {
+    this.completeArr = [];
+    this.completeObj = {};
+    this.chunk = '';
+    this.temp = '';
+    this.arrayCount = 0;
+    this.arrayOpen = false;
+    this.objectCount = 0;
+    this.objectOpen = false;
+  }
+}
+class DataStructure {
   constructor() {
     this.syntaxChecker = new Syntax();
   }
-  processArray(str) {
-    str = this.syntaxChecker.removeBracket(str);
-    const splited = str.split('');
-    let completeArr = [];
-    let chunk = '';
-    let flag = {
-      arrayCount: 0,
-      arrayOpen: false,
-      objectCount: 0,
-      objectOpen: false
-    }
-    splited.forEach((currentString, idx, originalArray) => {
-      if (currentString === '{' && !flag.arrayFlag) {
-        flag.objectFlag = true;
+  madeArray(str) {
+    return this.syntaxChecker.removeBracket(str).split('');
+  }
+  parser(str) {
+    const type = this.syntaxChecker.isArray(str) ? 'array' : 'object';
+    const flag = new ParsingData();
+    this.madeArray(str).forEach((currentString, idx, originalArray) => {
+      if (currentString === '{' && !flag.arrayOpen) {
+        flag.objectOpen = true;
         flag.objectCount++;
       }
-      if (currentString === '}' && !flag.arrayFlag) {
+      if (currentString === '}' && !flag.arrayOpen) {
         flag.objectCount--;
       }
-      if (currentString === '[' && !flag.objectFlag) {
+      if (currentString === '[' && !flag.objectOpen) {
         flag.arrayCount++;
-        flag.arrayFlag = true;
+        flag.arrayOpen = true;
       }
-      if (currentString === ']' && !flag.objectFlag) {
+      if (currentString === ']' && !flag.objectOpen) {
         flag.arrayCount--;
       }
-      chunk += currentString;
-      if ((currentString === ',' || idx === originalArray.length - 1) && !flag.arrayFlag && !flag.objectFlag) {
-        let processed = this.syntaxChecker.removeLastComma(chunk).trim();
-        if (processed.length) {
-          this.syntaxChecker.checkError(processed);
-          completeArr.push(processed);
+      flag.chunk += currentString;
+      if (type === 'array') {
+        if (currentString === ',' || idx === originalArray.length - 1) {
+          this.pushCompletedString(flag);
         }
-        chunk = '';
-      }
-      if (!flag.arrayCount && flag.arrayFlag) {
-        completeArr.push(this.processArray(chunk.trim()));
-        flag.arrayFlag = false;
-        flag.objectFlag = false;
-        chunk = '';
-      }
-      if (!flag.objectCount && !flag.arrayFlag && flag.objectFlag) {
-        let processed = this.syntaxChecker.removeLastComma(chunk).trim();
-        if (this.syntaxChecker.isObject(processed)) {
-          processed = this.processObject(processed);
-          completeArr.push(processed)
-          flag.objectFlag = false;
+        if (!flag.arrayCount && flag.arrayOpen) {
+          this.pushCompletedArray(flag);
         }
-        chunk = '';
+        if (!flag.objectCount && !flag.arrayOpen && flag.objectOpen) {
+          this.pushCompletedObject(flag);
+        }
+
+      } else if (type === 'object') {
+        if (currentString === ',' || idx === originalArray.length - 1) {
+          this.addValue(flag);
+        }
+        if (currentString === ':') {
+          this.addKey(flag);
+        }
+        if (!flag.objectCount && flag.objectOpen) {
+          this.addObject(flag);
+        }
+        if (!flag.arrayCount && flag.arrayOpen) {
+          this.addArray(flag);
+        }
       }
 
     })
-    return completeArr;
+    return type === 'array' ? flag.completeArr : flag.completeObj;
   }
-  processObject(str) {
-    str = this.syntaxChecker.removeBracket(str);
-    const splited = str.split('');
-    let chunk = '';
-    let temp = '';
-    let completeObj = {};
-    let flag = {
-      arrayCount: 0,
-      arrayOpen: false,
-      objectCount: 0,
-      objectOpen: false
+  pushCompletedString(context) {
+    if (!context.arrayOpen && !context.objectOpen) {
+      let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
+      if (processed.length) {
+        this.syntaxChecker.checkError(processed);
+        context.completeArr.push(processed);
+      }
+      context.chunk = '';
     }
-    splited.forEach((currentString, idx, originalArray) => {
-      if (currentString === '{' && !flag.arrayFlag) {
-        flag.objectCount++;
-        flag.objectFlag = true;
+  }
+  pushCompletedArray(context) {
+    context.completeArr.push(this.parser(context.chunk.trim()));
+    context.arrayOpen = false;
+    context.objectOpen = false;
+    context.chunk = '';
+  }
+  pushCompletedObject(context) {
+    let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
+    if (this.syntaxChecker.isObject(processed)) {
+      processed = this.parser(processed);
+      context.completeArr.push(processed)
+      context.objectOpen = false;
+    }
+    context.chunk = '';
+  }
+  addKey(context) {
+    if (!context.arrayOpen && !context.objectOpen) {
+      const processed = this.syntaxChecker.removeLastEqual(context.chunk).trim();
+      if (processed.length) {
+        this.syntaxChecker.checkError(processed, 'key');
+        context.temp = processed;
       }
-      if (currentString === '}' && !flag.arrayFlag) {
-        flag.objectCount--;
+      context.chunk = '';
+    }
+  }
+  addValue(context) {
+    if (!context.arrayOpen && !context.objectOpen) {
+      const processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
+      if (processed.length) {
+        this.syntaxChecker.checkError(processed);
+        context.completeObj[context.temp] = processed;
       }
-      if (currentString === '[' && !flag.objectFlag) {
-        flag.arrayCount++;
-        flag.arrayFlag = true;
-      }
-      if (currentString === ']' && !flag.objectFlag) {
-        flag.arrayCount--;
-      }
-      chunk += currentString;
-      if (currentString === ':' && !flag.arrayFlag && !flag.objectFlag) {
-        const processed = this.syntaxChecker.removeLastEqual(chunk).trim();
-        if (processed.length) {
-          this.syntaxChecker.checkError(processed, 'key');
-          temp = processed;
-        }
-        chunk = '';
-      }
-      if ((currentString === ',' || idx === originalArray.length - 1) && !flag.arrayFlag && !flag.objectFlag) {
-        const processed = this.syntaxChecker.removeLastComma(chunk).trim();
-        if (processed.length) {
-          this.syntaxChecker.checkError(processed);
-          completeObj[temp] = processed;
-        }
-        temp = '';
-        chunk = '';
-      }
-      if (!flag.arrayCount && flag.arrayFlag) {
-        if (this.syntaxChecker.isArray(chunk)) chunk = this.processArray(chunk);
-        completeObj[temp] = chunk;
-        flag.arrayFlag = false;
-        temp = '';
-        chunk = '';
-      }
-      if (!flag.objectCount && flag.objectFlag) {
-        if (this.syntaxChecker.isObject(chunk)) chunk = this.processObject(chunk);
-        completeObj[temp] = chunk;
-        flag.objectFlag = false;
-        temp = '';
-        chunk = '';
-      }
-    })
-    return completeObj;
+      context.temp = '';
+      context.chunk = '';
+    }
+  }
+  addObject(context) {
+    if (this.syntaxChecker.isObject(context.chunk)) context.chunk = this.parser(context.chunk);
+    context.completeObj[context.temp] = context.chunk;
+    context.objectOpen = false;
+    context.temp = '';
+    context.chunk = '';
+  }
+  addArray(context) {
+    if (this.syntaxChecker.isArray(context.chunk)) context.chunk = this.parser(context.chunk);
+    context.completeObj[context.temp] = context.chunk;
+    context.arrayOpen = false;
+    context.temp = '';
+    context.chunk = '';
   }
 }
+exports.DataStructure = DataStructure;
+const ds = new DataStructure();
+// console.log(ds.parser("[1,2,3,['wef',{a:'b'},3],null,true]"));

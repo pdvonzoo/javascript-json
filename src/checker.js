@@ -55,12 +55,14 @@ class Syntax {
   }
 
   isArray(str) {
-    if (this.isPairBracket('square', str)) return 1;
-    if (str[0] !== '[' || str[str.length - 1] !== ']') return;
+    if (str[0] === '[' && str[str.length - 1] === ']') return 1;
+    // if (this.isPairBracket('square', str)) return 1;
+    // if (str[0] !== '[' || str[str.length - 1] !== ']') return;
   }
   isObject(str) {
-    if (this.isPairBracket('brace', str)) return 1;
-    if (str[0] !== '{' || str[str.length - 1] !== '}') return;
+    if (str[0] === '{' && str[str.length - 1] === '}') return 1;
+    // if (this.isPairBracket('brace', str)) return 1;
+    // if (str[0] !== '{' || str[str.length - 1] !== '}') return;
   }
 
   isPairBracket(bracket, str) {
@@ -106,5 +108,3 @@ class Syntax {
 }
 exports.Syntax = Syntax;
 const f = new Syntax();
-console.log(f.isStringAndNoQuote("1"));
-console.log(Number.isInteger(+"1"));

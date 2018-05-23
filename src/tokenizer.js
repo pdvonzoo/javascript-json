@@ -57,7 +57,7 @@ exports.Tokenizer = class Tokenizer {
     else {
       let fixedArray = value.reduce((ac, cv) => {
         let type = this.getType(cv);
-        ac.push(this.tokenizer.tokenize(cv));
+        ac.push(this.getObjectByType(cv));
         return ac;
       }, []);
       return fixedArray;
