@@ -49,5 +49,3 @@ class expect{
 	}
 
 }
-
-console.log(new expect().equal({}, {}))

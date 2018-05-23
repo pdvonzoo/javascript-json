@@ -27,9 +27,11 @@ class parser{
         return result;
     }
 }
-let str = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
-let parseData = new parser().dataParser(str);
-console.log(JSON.stringify(parseData,null,2));
+exports.parser = new parser();
+
+// let str = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
+// let parseData = new parser().dataParser(str);
+// console.log(JSON.stringify(parseData,null,2));
 
 // str = "['1a'3',[22,23,[11,[112233],112],55],33]";
 // parseData = new parser().dataParser(str);
@@ -39,9 +41,9 @@ console.log(JSON.stringify(parseData,null,2));
 // parseData = new parser().dataParser(str);
 // console.log(JSON.stringify(parseData, null, 2));
 
-str = "['1a3',[22,23,[11,[112233],112],55],{crong : 3d3}]"; 
-parseData = new parser().dataParser(str);
-console.log(JSON.stringify(parseData, null, 2));
+// str = "['1a3',[22,23,[11,[112233],112],55],{crong : 3d3}]"; 
+// parseData = new parser().dataParser(str);
+// console.log(JSON.stringify(parseData, null, 2));
 
 // str = "[{a : '1a'3'},[22,23,[11,[112233],112],55],33]";
 // parseData = new parser().dataParser(str);
