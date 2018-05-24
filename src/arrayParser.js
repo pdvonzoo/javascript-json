@@ -4,12 +4,14 @@ const Tokenizer = require('./tokenizer.js').Tokenizer;
 
 class ArrayParser {
   constructor() {
-    this.tokenizer = new Tokenizer(new Syntax());
-    this.structure = new DataStructure(new Syntax());
+    this.syntaxChecker = new Syntax();
+    this.tokenizer = new Tokenizer(this.syntaxChecker);
+    this.dataStructure = new DataStructure(this.syntaxChecker);
   }
   parse(str) {
-    let arrayed = this.structure.parser(str);
-    let fixedArray = this.tokenizer.tokenize(arrayed);
+    this.syntaxChecker.isPairBracket(str);
+    const arrayed = this.dataStructure.parser(str);
+    const fixedArray = this.tokenizer.tokenize(arrayed);
     return fixedArray;
   }
 }

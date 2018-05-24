@@ -11,7 +11,7 @@ exports.Tokenizer = class Tokenizer {
     else return 'string';
   }
   tokenizeChildArray(arr) {
-    let fixed = arr.reduce((ac, cv) => {
+    const fixed = arr.reduce((ac, cv) => {
       ac.push(this.tokenize(cv));
       return ac;
     }, []);
@@ -25,7 +25,7 @@ exports.Tokenizer = class Tokenizer {
   }
   getObjectByType(value) {
     let finalObject = null;
-    let type = this.getType(value);
+    const type = this.getType(value);
     switch (type) {
       case 'array':
         finalObject = {
@@ -54,8 +54,8 @@ exports.Tokenizer = class Tokenizer {
   tokenize(value) {
     if (toString.call(value) !== '[object array]') return this.getObjectByType(value);
     else {
-      let fixedArray = value.reduce((ac, cv) => {
-        let type = this.getType(cv);
+      const fixedArray = value.reduce((ac, cv) => {
+        const type = this.getType(cv);
         ac.push(this.getObjectByType(cv));
         return ac;
       }, []);

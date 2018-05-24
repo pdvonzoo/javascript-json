@@ -18,7 +18,7 @@ class ArrayParser {
   }
   pushCompletedString(context) {
     if (!context.arrayOpen && !context.objectOpen) {
-      let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
+      const processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
       if (processed.length) {
         this.syntaxChecker.checkError(processed);
         context.completeArr.push(processed);
