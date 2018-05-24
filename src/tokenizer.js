@@ -1,8 +1,7 @@
-const Syntax = require('./checker').Syntax;
 const structure = require('./structure').DataStructure;
 exports.Tokenizer = class Tokenizer {
-  constructor() {
-    this.syntaxChecker = new Syntax();
+  constructor(syntaxChecker) {
+    this.syntaxChecker = syntaxChecker;
   }
   getType(str) {
     if (['null', 'true', 'false'].indexOf(str) > -1) return str;

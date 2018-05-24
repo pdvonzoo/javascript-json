@@ -1,5 +1,4 @@
 const Syntax = require('./checker').Syntax;
-const syntaxChecker = new Syntax();
 class ParsingData {
   constructor() {
     this.completeArr = [];
@@ -13,29 +12,30 @@ class ParsingData {
   }
 }
 class ArrayParser {
-  constructor() {}
+  constructor(dataStructure, syntaxChecker) {
+    this.dataStructure = dataStructure;
+    this.syntaxChecker = syntaxChecker;
+  }
   pushCompletedString(context) {
     if (!context.arrayOpen && !context.objectOpen) {
-      let processed = syntaxChecker.removeLastComma(context.chunk).trim();
+      let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
       if (processed.length) {
-        syntaxChecker.checkError(processed);
+        this.syntaxChecker.checkError(processed);
         context.completeArr.push(processed);
       }
       context.chunk = '';
     }
   }
   pushCompletedArray(context) {
-    const structure = new DataStructure();
-    context.completeArr.push(structure.parser(context.chunk.trim()));
+    context.completeArr.push(this.dataStructure.parser(context.chunk.trim()));
     context.arrayOpen = false;
     context.objectOpen = false;
     context.chunk = '';
   }
   pushCompletedObject(context) {
-    const structure = new DataStructure();
-    let processed = syntaxChecker.removeLastComma(context.chunk).trim();
-    if (syntaxChecker.isObject(processed)) {
-      processed = structure.parser(processed);
+    let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
+    if (this.syntaxChecker.isObject(processed)) {
+      processed = this.dataStructure.parser(processed);
       context.completeArr.push(processed)
       context.objectOpen = false;
     }
@@ -43,12 +43,15 @@ class ArrayParser {
   }
 }
 class JsonParser {
-  constructor() {}
+  constructor(dataStructure, syntaxChecker) {
+    this.dataStructure = dataStructure;
+    this.syntaxChecker = syntaxChecker;
+  }
   addKey(context) {
     if (!context.arrayOpen && !context.objectOpen) {
-      const processed = syntaxChecker.removeLastEqual(context.chunk).trim();
+      const processed = this.syntaxChecker.removeLastEqual(context.chunk).trim();
       if (processed.length) {
-        syntaxChecker.checkError(processed, 'key');
+        this.syntaxChecker.checkError(processed, 'key');
         context.temp = processed;
       }
       context.chunk = '';
@@ -56,9 +59,9 @@ class JsonParser {
   }
   addValue(context) {
     if (!context.arrayOpen && !context.objectOpen) {
-      const processed = syntaxChecker.removeLastComma(context.chunk).trim();
+      const processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
       if (processed.length) {
-        syntaxChecker.checkError(processed);
+        this.syntaxChecker.checkError(processed);
         context.completeObj[context.temp] = processed;
       }
       context.temp = '';
@@ -66,16 +69,14 @@ class JsonParser {
     }
   }
   addObject(context) {
-    const structure = new DataStructure();
-    if (syntaxChecker.isObject(context.chunk)) context.chunk = structure.parser(context.chunk);
+    if (this.syntaxChecker.isObject(context.chunk)) context.chunk = this.dataStructure.parser(context.chunk);
     context.completeObj[context.temp] = context.chunk;
     context.objectOpen = false;
     context.temp = '';
     context.chunk = '';
   }
   addArray(context) {
-    const structure = new DataStructure();
-    if (syntaxChecker.isArray(context.chunk)) context.chunk = structure.parser(context.chunk);
+    if (this.syntaxChecker.isArray(context.chunk)) context.chunk = this.dataStructure.parser(context.chunk);
     context.completeObj[context.temp] = context.chunk;
     context.arrayOpen = false;
     context.temp = '';
@@ -83,10 +84,10 @@ class JsonParser {
   }
 }
 class DataStructure {
-  constructor() {
-    this.syntaxChecker = new Syntax();
-    this.arrayParser = new ArrayParser();
-    this.jsonParser = new JsonParser();
+  constructor(syntaxChecker) {
+    this.syntaxChecker = syntaxChecker;
+    this.arrayParser = new ArrayParser(this, syntaxChecker);
+    this.jsonParser = new JsonParser(this, syntaxChecker);
   }
   madeArray(str) {
     return this.syntaxChecker.removeBracket(str).split('');

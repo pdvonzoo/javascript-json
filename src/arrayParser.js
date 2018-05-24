@@ -4,8 +4,8 @@ const Tokenizer = require('./tokenizer.js').Tokenizer;
 
 class ArrayParser {
   constructor() {
-    this.tokenizer = new Tokenizer();
-    this.structure = new DataStructure();
+    this.tokenizer = new Tokenizer(new Syntax());
+    this.structure = new DataStructure(new Syntax());
   }
   parse(str) {
     let arrayed = this.structure.parser(str);
