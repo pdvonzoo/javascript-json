@@ -4,7 +4,7 @@ const Tokenizer = require('./tokenizer.js').Tokenizer;
 
 class ArrayParser {
   constructor() {
-    this.syntaxChecker = new Syntax();
+    this.syntaxChecker = new Syntax(Syntax.ErrorMessage);
     this.tokenizer = new Tokenizer(this.syntaxChecker);
     this.dataStructure = new DataStructure(this.syntaxChecker);
   }

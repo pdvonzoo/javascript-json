@@ -1,4 +1,4 @@
-class ErrorMessage {
+exports.ErrorMessage = class ErrorMessage {
   NON_PAIR(bracket) {
     return `배열의 ${bracket} 개수 오류`
   }
@@ -10,11 +10,10 @@ class ErrorMessage {
   }
 }
 class Syntax {
-  constructor() {
-    this.ERROR_MESSAGE = new ErrorMessage();
+  constructor(errorMessage) {
+    this.ERROR_MESSAGE = errorMessage;
     this.errorMessage = null;
   }
-
   checkError(targetString, key) {
     if (this.isString(targetString)) this.checkPairQuote(targetString);
     this.isMixedType(targetString);
@@ -101,4 +100,3 @@ class Syntax {
   }
 }
 exports.Syntax = Syntax;
-const f = new Syntax();
