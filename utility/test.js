@@ -13,10 +13,10 @@ class expect{
 	}
 
 	equal(target, expect){
-		if( Object.prototype.toString.call(target) === "[object Array]" ){
+		if( Array.isArray(target) ){
 			return this.arrayEqual(target, expect);
 		}
-		if( Object.prototype.toString.call(target) === "[object Object]" ){
+		if( target.constructor === Object ){
 			return this.objectEqual(target, expect);
 		}
 		return target === expect;
@@ -34,9 +34,9 @@ class expect{
 		const expectLength = Object.keys(expect).length;
 		if(targetLength !== expectLength)return false;
 		for( let key in target){
-			if( !expect.hasOwnProperty(key) )return false;
 			if(target[key] === expect[key]) continue;
 			if( typeof target[key] === "object" )this.equal(target[key],expect[key]);
+			else return false;
 		}
 		return true;
 	}
