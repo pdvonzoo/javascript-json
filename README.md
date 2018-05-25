@@ -369,11 +369,13 @@
 
 7. ### 테스트코드 작성
 
-   - 테스트 코드를 이해한다
+   - 테스트 코드를 이해한다	
 
      - https://item4.github.io/2016-03-19/Coding-with-Test-Code/
 
      - https://nesoy.github.io/articles/2017-01/TDD
+
+     - http://huns.me/development/716
 
      - `테스트 주도 개발방법론` `TDD(Test-Driven Development)`
 
@@ -384,10 +386,137 @@
        - `RED` 실패하는 테스트를 만들기
        - `GREEN` 테스트에 통과할 만한 작은 코드를 작성하기
        - `REFACTOR` 반복되는 코드, 긴 메소드, 큰 클래스, 긴 매개변수 목록 등등 코드를 좀 더 효율적으로 바꾸기
-
-     - 
+       - 문제를 먼저 정의하고, 문제의 해답을 찾아가는 과정
+       - 내가 지금 만들어야 할 것이 무엇인지 우선적으로 명확하게 정의
+       - 그 내용을 테스트로 표현하는 것이 TDD의 근본 취지
+       - 테스트 코드도 사람이 작성하는 것이기 때문에 실수할 가능성이 존재함
+       - 아주 단순한 기능을 만들어서 에러가 없음을 검증 후 조금씩 살을 붙여나가는 것이 TDD의 기본
+       - 에러를 제거하는 코드를 최대한 빨리 단순하게 작성할 것을 강조
+       - 
 
    - 테스트 코드를 구현하면서 내 코드를 테스트 가능한 상태로 개선한다
+
+     ```javascript
+     const sum = (a,b) => a+b;
+     test("sum을 테스트해보죠", function() {
+       equal(sum(1,2), 3); //true이면 성공이다. false이면 실`패.
+     });
+     ```
+
+     ```javascript
+     // a.js
+     export.sum function(a,b) {
+         if(b < 0) b = 0;
+         return a + b;
+     }
+     ```
+
+     ```javascript
+     // a.test.js  
+     const {sum} = require('./sum');
+     
+     test("두 개의 서로다른 양의 정수의 합이 올바르게 나온다", function() {
+         //값을 설정하고,
+         a = 10; b = 20;
+     
+         //sum을 실행하면,
+         const result = sum(a+b);
+     
+         //그때 그 결과는 아래처럼.
+         expect(30).toBe(result);
+     });
+     
+     test("양의 정수와 음의 정수의 합이 올바르게 나온다", function() {
+         //값을 설정하고,
+         a = 10; b = -10;
+     
+         //sum을 실행하면,
+         const result = sum(a+b);
+     
+         //그때 그 결과는 아래처럼.
+         expect(0).toBe(result);
+     });
+     ```
+
+     ```javascript
+     // 결과
+     두 개의 서로다른 양의 정수의 합이 올바르게 나온다  : OK
+     양의 정수와 음의 정수의 합이 올바르게 나온다 : FAIL (targetValue is 10, expectValue is 0)
+     ```
+
+     - 아직 우리는 좋은 라이브러리를 쓰면서 다양한 테스트코드 구현을 하지 않고 있다.
+     - 관심있다면 미리 mocha, jest와 같은 도구를 학습하는 것도 좋다.
+     - given,when,then은 무엇이지`?`
+       - `given` 어떤 상황이 들어간다
+       - `when` 어떻게 동작한다
+       - `then` 동작한 결과가 어떠해야 한다
+       - `given-when-then` 패턴은 필수적으로 사용해야 하는것은 아님
+     - unit test에 대해서 학습해본다.
+     - TDD는 무엇인가?
+
+   - 내 코드 메서드 구분
+
+     - divideString
+     - recursionCase(mergeData) 
+     - createObject()
+     - createCurlyObject()
+     - setObjectData(mode, inputData)
+     - typeDecision(inputData)
+     - checkCorrectString(inputData)
+     - removeSpace(inputData)
+     - removeFirstParenthesis(inputData)
+     - checkType(params)
+     - getResult()
+
+   - 다시 클래스 분할부터
+
+     - main.js
+
+     - lexer.js
+
+       `어휘 분석기(Lexer)는 프로그램을 읽어 토큰(문장 자체를 문장을 이루고 있는 단어 단위로 쪼갠 것)을 생성하는 역할`
+
+     - tokenizer.js
+
+       `[컴퓨터 공학] 낱말 분석`
+
+     - arrayParser.js
+
+     - utility.js
+
+   - test 메서드
+
+   - expect 객체
+
+   - toBe 메서드
+
+   - [Module export import](http://hochulshin.com/javascript-module-export-import/)
+
+     ```javascript
+     //math.js
+     exports.plus = function(a, b) {
+       return a + b;
+     };
+        
+     exports.multiply = function(a, b) {
+       return a * b;
+     };
+     ```
+
+     ```javascript
+     //test.js
+     var math = require("./math.js");
+     console.log(math.plus(1, 2)); //3
+     console.log(math.multiply(1, 2)); //2
+     ```
+
+
+
+
+
+
+
+
 
 
 
