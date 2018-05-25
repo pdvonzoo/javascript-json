@@ -31,7 +31,7 @@ class lexer{
     keyCheck(){
         return this.key;
     }
-    get getLexer(){
+    get lexer(){
         let dic = {};
         dic.type = this.typeCheck();
         dic.value = this.valueCheck();
