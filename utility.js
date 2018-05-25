@@ -2,32 +2,31 @@
     Utility JS
 */
 
-class utility {
+exports.divideString = function(inputString) {
+    return inputString.split("");
+};
 
-    constructor() {
-
+exports.divideString = function(inputData) {
+    if (typeof(inputData) === "string") {
+        return inputData.trim();
+    } else {
+        return inputData;
     }
+};
 
-    divideString() {
-        this.dividedCharacterDatas = this.inputString.split("");
+exports.removeFirstParenthesis = function(inputData) {
+    if (inputData[0] === '[') {
+        const inputDataEndIndex = inputData.length;
+        return inputData.substring(1, inputDataEndIndex);
+    } else {
+        return inputData;
     }
+};
 
-    removeSpace(inputData) {
-        if (typeof(inputData) === "string") {
-            return inputData.trim();
-        } else {
-            return inputData;
-        }
+exports.removeSpace = function(inputData) {
+    if (typeof(inputData) === "string") {
+        return inputData.trim();
+    } else {
+        return inputData;
     }
-
-    removeFirstParenthesis(inputData) {
-        if (inputData[0] === '[') {
-            const inputDataEndIndex = inputData.length;
-            return inputData.substring(1, inputDataEndIndex);
-        } else {
-            return inputData;
-        }
-    }
-}
-
-exports.uility = new utility();
+};

@@ -2,10 +2,11 @@
     Tokenizer JS
 */
 
-const {lexer} = require('./lexer.js');
+const lexer = require('./lexer');
 
-class tokenizer {
+class Tokenizer {
     constructor() {
+        this.resultObject = {};
         this.mergeData = "";
         this.repeatCount = 0;
         this.startSquareBracketsCount = 0;
@@ -14,9 +15,6 @@ class tokenizer {
         this.endCurlyBracketsCount = 0;
         this.curlyBracketsMode = false;
         this.recursionMode = false;
-
-
-        this.arrayEndPoint = this.dividedCharacterDatas.length;
         
         this.equalCurlyBracket = function() {
             if (this.startCurlyBracketsCount === this.endCurlyBracketsCount) {
@@ -41,23 +39,25 @@ class tokenizer {
                 return true;
         };
 
-        this.checkEndCondition = function() {
-            if (this.repeatCount === this.arrayEndPoint)
+        this.checkEndCondition = function(arrayEndPoint) {
+            if (this.repeatCount === arrayEndPoint)
                 return true;
         };
 
         this.determineType = function() {
-            this.mergeData = lexer.typeDecision(this.mergeData);
+            // this.mergeData = lexer.decisionType(this.mergeData);
+            this.resultObject.child.push(lexer.decisionType(this.mergeData));
+            this.mergeData = "";
         };
 
-        this.closedInnerSquareBracket = function() {
-            if (endSquareBracketsCount >= 1 && 
-                endSquareBracketsCount == startSquareBracketsCount-1) {
+        this.closedInnerSquareBracket = () => {
+            if (this.endSquareBracketsCount >= 1 && 
+                this.endSquareBracketsCount == this.startSquareBracketsCount-1) {
                     startSquareBracketsCount--;
                     endSquareBracketsCount--;
                     return true;
                 }
-        }
+        };
     }
 
     checkNoDataExists(inputData) {
@@ -65,8 +65,12 @@ class tokenizer {
             return true;
     }
 
-    createObject() {
-        this.dividedCharacterDatas.forEach(element => {
+    createObject(dividedCharacterDatas, resultObject) {
+
+        const arrayEndPoint = dividedCharacterDatas.length;
+        this.resultObject = resultObject;
+
+        Array.prototype.forEach.call(dividedCharacterDatas, element => {
             this.repeatCount++;
             switch(element) {
                 case ' ':
@@ -94,7 +98,7 @@ class tokenizer {
                 case ',':
                     this.determineType();
                     break;
-                case this.checkEndCondition():
+                case this.checkEndCondition(arrayEndPoint):
                     this.determineType();
                     break;
                 case this.checkOneMoreSquareBracket():
@@ -105,6 +109,8 @@ class tokenizer {
                     break;               
             }
         });
+
+        return this.resultObject;
     }
 
     createCurlyObject() {
@@ -182,4 +188,4 @@ class tokenizer {
 
 }
 
-exports.tokenizer = new tokenizer();
+module.exports = new Tokenizer();

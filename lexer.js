@@ -2,27 +2,30 @@
     Lexer JS
 */
 
-class lexer {
+const util = require('./utility');
+
+class Lexer {
     constructor(stringData) {
 
     }
 
-    typeDecision(inputData) {
+    decisionType(inputData) {
         const initString = "";
 
-        inputData = this.removeFirstParenthesis(inputData);
+        inputData = util.removeFirstParenthesis(inputData);
         if (inputData.constructor === Object || inputData.type === 'Array') {
             this.resultObject.child.push(inputData);
         } else {
             inputData = (inputData === "null") ? null : inputData;
-            inputData = this.removeSpace(inputData);
+            inputData = util.removeSpace(inputData);
             inputData = this.checkCorrectString(inputData);
             const dataObject = {
                 type: this.checkType(inputData),
                 value: inputData,
                 child: []
             };
-            this.resultObject.child.push(dataObject);
+            // this.resultObject.child.push(dataObject);
+            return dataObject;
         }
         return initString;
     }
@@ -73,6 +76,8 @@ class lexer {
         }
     }
 
+    
+
 }
 
-exports.lexer = new lexer();
+module.exports = new Lexer();

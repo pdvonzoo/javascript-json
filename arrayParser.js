@@ -2,8 +2,11 @@
     arrayParser JS
 */
 
+const util = require('./utility');
+const tokenizer = require('./tokenizer.js');
+const lexer = require('./lexer');
+
 class ArrayParser {
-    
     constructor(stringData) {
         this.resultObject = {
             type: null,
@@ -16,13 +19,31 @@ class ArrayParser {
         this.errorMode = false;
         this.errorContent = "";
 
-        if (this.inputString[0] === '{') {
-            this.resultObject.type = "Object";
-            delete this.resultObject.child;
-            this.resultObject.key = null;
-            this.resultObject.value = null;
-            this.curlyObjectMode = true;
+        this.inputStringLength = this.inputString.length;
+        this.inputStringFirstCharacter = this.inputString[0];
+        this.inputStringLastCharacher = this.inputString[this.inputStringLength-1];
+
+        if (this.checkFirstLetterBracket(this.inputStringFirstCharacter)) {
+            this.changeObjectProperties();
         }
+
+        this.setResultObjectChildData = function(data) {
+            this.resultObject.child.push(data);
+        };
+
+    }
+
+    checkFirstLetterBracket(param) {
+        if (param === '{') return true;
+        else return false;
+    }
+
+    changeObjectProperties() {
+        this.resultObject.type = "Object";
+        delete this.resultObject.child;
+        this.resultObject.key = null;
+        this.resultObject.value = null;
+        this.curlyObjectMode = true;
     }
 
     recursionCase(mergeData) {
@@ -32,17 +53,14 @@ class ArrayParser {
     }
 
     getResult() {
-        const inputStringLength = this.inputString.length;
-        const firstCharacter = this.inputString[0];
-        const lastCharacter = this.inputString[inputStringLength-1];
 
-        this.divideString();
+        this.dividedCharacterDatas = util.divideString(this.inputString);
 
         if (this.curlyObjectMode) {
-            this.createCurlyObject();
+            tokenizer.createCurlyObject();
         } else {
-            this.resultObject.type = this.checkType(this.inputString);
-            this.createObject();
+            this.resultObject.type = lexer.checkType(this.inputString);
+            this.resultObject = tokenizer.createObject(this.dividedCharacterDatas, this.resultObject);
         }
 
         if (this.errorMode) {
@@ -53,4 +71,5 @@ class ArrayParser {
     }
 }
 
-exports.arrayParser = new ArrayParser();
+// exports.ArrayParser = ArrayParser;
+module.exports = ArrayParser;
