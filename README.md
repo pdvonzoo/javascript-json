@@ -510,15 +510,29 @@
      console.log(math.multiply(1, 2)); //2
      ```
 
+   - [require with class constructor](https://stackoverflow.com/questions/42553700/node-js-require-class-with-constructor-parameter)
 
+   - 테스트 함수를 만드는 이유
 
+     ```
+     소프트웨어가 업데이트 되면서 각각의 버전이 올라갈 때
+     예전에 맞물려있는 기능들이 정상적으로 동작되는지 확인이 필요함
+     즉, 테스트가 가능하게 만드는것이 목적임
+     ```
 
+   - 테스트가 가능한 부분이 많은것이지, 틀린것이 아님
 
+     ```
+     예를들어, CLASS 생성이 잘 되는지 안되는지 (PASS/FAIL)
+     15개의 분기문이 있으면 = 15개의 테스트 함수가 동작한다는 말
+     그러나 테스트가 가능한 부분이 많은것일뿐, 틀린것이 아님
+     ```
 
+   - 메서드마다 중요한 것, 할 수 있는것부터 테스트케이스를 작성하며, 최종적으로는 모든 메서드의 테스트케이스를 작성하는 것
 
+   - 자동화 해주는 툴들도 많지만, 왜 필요한 것인지, 어떻게 하는 것인지에 대한 기초적인 지식을 쌓기 위함이 이번 arrayParser #6 임
 
-
-
+   
 
 - ### [forEach, map](https://medium.com/@hongkevin/js-1-%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EB%B0%B0%EC%97%B4-%EB%A9%94%EC%84%9C%EB%93%9C-1-foreach-map-b1cb1c2237d1)
 
