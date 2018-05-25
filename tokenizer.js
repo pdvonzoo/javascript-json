@@ -2,80 +2,107 @@
     Tokenizer JS
 */
 
+const {lexer} = require('./lexer.js');
+
 class tokenizer {
     constructor() {
+        this.mergeData = "";
+        this.repeatCount = 0;
+        this.startSquareBracketsCount = 0;
+        this.endSquareBracketsCount = 0;
+        this.startCurlyBracketsCount = 0;
+        this.endCurlyBracketsCount = 0;
+        this.curlyBracketsMode = false;
+        this.recursionMode = false;
 
+
+        this.arrayEndPoint = this.dividedCharacterDatas.length;
+        
+        this.equalCurlyBracket = function() {
+            if (this.startCurlyBracketsCount === this.endCurlyBracketsCount) {
+                this.curlyBracketsMode = false;
+                this.mergeData = this.recursionMode(this.mergeData);
+            }
+        };
+
+        this.adjustBracketCount = function() {
+            this.startSquareBracketsCount = 
+                (this.startSquareBracketsCount >= 3) ? 
+                this.startSquareBracketsCount-1 : this.endSquareBracketsCount+1;
+        };
+
+        this.checkTwoMoreSquareBracket = function() {
+            if (this.startSquareBracketsCount >= 2 && this.endSquareBracketsCount === 0)
+                return true; 
+        };
+
+        this.checkOneMoreSquareBracket = function() {
+            if (this.startSquareBracketsCount >= 1) 
+                return true;
+        };
+
+        this.checkEndCondition = function() {
+            if (this.repeatCount === this.arrayEndPoint)
+                return true;
+        };
+
+        this.determineType = function() {
+            this.mergeData = lexer.typeDecision(this.mergeData);
+        };
+
+        this.closedInnerSquareBracket = function() {
+            if (endSquareBracketsCount >= 1 && 
+                endSquareBracketsCount == startSquareBracketsCount-1) {
+                    startSquareBracketsCount--;
+                    endSquareBracketsCount--;
+                    return true;
+                }
+        }
+    }
+
+    checkNoDataExists(inputData) {
+        if (inputData.trim() === "")
+            return true;
     }
 
     createObject() {
-        let mergeData = "";
-        let repeatCount = 0;
-        let startSquareBracketsCount = 0;
-        let endSquareBracketsCount = 0;
-        let startCurlyBracketsCount = 0;
-        let endCurlyBracketsCount = 0;
-        let curlyBracketsMode = false;
-        let recursionMode = false;
-        const arrayEndPoint = this.dividedCharacterDatas.length;
-
         this.dividedCharacterDatas.forEach(element => {
-            repeatCount++;
-
-            if (element === ' ') {
-                return;
-            }
-
-            if (element === '{') {
-                startCurlyBracketsCount++;
-                if (mergeData.trim() === "") {
-                    curlyBracketsMode = true;
-                }
-            }
-
-            if (element === '}') {
-                endCurlyBracketsCount++;
-            }
-
-            if (curlyBracketsMode) {
-                mergeData += element;
-                if (startCurlyBracketsCount === endCurlyBracketsCount) {
-                    curlyBracketsMode = false;
+            this.repeatCount++;
+            switch(element) {
+                case ' ':
+                    return;
+                case '{':
+                    this.startCurlyBracketsCount++;
+                    curlyBracketsMode = checkNoDataExists(mergeData);
+                    break;
+                case '}':
+                    this.endCurlyBracketsCount++;
+                    break;
+                case this.curlyBracketsMode:
+                    this.mergeData += element;
+                    this.equalCurlyBracket();
+                    break;
+                case '[':
+                    this.startSquareBracketsCount++;
+                    break;
+                case ']':
+                    this.adjustBracketCount();
+                    break;
+                case this.checkTwoMoreSquareBracket():
+                    this.mergeData += element;
+                    break;
+                case ',':
+                    this.determineType();
+                    break;
+                case this.checkEndCondition():
+                    this.determineType();
+                    break;
+                case this.checkOneMoreSquareBracket():
+                    this.mergeData += element;
+                    break;
+                case this.closedInnerSquareBracket():
                     mergeData = this.recursionCase(mergeData);
-                }
-                return;
-            }
-
-            if (element === '[') {
-                startSquareBracketsCount++;
-            }
-            
-            if (element === ']') {
-                if (startSquareBracketsCount >= 3) {
-                    startSquareBracketsCount--;
-                } else {
-                    endSquareBracketsCount++;
-                }
-            }
-
-            if (startSquareBracketsCount >= 2 && endSquareBracketsCount === 0) {
-                mergeData += element;
-                return;
-            }
-
-            if (element === ',' || repeatCount === arrayEndPoint) {
-                mergeData = this.typeDecision(mergeData);
-                return;
-            }
-
-            if (startSquareBracketsCount >= 1) {
-                mergeData += element;
-            }
-
-            if (endSquareBracketsCount >= 1 && 
-                endSquareBracketsCount == startSquareBracketsCount-1) {
-                startSquareBracketsCount--;
-                endSquareBracketsCount--;
-                mergeData = this.recursionCase(mergeData);
+                    break;               
             }
         });
     }
