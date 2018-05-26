@@ -1,4 +1,4 @@
-
+const {pipe} = require('../utility/util.js')
 class tokenizer{
 
 	arrayFromString(str){
@@ -74,23 +74,23 @@ class tokenizer{
 	makeObject(newArray){
 
 		let keyOfObject = "";
-		let dic = {};
 		let result = "";
-		for(let i = 0; i < newArray.length; i++){
-			if( newArray[i] === ":"){
+		let dic = {};
+
+		for(let value of newArray){
+			if( value === ":" ){
 				keyOfObject = result.trim();
 				result = "";
 				continue;
 			}
-			if( newArray[i] === ","){
+			if( value === "," ){
 				dic[keyOfObject] = result.trim();
 				result = "";
 				continue;
 			}
-			result += newArray[i];
+			result += value;
 		}
 		dic[keyOfObject] = result.trim();
-
 		return dic;
 	}
 	
@@ -104,6 +104,5 @@ class tokenizer{
 		return pipe(this.combineElements, this.makeObject)(this, str);
 	}
 }
-const pipe = (...fns) => (objName,value) => fns.reduce( (acc, fn) => fn.call(objName, acc), value);
 exports.tokenizer = new tokenizer();
 
