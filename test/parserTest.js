@@ -1,9 +1,10 @@
-const {test} = require('./test.js');
-const {expect} = require('./test.js');
+const {test} = require('../utility/test.js');
+const {expect} = require('../utility/test.js');
 const {parser} = require('../src/parser.js');
 
 test('child가 있는 배열 Test', () => {
-    const result = parser.dataParser("[1,2,3]");
+    const data = "[1,2,3]";
+    const result = parser.dataParser(data);
     const answer = 
     {    
         type: 'array',
@@ -19,7 +20,8 @@ test('child가 있는 배열 Test', () => {
 })
 
 test('child가 있는 객체 Test', () => {
-    const result = parser.dataParser("{a : 'crong', b : 'pobi', c : 'JK'}");
+    const data = "{a : 'crong', b : 'pobi', c : 'JK'}";
+    const result = parser.dataParser(data);
     const answer = 
     { 
         type: 'object',
@@ -35,7 +37,8 @@ test('child가 있는 객체 Test', () => {
 })
 
 test('2중 배열 Test', () => {
-    const result = parser.dataParser('[[]]');
+    const data = '[[]]';
+    const result = parser.dataParser(data);
     const answer = 
     {
         type: "array",
@@ -52,7 +55,8 @@ test('2중 배열 Test', () => {
 })
 
 test('2중 객체', () => {
-    const result = parser.dataParser("{a : { b : 'crong'}}");
+    const data = "{a : { b : 'crong'}}";
+    const result = parser.dataParser(data);
     const answer = 
     {
         type: "object",
