@@ -44,7 +44,8 @@ class Syntax {
     }
   }
   isNumber(str) {
-    return !isNaN(+str) ? 1 : undefined;
+    if (str === '') return;
+    if (!isNaN(+str)) return 1;
   }
   isString(str) {
     if (str[0] === "'" && str[str.length - 1] === "'") return 1;
@@ -86,17 +87,24 @@ class Syntax {
     else if (arrayCount.brace) this.errorMessage = this.ERROR_MESSAGE.NON_PAIR('중괄호');
   }
   removeLastComma(str) {
-    return (str[str.length - 1] === ',') ? str.substr(0, str.length - 1) : str;
+    const removed = (str[str.length - 1] === ',') ? str.substr(0, str.length - 1) : str;
+    return removed;
   }
   removeLastEqual(str) {
-    return (str[str.length - 1] === ':') ? str.substr(0, str.length - 1) : str;
+    const removed = (str[str.length - 1] === ':') ? str.substr(0, str.length - 1) : str;
+    return removed
   }
   removeBracket(str) {
-    return str.substring(1, str.length - 1);
+    const removed = str.substring(1, str.length - 1);
+    return removed;
   }
   removeSideBracket(str) {
-    str = str.replace(/\[|\]/g, '');
-    return str;
+    const removed = str.replace(/\[|\]/g, '');
+    return removed;
+  }
+  removeSideQuote(str) {
+    let removed = str.replace(/^\'|\'$/g, '')
+    return removed;
   }
 }
 exports.Syntax = Syntax;

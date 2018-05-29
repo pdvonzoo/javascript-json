@@ -18,7 +18,7 @@ class ArrayParser {
   }
 }
 
-const str = "['wef', ['sd', {a:'b',c:'d',e:[{a:'b',d:{a:'b'}}]},null,true,'a', ['a',[1,32,3],2], 2],false, 1,2]";
+const str = "['wef', [789, {a:'b',c:'d',e:[{a:'b',d:{a:'b'}}]},null,true,'a', ['a',[1,32,3],2], 2],false, 1,2]";
 const ap = new ArrayParser();
 const result = ap.parse(str);
 console.log(JSON.stringify(result, null, 2));
