@@ -75,6 +75,7 @@ class tokenizer{
 
 	makeObject(newArray){
 		if( newArray.length === 0){ return {}}
+		else {colonError(newArray)};
 		let keyOfObject = "";
 		let result = "";
 		let dic = {};

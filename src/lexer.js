@@ -1,4 +1,4 @@
-const {syntaxError} = require('./error.js');
+const {typeError, stringError} = require('./error.js');
 exports.lexer = (value, key) => new lexer(value,key);
 
 class lexer{
@@ -19,7 +19,8 @@ class lexer{
 		for(let key in dic){
 			if( key === this.value ) return dic[key];
         }
-        syntaxError(this.value);
+        typeError(this.value);
+        stringError(this.value);
 		return "string";
     }
     valueCheck(){
