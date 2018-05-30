@@ -1,4 +1,4 @@
-class ArrayParser {
+exports.ArrayParser = class {
   constructor(dataStructure, syntaxChecker) {
     this.dataStructure = dataStructure;
     this.syntaxChecker = syntaxChecker;
@@ -22,6 +22,7 @@ class ArrayParser {
       } else if (processed.length) {
         this.syntaxChecker.checkError(processed);
         processed = this.syntaxChecker.removeSideQuote(processed);
+        processed = this.syntaxChecker.changeToNullAndBoolean(processed);
         context.completeArr.push(processed);
       }
       context.chunk = '';
@@ -44,7 +45,7 @@ class ArrayParser {
   }
 }
 
-exports.JsonParser = class JsonParser {
+exports.JsonParser = class {
   constructor(dataStructure, syntaxChecker) {
     this.dataStructure = dataStructure;
     this.syntaxChecker = syntaxChecker;
@@ -75,11 +76,13 @@ exports.JsonParser = class JsonParser {
   }
   addValue(context) {
     if (!context.arrayOpen && !context.objectOpen) {
-      const processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
+      let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
       if (this.syntaxChecker.isNumber(processed)) {
         context.completeObj[context.temp] = parseInt(processed);
       } else if (processed.length) {
         this.syntaxChecker.checkError(processed);
+        processed = this.syntaxChecker.removeSideQuote(processed);
+        processed = this.syntaxChecker.changeToNullAndBoolean(processed);
         context.completeObj[context.temp] = processed;
       }
       context.temp = '';
@@ -101,4 +104,3 @@ exports.JsonParser = class JsonParser {
     context.chunk = '';
   }
 }
-exports.ArrayParser = ArrayParser;
