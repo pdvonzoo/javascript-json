@@ -16,7 +16,7 @@ class expect{
 		if( Array.isArray(target) ){
 			return this.arrayEqual(target, expect);
 		}
-		if( target.constructor === Object ){
+		if( Object.prototype.toString.call(target) === "[object Object]" ){
 			return this.objectEqual(target, expect);
 		}
 		return target === expect;
