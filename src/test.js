@@ -2,7 +2,20 @@ const { DataStructure } = require('./structure');
 const { Syntax } = require('./checker');
 const { arrayParser } = require('./parser');
 const { jsonParser } = require('./parser');
+const FORMAT = {
+  ARRAY: function (testValue, expectValue, errorArray) {
+    const errorMessage = `
+  FAIL 
+  (targetValue : ${testValue}, expectValue : ${expectValue})
+  
+  상세내용
+  검출된 에러 : ${errorArray.length}개
+  ${errorArray.join('\r')}
+  `
+    return errorMessage;
+  }
 
+}
 exports.test = function (testCase, valueFunction) {
   console.log(testCase, valueFunction.call(this));
 }
@@ -11,20 +24,9 @@ exports.expect = function (expectValue) {
   const fn = {
     toBe(testValue) {
       let errorArray = [];
-      let errorFormat = function (testValue, expect, errorArray) {
-        const errorMessage = `
-    FAIL 
-    (targetValue : ${testValue}, expectValue : ${expectValue})
-    
-    상세내용
-    검출된 에러 : ${errorArray.length}개
-    ${errorArray.join('\r')}
-    `
-        return errorMessage;
-      }
       comparingArray(expectValue, testValue, errorArray);
       const completedMessage = !errorArray.length ?
-        'OK' : errorFormat(testValue, expectValue, errorArray)
+        'OK' : FORMAT.ARRAY(testValue, expectValue, errorArray)
         ;
       return completedMessage;
     }
