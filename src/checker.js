@@ -1,4 +1,4 @@
-exports.ErrorMessage = class ErrorMessage {
+class ErrorMessage {
   NON_PAIR(bracket) {
     return `배열의 ${bracket} 개수 오류`
   }
@@ -117,3 +117,6 @@ class Syntax {
   }
 }
 exports.Syntax = Syntax;
+exports.ErrorMessage = ErrorMessage;
+const st = new Syntax(new ErrorMessage());
+console.log(st.isNumber('1'));
