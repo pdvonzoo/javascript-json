@@ -15,8 +15,11 @@ class Syntax {
     this.errorMessage = null;
   }
   checkError(targetString, key) {
-    if (this.isString(targetString)) this.checkPairQuote(targetString);
-    this.isMixedType(targetString);
+    if (this.isString(targetString)) {
+      this.checkPairQuote(targetString);
+    } else {
+      this.isMixedType(targetString);
+    }
     this.isStringAndNoQuote(targetString, key);
     if (this.errorMessage) throw this.errorMessage;
   }
@@ -60,6 +63,12 @@ class Syntax {
   isObject(str) {
     if (str[0] === '{' && str[str.length - 1] === '}') return 1;
   }
+  changeToNullAndBoolean(str) {
+    if (str === 'null') return null;
+    if (str === 'true') return true;
+    if (str === 'false') return false;
+    return str;
+  }
 
   isPairBracket(str) {
     if (!str) return;
@@ -78,9 +87,9 @@ class Syntax {
       }
       return ac;
     }, {
-      square: 0,
-      brace: 0
-    });
+        square: 0,
+        brace: 0
+      });
     if (!minimumBracket) return;
     if (!arrayCount.brace && !arrayCount.square) return 1;
     else if (arrayCount.square) this.errorMessage = this.ERROR_MESSAGE.NON_PAIR('대괄호');
