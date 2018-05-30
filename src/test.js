@@ -1,45 +1,47 @@
-const DataStructure = require('./structure').DataStructure;
-const Syntax = require('./checker').Syntax;
-const arrayParser = require('./parser').ArrayParser;
-const jsonParser = require('./parser').JsonParser;
+const { DataStructure } = require('./structure');
+const { Syntax } = require('./checker');
+const { arrayParser } = require('./parser');
+const { jsonParser } = require('./parser');
 
-function test(testCase, valueFunction) {
-  console.log(`${testCase} : ${valueFunction()}`);
+exports.test = function (testCase, valueFunction) {
+  console.log(testCase, valueFunction.call(this));
 }
 
-function expect(expectedValue) {
+exports.expect = function (expectValue) {
   const fn = {
-    toBe(testValue, errorArray) {
-      return !errorArray.length ? 'OK' : `FAIL (targetValue : ${testValue}, expectedValue : ${expectedValue})
-      ${errorArray}`;
+    toBe(testValue) {
+      let errorArray = [];
+      let errorFormat = function (testValue, expect, errorArray) {
+        const errorMessage = `
+    FAIL 
+    (targetValue : ${testValue}, expectValue : ${expectValue})
+    
+    상세내용
+    검출된 에러 : ${errorArray.length}개
+    ${errorArray.join('\r')}
+    `
+        return errorMessage;
+      }
+      comparingArray(expectValue, testValue, errorArray);
+      const completedMessage = !errorArray.length ?
+        'OK' : errorFormat(testValue, expectValue, errorArray)
+        ;
+      return completedMessage;
     }
   }
   return fn;
 }
 
-test('parser의 출력 내용', function () {
-  const structure = new DataStructure(new Syntax(Syntax.errorMessage), arrayParser, jsonParser);
-  const result = structure.parser("[[1,2,3,4],'a',{a:null,b:true,c:false}]");
-  const expected = [
-    [1, 2, 3, 4], 'a', {
-      a: null,
-      b: true,
-      c: false
-    }
-  ];
-  let errorArray = [];
-
-  function comparing(expected, result) {
-    expected.forEach((cv, idx) => {
-      if (toString.call(cv) === '[object Array]') {
-        comparing(cv, result[idx]);
-      } else if (cv !== result[idx]) errorArray.push(`${idx}번째 ${cv}값이 같지 않습니다`);
-    })
-  }
-  comparing(expected, result);
-  console.log(expected);
-  console.log(result);
-  // return errorArray.length ? 'OK' : errorArray;
-  return expect(expected).toBe(result, errorArray);
-});
-// console.log(expect(30).toBe(20));
+function comparingArray(expectCode, testCode, errorArray) {
+  expectCode.forEach((cv, idx, arr) => {
+    if (toString.call(cv) === '[object Object]') {
+      comparingArray(Object.keys(cv), Object.keys(testCode[idx]), errorArray);
+      comparingArray(Object.values(cv), Object.values(testCode[idx]), errorArray);
+    } else if (toString.call(cv) === '[object Array]') {
+      comparingArray(cv, testCode[idx], errorArray);
+    } else if (cv !== testCode[idx]) errorArray.push(`
+    검출 배열 : ${arr}배열의 ${idx}번째 Index
+    expectValue = ${cv}
+    targetValue = ${testCode[idx]}`);
+  })
+}
