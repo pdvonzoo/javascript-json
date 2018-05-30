@@ -61,6 +61,27 @@
     - then 동작한 결과가 어떠해야 한다
 */
 
+const ArrayParser = require('./arrayParser');
+
+console.log(ArrayParser);
+
+class ArrayParserTest { 
+
+    constructor() {
+
+    }
+
+    printLog() {
+        console.log(ArrayParser);
+        const testArrayParser = ArrayParser("[123]");
+    }
+}
+
+const test = new ArrayParserTest();
+
+console.log(test);
+console.log(test.printLog);
+console.log(test.printLog());
 
 
 

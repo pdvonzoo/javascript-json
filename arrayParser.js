@@ -72,4 +72,6 @@ class ArrayParser {
 }
 
 // exports.ArrayParser = ArrayParser;
+// export default ArrayParser;
+// module.exports = (stringData) => new ArrayParser(stringData);
 module.exports = ArrayParser;

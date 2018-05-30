@@ -532,6 +532,46 @@
 
    - 자동화 해주는 툴들도 많지만, 왜 필요한 것인지, 어떻게 하는 것인지에 대한 기초적인 지식을 쌓기 위함이 이번 arrayParser #6 임
 
+   - ### 디버깅
+
+     1. main.js 에서 코드실행
+
+     2. `const arrayParserClass = require('./arrayParser');`
+
+     3. `const arrayParser = new arrayParserClass(testCase1);`
+
+        1. arrayParser.js 로 이동해서 constructor 수행함 (arrayParser.js:11 ~)
+        2. 이때의 testCase1 은 `"[123, [22], 33]"`
+
+     4. `const result = arrayParser.getResult();`
+
+        1. `this.dividedCharacterDatas = util.divideString(this.inputString);`
+           - 결과 값 : `"[123, [22], 33]"`
+        2. `this.resultObject.type = lexer.checkType(this.inputString);`
+           - 결과 값 : `"Array"`
+        3. `this.resultObject = tokenizer.createObject(this.dividedCharacterDatas, this.resultObject);`
+           1. **해당 부분에서 데이터를 한글자씩 판별하며 합침 ("[123,")**
+           2. `forEach.call` 에 의해 동작 (tokenizer.js:100)
+           3. "123" 에 대한 객체가 잘 만들어지는것을 확인 함
+           4. 그리고 this.resultObject.child 에 정상적으로 push 함
+           5. mergeData = "" (init) (tokenizer.js:60)
+           6. **이제 다시 데이터를 한글자씩 판별하며 합침 ("[22]")**
+           7. `]` 문자일 때, `case this.closedInnerSquareBracket():` 에 해당함
+           8. 근데 갑자기, `this.mergeData` 가 `undefined` ???
+              - 확인해보니 `tokenizer.js:120` 구문에서, `this.mergeData` 가 `undefined` 가 됨
+              - 왜냐하면, `case this.closedInnerSquareBracket():` 은
+              - `this.closedInnerSquareBracket = function(element)`
+              - element 를 파라미터로 받기 때문인데, 넘겨주는게 없으니
+              - `this.mergeData = element;` 에서 `this.mergeData` 가 `undefined` 가 되는 것임
+              - 이걸 빠트리다니 하...
+           9. 그래서 일단 `this.mergeData` 는 정상적으로 출력되는것이 확인됨
+           10. 이후 `const recursionArrayParser = new secondArrayParser(this.mergeData);` 에서.. 바로 `loader.js` 로 이동해 `tryModuleLoad` 에서 finally - if(threw) 에 걸림 = 강제종료
+           11. 
+
+     5. 
+
+        
+
    
 
 - ### [forEach, map](https://medium.com/@hongkevin/js-1-%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EB%B0%B0%EC%97%B4-%EB%A9%94%EC%84%9C%EB%93%9C-1-foreach-map-b1cb1c2237d1)

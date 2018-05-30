@@ -3,6 +3,10 @@
 */
 
 const lexer = require('./lexer');
+const util = require('./utility');
+// const ArrayParser = require('./arrayParser');
+const ArrayParser = require('./arrayParser');
+// const {arrayParser} = require('./arrayParser');
 
 class Tokenizer {
     constructor() {
@@ -15,6 +19,9 @@ class Tokenizer {
         this.endCurlyBracketsCount = 0;
         this.curlyBracketsMode = false;
         this.recursionMode = false;
+
+        // DEBUG
+        // this.arrayParserClass = ArrayParser;
         
         this.equalCurlyBracket = function() {
             if (this.startCurlyBracketsCount === this.endCurlyBracketsCount) {
@@ -24,14 +31,18 @@ class Tokenizer {
         };
 
         this.adjustBracketCount = function() {
-            this.startSquareBracketsCount = 
-                (this.startSquareBracketsCount >= 3) ? 
-                this.startSquareBracketsCount-1 : this.endSquareBracketsCount+1;
+            if (this.startSquareBracketsCount >= 3) {
+                this.startSquareBracketsCount--;
+            } else {
+                this.endSquareBracketsCount++;
+            }
         };
 
         this.checkTwoMoreSquareBracket = function() {
             if (this.startSquareBracketsCount >= 2 && this.endSquareBracketsCount === 0)
                 return true; 
+            else
+                return false;
         };
 
         this.checkOneMoreSquareBracket = function() {
@@ -42,6 +53,8 @@ class Tokenizer {
         this.checkEndCondition = function(arrayEndPoint) {
             if (this.repeatCount === arrayEndPoint)
                 return true;
+            else
+                return false;
         };
 
         this.determineType = function() {
@@ -50,19 +63,36 @@ class Tokenizer {
             this.mergeData = "";
         };
 
-        this.closedInnerSquareBracket = () => {
+        this.closedInnerSquareBracket = function(element) {
             if (this.endSquareBracketsCount >= 1 && 
                 this.endSquareBracketsCount == this.startSquareBracketsCount-1) {
-                    startSquareBracketsCount--;
-                    endSquareBracketsCount--;
+                    this.mergeData += element;
+                    this.startSquareBracketsCount--;
+                    this.endSquareBracketsCount--;
                     return true;
                 }
         };
     }
 
     checkNoDataExists(inputData) {
-        if (inputData.trim() === "")
-            return true;
+        if (inputData.trim() === "") return true;
+        else return false;
+    }
+
+    checkBracket(element) {
+        if (util.checkStartSquareBracket(element)) {
+            this.startSquareBracketsCount++;
+        }
+        if (util.checkEndSquareBracket(element)) {
+            this.adjustBracketCount();
+        }
+        if (util.checkStartCurlyBracket(element)) {
+            this.startCurlyBracketsCount++;
+            this.curlyBracketsMode = this.checkNoDataExists(this.mergeData);
+        }
+        if (util.checkEndCurlyBracket(element)) {
+            this.endCurlyBracketsCount++;
+        }
     }
 
     createObject(dividedCharacterDatas, resultObject) {
@@ -70,43 +100,55 @@ class Tokenizer {
         const arrayEndPoint = dividedCharacterDatas.length;
         this.resultObject = resultObject;
 
+        // console.log(ArrayParser);
+        // console.log(this.arrayParserClass);
+
         Array.prototype.forEach.call(dividedCharacterDatas, element => {
             this.repeatCount++;
-            switch(element) {
-                case ' ':
-                    return;
-                case '{':
-                    this.startCurlyBracketsCount++;
-                    curlyBracketsMode = checkNoDataExists(mergeData);
-                    break;
-                case '}':
-                    this.endCurlyBracketsCount++;
-                    break;
+            this.checkBracket(element);
+
+            if (util.checkSpace(element)) return;
+
+            switch(true) {
                 case this.curlyBracketsMode:
                     this.mergeData += element;
                     this.equalCurlyBracket();
                     break;
-                case '[':
-                    this.startSquareBracketsCount++;
-                    break;
-                case ']':
-                    this.adjustBracketCount();
-                    break;
                 case this.checkTwoMoreSquareBracket():
                     this.mergeData += element;
                     break;
-                case ',':
+                case util.checkComma(element):
                     this.determineType();
                     break;
                 case this.checkEndCondition(arrayEndPoint):
                     this.determineType();
                     break;
+                case this.closedInnerSquareBracket(element):
+                    // const arrayParser = new arrayParserClass(this.mergeData);
+                    // this.mergeData = arrayParser.recursionCase(this.mergeData);
+                    // const tempArrayParser = secondArrayParser.ArrayParser;
+                    // const recursionArrayParser = tempArrayParser();
+                    // const recursionArrayParser = new secondArrayParser(this.mergeData);
+                    // this.mergeData = recursionArrayParser.getResult();
+                    /*
+                        DEBUGGER
+                    */
+                    // console.log(this.mergeData);
+                    // console.log(ArrayParser);
+                    // console.log(this.arrayParserClass);
+                    // const recursionArrayParser = new secondArrayParser(this.mergeData);
+                    // const recursionArrayParser = new ArrayParser(this.mergeData);
+
+                    // console.log(tokenizerArrayParser);
+                    console.log(ArrayParser);
+                    
+                    const recursionArrayParser = new ArrayParser(this.mergeData);
+                    // const recursionArrayParser = tokenizerArrayParser(this.mergeData);
+                    console.log(recursionArrayParser);
+                    break;
                 case this.checkOneMoreSquareBracket():
                     this.mergeData += element;
                     break;
-                case this.closedInnerSquareBracket():
-                    mergeData = this.recursionCase(mergeData);
-                    break;               
             }
         });
 

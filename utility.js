@@ -30,3 +30,33 @@ exports.removeSpace = function(inputData) {
         return inputData;
     }
 };
+
+exports.checkSpace = function(param) {
+    if(param === ' ') return true;
+    else return false;
+}
+
+exports.checkStartCurlyBracket = function(param) {
+    if (param === '{') return true;
+    else return false;
+}
+
+exports.checkEndCurlyBracket = function(param) {
+    if (param === '}') return true;
+    else return false;
+}
+
+exports.checkComma = function(param) {
+    if (param === ',') return true;
+    else return false;
+}
+
+exports.checkStartSquareBracket = function(param) {
+    if (param === '[') return true;
+    else return false;
+}
+
+exports.checkEndSquareBracket = function(param) {
+    if (param === ']') return true;
+    else return false;
+}
