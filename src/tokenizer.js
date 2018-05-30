@@ -7,7 +7,7 @@ exports.Tokenizer = class Tokenizer {
     if (['null', 'true', 'false'].indexOf(str) > -1) return str;
     if (toString.call(str) === '[object Array]') return 'array';
     if (toString.call(str) === '[object Object]') return 'object';
-    if (this.syntaxChecker.isNumber(str)) return 'number';
+    if (toString.call(str) === '[object Number]') return 'number';
     else return 'string';
   }
   tokenizeChildArray(arr) {
