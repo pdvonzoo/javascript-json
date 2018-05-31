@@ -10,8 +10,8 @@ class ErrorMessage {
   }
 }
 class Syntax {
-  constructor(errorMessage) {
-    this.ERROR_MESSAGE = errorMessage;
+  constructor() {
+    this.ERROR_MESSAGE = new ErrorMessage();
     this.errorMessage = null;
   }
   checkError(targetString, key) {

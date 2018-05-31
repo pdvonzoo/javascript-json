@@ -6,7 +6,7 @@ const jsonParser = require('./parser').JsonParser;
 
 class ArrayParser {
   constructor() {
-    this.syntaxChecker = new Syntax(Syntax.ErrorMessage);
+    this.syntaxChecker = new Syntax();
     this.tokenizer = new Tokenizer(this.syntaxChecker);
     this.dataStructure = new DataStructure(this.syntaxChecker, arrayParser, jsonParser);
   }
