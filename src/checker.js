@@ -20,21 +20,24 @@ class Syntax {
     } else {
       this.isMixedType(targetString);
     }
-    this.isStringAndNoQuote(targetString, key);
+    this.isStringWithoutQuote(targetString, key);
     if (this.errorMessage) throw this.errorMessage;
   }
   isMixedType(targetString) {
     if (targetString.match(/[0-9]\D|\D[0-9]/)) {
       this.errorMessage = this.ERROR_MESSAGE.UNKNOWN_TYPE(targetString);
-      return 0;
+      return this.ERROR_MESSAGE.UNKNOWN_TYPE(targetString);
     } else return true;
   }
-  isStringAndNoQuote(targetString, key) {
+  isStringWithoutQuote(targetString, key) {
+    const exceptionWord = ['null', 'true', 'false'];
     if (key) return;
-    if (targetString === 'null' || targetString === 'true' || targetString === 'false') return;
-    if (!Number.isInteger(+targetString) && !this.isString(targetString)) {
+    else if (exceptionWord.indexOf(targetString) > -1) return;
+    else if (!Number.isInteger(+targetString) && !this.isString(targetString)) {
       this.errorMessage = this.ERROR_MESSAGE.UNKNOWN_TYPE(targetString);
+      return this.ERROR_MESSAGE.UNKNOWN_TYPE(targetString);
     }
+    else return true;
   }
 
   checkPairQuote(str) {

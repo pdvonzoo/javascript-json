@@ -21,7 +21,7 @@ const FORMAT = {
 
 }
 exports.test = function (testCase, valueFunction) {
-  console.log(testCase, valueFunction.call(this));
+  console.log(`${testCase} : ${valueFunction.call(this)}`);
 }
 
 exports.expect = function (expectValue) {
