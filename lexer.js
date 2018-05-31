@@ -14,7 +14,8 @@ class Lexer {
 
         inputData = util.removeFirstParenthesis(inputData);
         if (inputData.constructor === Object || inputData.type === 'Array') {
-            this.resultObject.child.push(inputData);
+            // this.resultObject.child.push(inputData);
+            return inputData;
         } else {
             inputData = (inputData === "null") ? null : inputData;
             inputData = util.removeSpace(inputData);
@@ -47,7 +48,7 @@ class Lexer {
             }
         }
 
-        if (errorCount >= 3) { 
+        if (errorCount >= 3) {
             this.errorMode = true;
             this.errorContent = inputData;
             console.log(inputData + "(은/는) 올바른 문자열이 아닙니다");
@@ -75,9 +76,6 @@ class Lexer {
             process.exit();
         }
     }
-
-    
-
 }
 
 module.exports = new Lexer();
