@@ -1,5 +1,5 @@
 const structure = require('./structure').DataStructure;
-exports.Tokenizer = class Tokenizer {
+class Tokenizer {
   constructor(syntaxChecker) {
     this.syntaxChecker = syntaxChecker;
   }
@@ -63,3 +63,4 @@ exports.Tokenizer = class Tokenizer {
     }
   }
 }
+exports.Tokenizer = Tokenizer;
