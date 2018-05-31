@@ -1,4 +1,5 @@
-const {pipe} = require('../utility/util.js')
+const {pipe} = require('../utility/util.js');
+const {openBracketError, closeBracketError, colonError} = require('./error.js');
 class tokenizer{
 
 	arrayFromString(str){
@@ -23,6 +24,7 @@ class tokenizer{
 	}
 
 	minusCount(count){
+		openBracketError(count);
 		return --count;
 	}
 
@@ -51,7 +53,7 @@ class tokenizer{
 			if( dic[key] === combineType[1]) count = this.minusCount(count);
 			if( count === 0 ) return this.spliceStr(newArray, key, combineType);
 		}
-
+		closeBrackeyError(count);
 	}
 
 	makeElement(newArray){
@@ -72,7 +74,8 @@ class tokenizer{
 	}
 
 	makeObject(newArray){
-
+		if( newArray.length === 0){ return {}}
+		else {colonError(newArray)};
 		let keyOfObject = "";
 		let result = "";
 		let dic = {};
@@ -104,5 +107,5 @@ class tokenizer{
 		return pipe(this.combineElements, this.makeObject)(this, str);
 	}
 }
-exports.tokenizer = new tokenizer();
 
+exports.tokenizer = new tokenizer();

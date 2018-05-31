@@ -1,7 +1,7 @@
 const {test} = require('../utility/test.js');
 const {expect} = require('../utility/test.js');
 const {lexer} = require('../src/lexer.js');
-
+const {errorMessage} = require('../src/error.js');
 test('number Type Test ', () => {
     const data ='10'
     const result = lexer(data).typeCheck();
@@ -119,4 +119,26 @@ test('키값이 있는 배열일 때 lexer Test', () => {
     const result = lexer(...data).lexer;
     const answer = { type: 'array', value: "object Array",key : 'crong', child: [] };
     return expect(answer).toBe(result);
+})
+
+test('stringError Test ', () => {
+    const data = "cro'ng"
+    try{
+        lexer(data).lexer;
+    }catch{
+        const result = data + errorMessage.stringError;
+        const answer = data + "는 올바른 문자열이 아닙니다.";
+        return expect(answer).toBe(result);
+    }
+})
+
+test('typeError Test ', () => {
+    const data = "A"
+    try{
+        lexer(data).lexer;
+    }catch{
+        const result = data + errorMessage.typeError;
+        const answer = data + "는 알 수 없는 타입입니다.";
+        return expect(answer).toBe(result);
+    }
 })
