@@ -73,27 +73,18 @@ class Syntax {
   isPairBracket(str) {
     if (!str) return;
     let minimumBracket = false;
-    const arrayCount = str.split('').reduce((ac, cv) => {
-      if (cv === '[') {
-        ac.square += 1;
-        minimumBracket = true;
-      } else if (cv === ']') {
-        ac.square -= 1;
-      } else if (cv === '{') {
-        ac.brace += 1;
-        minimumBracket = true
-      } else if (cv === '}') {
-        ac.brace -= 1;
-      }
-      return ac;
-    }, {
-        square: 0,
-        brace: 0
-      });
+    const curlyLeft = (str.match(/\{/g) || []).length;
+    const curlyRight = (str.match(/\}/g) || []).length;
+    const squareLeft = (str.match(/\[/g) || []).length;
+    const squareRight = (str.match(/\]/g) || []).length;
+    if (curlyLeft || curlyRight || squareLeft || squareRight) minimumBracket = true;
+    const curly = curlyLeft - curlyRight;
+    const square = squareLeft - squareRight;
     if (!minimumBracket) return;
-    if (!arrayCount.brace && !arrayCount.square) return 1;
-    else if (arrayCount.square) this.errorMessage = this.ERROR_MESSAGE.NON_PAIR('대괄호');
-    else if (arrayCount.brace) this.errorMessage = this.ERROR_MESSAGE.NON_PAIR('중괄호');
+    if (!curly && !square) return 1;
+    else if (square) this.errorMessage = this.ERROR_MESSAGE.NON_PAIR('대괄호');
+    else if (curly) this.errorMessage = this.ERROR_MESSAGE.NON_PAIR('중괄호');
+    return this.errorMessage;
   }
   removeLastComma(str) {
     const removed = (str[str.length - 1] === ',') ? str.substr(0, str.length - 1) : str;
@@ -119,4 +110,3 @@ class Syntax {
 exports.Syntax = Syntax;
 exports.ErrorMessage = ErrorMessage;
 const st = new Syntax(new ErrorMessage());
-console.log(st.isNumber('1'));
