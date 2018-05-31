@@ -27,7 +27,7 @@ class Syntax {
     if (targetString.match(/[0-9]\D|\D[0-9]/)) {
       this.errorMessage = this.ERROR_MESSAGE.UNKNOWN_TYPE(targetString);
       return 0;
-    } else return 1;
+    } else return true;
   }
   isStringAndNoQuote(targetString, key) {
     if (key) return;
@@ -41,27 +41,28 @@ class Syntax {
     str = this.removeSideBracket(str);
     const countQuote = (str.match(/\'/g) || []).length;
     if (countQuote === 0 || countQuote === 2) {
-      return 1;
+      return true;
     } else {
       this.errorMessage = this.ERROR_MESSAGE.NOT_PAIR_QUOTE(str);
+      return this.errorMessage;
     }
   }
   isNumber(str) {
     if (str === '') return;
-    if (!isNaN(+str)) return 1;
+    if (!isNaN(+str)) return true;
   }
   isString(str) {
-    if (str[0] === "'" && str[str.length - 1] === "'") return 1;
+    if (str[0] === "'" && str[str.length - 1] === "'") return true;
   }
   isEmpty(str) {
-    if (str === ' ') return 1;
+    if (str === ' ') return true;
   }
 
   isArray(str) {
-    if (str[0] === '[' && str[str.length - 1] === ']') return 1;
+    if (str[0] === '[' && str[str.length - 1] === ']') return true;
   }
   isObject(str) {
-    if (str[0] === '{' && str[str.length - 1] === '}') return 1;
+    if (str[0] === '{' && str[str.length - 1] === '}') return true;
   }
   changeToNullAndBoolean(str) {
     if (str === 'null') return null;
@@ -81,7 +82,7 @@ class Syntax {
     const curly = curlyLeft - curlyRight;
     const square = squareLeft - squareRight;
     if (!minimumBracket) return;
-    if (!curly && !square) return 1;
+    if (!curly && !square) return true;
     else if (square) this.errorMessage = this.ERROR_MESSAGE.NON_PAIR('대괄호');
     else if (curly) this.errorMessage = this.ERROR_MESSAGE.NON_PAIR('중괄호');
     return this.errorMessage;
