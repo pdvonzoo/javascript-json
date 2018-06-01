@@ -22,9 +22,9 @@ class Lexer {
             inputData = this.checkCorrectString(inputData);
 
             /* DEBUG */
-            if (inputData === "112233") {
-                console.log("BP");
-            }
+            // if (inputData === "112233") {
+            //     console.log("BP");
+            // }
 
             const dataObject = {
                 type: this.checkType(inputData),

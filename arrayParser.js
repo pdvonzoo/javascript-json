@@ -71,8 +71,8 @@ class ArrayParser {
 
         this.determineType = function() {
             Array.prototype.push.call(this.resultObject.child, lexer.decisionType(this.mergeData));
-            console.log("-------------------------------");
-            console.log(JSON.stringify(this.resultObject, null, 2));
+            // console.log("-------------------------------");
+            // console.log(JSON.stringify(this.resultObject, null, 2));
             this.mergeData = "";
         };
 
@@ -133,12 +133,7 @@ class ArrayParser {
     }
 
     checkBracket(element) {
-        if (util.checkStartSquareBracket(element)) {
-            this.startSquareBracketsCount++;
-        }
-        if (util.checkEndSquareBracket(element)) {
-            this.adjustBracketCount();
-        }
+
         if (util.checkStartCurlyBracket(element)) {
             this.startCurlyBracketsCount++;
             if (!this.curlyBracketsMode) {
@@ -147,6 +142,15 @@ class ArrayParser {
         }
         if (util.checkEndCurlyBracket(element)) {
             this.endCurlyBracketsCount++;
+        }
+
+        if (this.curlyBracketsMode) return;
+
+        if (util.checkStartSquareBracket(element)) {
+            this.startSquareBracketsCount++;
+        }
+        if (util.checkEndSquareBracket(element)) {
+            this.adjustBracketCount();
         }
     }
 
@@ -157,23 +161,31 @@ class ArrayParser {
 
         Array.prototype.forEach.call(dividedCharacterDatas, element => {
 
-            /* DEBUG MODE */
-            if (this.mergeData.constructor === Object && element === "}") {
-                console.log();
-            }
+            /* DEBUG MODE START - BP AREA*/
+            // if (this.mergeData.constructor === Object && element === "}") {
+            //     console.log();
+            // }
 
-            if (this.mergeData === "{easy") { 
-                console.log();
-            }
+            // if (element === "}") {
+            //     console.log();
+            // }
 
-            if (this.dividedCharacterDatas === "['11',[112233],{easy:['hello',{a:'a'},'world']},112]" && element === "{") {
-                console.log();
-            }
+            // if (this.mergeData === "{easy") { 
+            //     console.log();
+            // }
 
-            if (this.mergeData === "{easy:['hello',") {
-                console.log();
-            }
-            /* DEBUG MODE */
+            // if (this.dividedCharacterDatas === "['11',[112233],{easy:['hello',{a:'a'},'world']},112]" && element === "{") {
+            //     console.log();
+            // }
+
+            // if (this.mergeData === "{easy:['hello',") {
+            //     console.log();
+            // }
+
+            // if (this.mergeData === "[11223") {
+            //     console.log();
+            // }
+            /* DEBUG MODE END */
 
             this.repeatCount++;
             this.checkBracket(element);
