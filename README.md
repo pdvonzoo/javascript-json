@@ -535,14 +535,11 @@
    - ### 디버깅
 
      1. main.js 에서 코드실행
-
      2. `const arrayParserClass = require('./arrayParser');`
-
      3. `const arrayParser = new arrayParserClass(testCase1);`
 
         1. arrayParser.js 로 이동해서 constructor 수행함 (arrayParser.js:11 ~)
         2. 이때의 testCase1 은 `"[123, [22], 33]"`
-
      4. `const result = arrayParser.getResult();`
 
         1. `this.dividedCharacterDatas = util.divideString(this.inputString);`
@@ -567,10 +564,18 @@
            9. 그래서 일단 `this.mergeData` 는 정상적으로 출력되는것이 확인됨
            10. 이후 `const recursionArrayParser = new secondArrayParser(this.mergeData);` 에서.. 바로 `loader.js` 로 이동해 `tryModuleLoad` 에서 finally - if(threw) 에 걸림 = 강제종료
            11. 
-
      5. 
 
-        
+   - #### 클래스를 합치고 나서 TESTCASE 7 작동
+
+     - testCase가 구문 체크의 오류인지, 이상한 분기문으로 빠져 정상작동이 안됨
+     - DEBUG DATA : `"{easy:['hello',{a:'a'},'world']"`
+     - 일단은 `{` 문자가 나오고 나서, `[]` 구문이 먼저 처리되는 듯 함
+     - 로직이 현재 헷갈려서 전 코드를 봐야겠음
+     - `"{easy:['hello',{"` 일 때, curlyBracketMode가 false 가 됨
+     - 
+
+     
 
    
 
