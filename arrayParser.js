@@ -33,7 +33,6 @@ class ArrayParser {
         
         // tokenizer Constructor ----------------------------------------------------------------------*
 
-        // this.resultObject = {};
         this.mergeData = "";
         this.repeatCount = 0;
         this.startSquareBracketsCount = 0;
@@ -46,7 +45,7 @@ class ArrayParser {
         this.equalCurlyBracket = function() {
             if (this.startCurlyBracketsCount === this.endCurlyBracketsCount) {
                 this.curlyBracketsMode = false;
-                this.mergeData = this.recursionMode(this.mergeData);
+                this.mergeData = this.recursionCase(this.mergeData);
             }
         };
 
@@ -59,31 +58,21 @@ class ArrayParser {
         };
 
         this.checkTwoMoreSquareBracket = function() {
-            // if (this.startSquareBracketsCount >= 2 && this.endSquareBracketsCount === 0)
-            //     return true; 
-            // else
-            //     return false;
-
             return this.startSquareBracketsCount >= 2 && this.endSquareBracketsCount === 0;
         };
 
         this.checkOneMoreSquareBracket = function() {
-            // if (this.startSquareBracketsCount >= 1) 
-            //     return true;
             return this.startSquareBracketsCount >= 1;
         };
 
         this.checkEndCondition = function(arrayEndPoint) {
-            // if (this.repeatCount === arrayEndPoint)
-            //     return true;
-            // else
-            //     return false;
-
             return this.repeatCount === arrayEndPoint;
         };
 
         this.determineType = function() {
             Array.prototype.push.call(this.resultObject.child, lexer.decisionType(this.mergeData));
+            console.log("-------------------------------");
+            console.log(JSON.stringify(this.resultObject, null, 2));
             this.mergeData = "";
         };
 
@@ -135,77 +124,12 @@ class ArrayParser {
         return this.resultObject;
     }
 
-    decisionType(inputData) {
-        const initString = "";
-
-        inputData = util.removeFirstParenthesis(inputData);
-        if (inputData.constructor === Object || inputData.type === 'Array') {
-            this.resultObject.child.push(inputData);
-        } else {
-            inputData = (inputData === "null") ? null : inputData;
-            inputData = util.removeSpace(inputData);
-            inputData = this.checkCorrectString(inputData);
-            const dataObject = {
-                type: this.checkType(inputData),
-                value: inputData,
-                child: []
-            };
-            return dataObject;
-        }
-        return initString;
-    }
-
-    checkCorrectString(inputData) {
-
-        if(typeof(inputData) !== "string") {
-            return inputData;
-        }
-
-        let errorCount = 0;
-        if (inputData.includes("'")) {
-            let smallQuotesPosition = inputData.indexOf("'");
-            const endCondtion = -1;
-            
-            while (smallQuotesPosition !== endCondtion) {
-                errorCount++;
-                smallQuotesPosition = inputData.indexOf("'", smallQuotesPosition + 1);
-            }
-        }
-
-        if (errorCount >= 3) { 
-            this.errorMode = true;
-            this.errorContent = inputData;
-            console.log(inputData + "(은/는) 올바른 문자열이 아닙니다");
-            process.exit();
-        }
-        return inputData;
-    }
-
-    
-    checkType(params) {
-
-        const onlyNumberRegex = /^[0-9]*$/;
-
-        if (params === null) { return 'Null'; }
-
-        const parameterEndIndex = params.length - 1;
-
-        if (params === "true" || params == "false") { return 'Boolean'; }
-        if (params.constructor === Object) { return 'Object'; }
-        if (params.includes("[") && params.includes("]")) { return 'Array'; }
-        if (params[0] === "'" && params[parameterEndIndex] === "'") { return 'String'; }
-        if (onlyNumberRegex.test(params)) { return "Number"; } 
-        else {
-            console.log(params + "(은/는) 알 수 없는 타입입니다");
-            process.exit();
-        }
-    }
-
     // Tokenizer ----------------------------------------------------------------------------------*
 
     checkNoDataExists(inputData) {
-        if (inputData.trim() === "") return true;
-        else return false;
+        // if (inputData.trim() === "") return true;
+        // else return false;
+        return inputData.trim() === "";
     }
 
     checkBracket(element) {
@@ -217,7 +141,9 @@ class ArrayParser {
         }
         if (util.checkStartCurlyBracket(element)) {
             this.startCurlyBracketsCount++;
-            this.curlyBracketsMode = this.checkNoDataExists(this.mergeData);
+            if (!this.curlyBracketsMode) {
+                this.curlyBracketsMode = this.checkNoDataExists(this.mergeData);
+            }
         }
         if (util.checkEndCurlyBracket(element)) {
             this.endCurlyBracketsCount++;
@@ -230,6 +156,25 @@ class ArrayParser {
         this.resultObject = resultObject;
 
         Array.prototype.forEach.call(dividedCharacterDatas, element => {
+
+            /* DEBUG MODE */
+            if (this.mergeData.constructor === Object && element === "}") {
+                console.log();
+            }
+
+            if (this.mergeData === "{easy") { 
+                console.log();
+            }
+
+            if (this.dividedCharacterDatas === "['11',[112233],{easy:['hello',{a:'a'},'world']},112]" && element === "{") {
+                console.log();
+            }
+
+            if (this.mergeData === "{easy:['hello',") {
+                console.log();
+            }
+            /* DEBUG MODE */
+
             this.repeatCount++;
             this.checkBracket(element);
 
@@ -269,7 +214,7 @@ class ArrayParser {
         let startSquareBracket = 0;
         let endSquareBracket = 0;
 
-        this.dividedCharacterDatas.forEach(element => {
+        Array.prototype.forEach.call(this.dividedCharacterDatas, element => {
             if (element === "]") {
                 endSquareBracket++;
                 if (startSquareBracket === endSquareBracket) {

@@ -20,6 +20,12 @@ class Lexer {
             inputData = (inputData === "null") ? null : inputData;
             inputData = util.removeSpace(inputData);
             inputData = this.checkCorrectString(inputData);
+
+            /* DEBUG */
+            if (inputData === "112233") {
+                console.log("BP");
+            }
+
             const dataObject = {
                 type: this.checkType(inputData),
                 value: inputData,
