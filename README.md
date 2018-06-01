@@ -121,7 +121,7 @@
 
    1. 알 수 없는 타입에 걸림
    2. 현재 코드에서 쪼개지는 방식
-      1. ['1a3',[null,false,**['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99']**,{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true] 
+      1. ['1a3',**[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99']**,{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true] 
       2. [null,false,**['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112]**,55, '99']
       3. ['11',[112233],**{easy : ['hello', {a:'a'}, 'world']}**,112]
       4. `{easy : ['hello', {a:'a'}, 'world']}`
@@ -572,8 +572,26 @@
      - DEBUG DATA : `"{easy:['hello',{a:'a'},'world']"`
      - 일단은 `{` 문자가 나오고 나서, `[]` 구문이 먼저 처리되는 듯 함
      - 로직이 현재 헷갈려서 전 코드를 봐야겠음
-     - `"{easy:['hello',{"` 일 때, curlyBracketMode가 false 가 됨
-     - 
+     - `"{easy:['hello',{"` 일 때, `curlyBracketMode`가 `false` 가 됨
+     - `"['11',[112233],{easy:['hello',{a:'a'},'world']},112]"`
+       - this.startSquareBracketsCount : 2
+       - this.endSquareBracketsCount : 1
+       - 즉, `[` 가 2개, `]` 가 1개 있다는 뜻
+       - 그래서 어느 조건에 걸리냐면
+       - `closedInnerSquareBracket` 에 걸림
+       - 그럼 어떻게 되냐면, 현재의 `this.mergeData` 를 가지고 `new ArrayParser(this.mergeData)` 를 수행하게됨
+       - 원래 코드에서는 `endSquareBracketsCount`가 `0` 이기 때문에 안걸렸는데
+       - 여기에서는 1 이기 때문에 걸린것
+       - 왜 2, 1이 나왔냐면, `object` 를 할 때, `[]` 문자에 의해서 증가가 되는 것임
+
+     ```javascript
+           "type": "Object",
+           "key": "a",
+           "value": "'str'",
+           "key2": ",b",
+     ```
+
+     - key2 에서 , 가 걸러지지 않고 b가 바로 출력됨
 
      
 
@@ -672,7 +690,7 @@
 
   `array` 는 votes 와 똑같은 데이터가 받아짐
 
-  ​
+  
 
   ​
 
@@ -716,4 +734,3 @@
 
 
 
-​
