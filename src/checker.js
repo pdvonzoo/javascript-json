@@ -51,7 +51,7 @@ class Syntax {
     }
   }
   isNumber(str) {
-    if (str === '') return;
+    if (str === '') return false;
     if (!isNaN(+str)) return true;
   }
   isString(str) {
