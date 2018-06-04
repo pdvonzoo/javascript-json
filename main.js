@@ -2,7 +2,7 @@
     Main JS
 */
 
-const ArrayParser = require('./arrayParser');
+const ArrayParser = require('./function/arrayParser');
 
 const testCase1 = "[123, [22], 33]";
 const testCase2 = "[123, [1,2,3,4,5], 33]";
