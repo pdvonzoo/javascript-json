@@ -15,18 +15,17 @@ exports.ArrayParser = class {
     }
   }
   pushCompletedString(context) {
-    if (!context.arrayOpen && !context.objectOpen) {
-      let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
-      if (this.syntaxChecker.isNumber(processed)) {
-        context.completeArr.push(parseInt(processed));
-      } else if (processed.length) {
-        this.syntaxChecker.checkError(processed);
-        processed = this.syntaxChecker.removeSideQuote(processed);
-        processed = this.syntaxChecker.changeToNullAndBoolean(processed);
-        context.completeArr.push(processed);
-      }
-      context.chunk = '';
+    if (context.arrayOpen || context.objectOpen) return;
+    let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
+    if (this.syntaxChecker.isNumber(processed)) {
+      context.completeArr.push(parseInt(processed));
+    } else if (processed.length) {
+      this.syntaxChecker.checkError(processed);
+      processed = this.syntaxChecker.removeSideQuote(processed);
+      processed = this.syntaxChecker.changeToNullAndBoolean(processed);
+      context.completeArr.push(processed);
     }
+    context.chunk = '';
   }
   pushCompletedArray(context) {
     context.completeArr.push(this.dataStructure.parser(context.chunk.trim()));
@@ -75,19 +74,18 @@ exports.JsonParser = class {
     }
   }
   addValue(context) {
-    if (!context.arrayOpen && !context.objectOpen) {
-      let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
-      if (this.syntaxChecker.isNumber(processed)) {
-        context.completeObj[context.temp] = parseInt(processed);
-      } else if (processed.length) {
-        this.syntaxChecker.checkError(processed);
-        processed = this.syntaxChecker.removeSideQuote(processed);
-        processed = this.syntaxChecker.changeToNullAndBoolean(processed);
-        context.completeObj[context.temp] = processed;
-      }
-      context.temp = '';
-      context.chunk = '';
+    if (context.arrayOpen || context.objectOpen) return;
+    let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
+    if (this.syntaxChecker.isNumber(processed)) {
+      context.completeObj[context.temp] = parseInt(processed);
+    } else if (processed.length) {
+      this.syntaxChecker.checkError(processed);
+      processed = this.syntaxChecker.removeSideQuote(processed);
+      processed = this.syntaxChecker.changeToNullAndBoolean(processed);
+      context.completeObj[context.temp] = processed;
     }
+    context.temp = '';
+    context.chunk = '';
   }
   addObject(context) {
     if (this.syntaxChecker.isObject(context.chunk)) context.chunk = this.dataStructure.parser(context.chunk);
