@@ -6,7 +6,7 @@ exports.divideString = function(inputString) {
     return inputString.split("");
 };
 
-exports.divideString = function(inputData) {
+exports.trimString = function(inputData) {
     if (typeof(inputData) === "string") {
         return inputData.trim();
     } else {

@@ -595,18 +595,38 @@
 
      
 
+     
+
+     
+
    
+
+- ### [typeOf](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof)
+
+  - https://cimfalab.github.io/deepscan/2016/07/typeof
+  - `typeOf` 의 타입에는 `Array` 가 **존재하지 않음**
+  - `typeof` 의 반환 값
+    - undefined
+    - object
+    - boolean
+    - number
+    - string
+    - function
+    - symbol
+  - 
+
+
 
 - ### [forEach, map](https://medium.com/@hongkevin/js-1-%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EB%B0%B0%EC%97%B4-%EB%A9%94%EC%84%9C%EB%93%9C-1-foreach-map-b1cb1c2237d1)
 
   ```javascript
   let data= [1, 2, 3, 4, 5]
-
+  
   // forEach 를 사용해서 원소의 값들을 각각 3씩 증가시키기
   let result = [];
   data.forEach(x => { result.push(x + 3) });
   console.log(result);
-
+  
   // map 을 사용해서 원소의 값들을 각각 3씩 증가시키기
   let result2 = data.map(x => { return x + 3});
   console.log(result2);
