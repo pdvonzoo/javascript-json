@@ -14,24 +14,17 @@ class Lexer {
 
         inputData = util.removeFirstParenthesis(inputData);
         if (inputData.constructor === Object || inputData.type === 'Array') {
-            // this.resultObject.child.push(inputData);
             return inputData;
         } else {
             inputData = (inputData === "null") ? null : inputData;
             inputData = util.removeSpace(inputData);
             inputData = this.checkCorrectString(inputData);
 
-            /* DEBUG */
-            // if (inputData === "112233") {
-            //     console.log("BP");
-            // }
-
             const dataObject = {
                 type: this.checkType(inputData),
                 value: inputData,
                 child: []
             };
-            // this.resultObject.child.push(dataObject);
             return dataObject;
         }
         return initString;

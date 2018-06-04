@@ -3,7 +3,6 @@
 */
 
 const util = require('./utility');
-// const tokenizer = require('./tokenizer.js');
 const lexer = require('./lexer');
 
 class ArrayParser {
@@ -71,8 +70,6 @@ class ArrayParser {
 
         this.determineType = function() {
             Array.prototype.push.call(this.resultObject.child, lexer.decisionType(this.mergeData));
-            // console.log("-------------------------------");
-            // console.log(JSON.stringify(this.resultObject, null, 2));
             this.mergeData = "";
         };
 
@@ -124,11 +121,7 @@ class ArrayParser {
         return this.resultObject;
     }
 
-    // Tokenizer ----------------------------------------------------------------------------------*
-
     checkNoDataExists(inputData) {
-        // if (inputData.trim() === "") return true;
-        // else return false;
         return inputData.trim() === "";
     }
 
@@ -160,32 +153,6 @@ class ArrayParser {
         this.resultObject = resultObject;
 
         Array.prototype.forEach.call(dividedCharacterDatas, element => {
-
-            /* DEBUG MODE START - BP AREA*/
-            // if (this.mergeData.constructor === Object && element === "}") {
-            //     console.log();
-            // }
-
-            // if (element === "}") {
-            //     console.log();
-            // }
-
-            // if (this.mergeData === "{easy") { 
-            //     console.log();
-            // }
-
-            // if (this.dividedCharacterDatas === "['11',[112233],{easy:['hello',{a:'a'},'world']},112]" && element === "{") {
-            //     console.log();
-            // }
-
-            // if (this.mergeData === "{easy:['hello',") {
-            //     console.log();
-            // }
-
-            // if (this.mergeData === "[11223") {
-            //     console.log();
-            // }
-            /* DEBUG MODE END */
 
             this.repeatCount++;
             this.checkBracket(element);
