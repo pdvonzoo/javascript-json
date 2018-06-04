@@ -32,37 +32,25 @@ exports.removeSpace = function(inputData) {
 };
 
 exports.checkSpace = function(param) {
-    // if(param === ' ') return true;
-    // else return false;
     return param === ' ';
 }
 
 exports.checkStartCurlyBracket = function(param) {
-    // if (param === '{') return true;
-    // else return false;
     return param === '{';
 }
 
 exports.checkEndCurlyBracket = function(param) {
-    // if (param === '}') return true;
-    // else return false;
     return param === '}';
 }
 
 exports.checkComma = function(param) {
-    // if (param === ',') return true;
-    // else return false;
     return param === ',';
 }
 
 exports.checkStartSquareBracket = function(param) {
-    // if (param === '[') return true;
-    // else return false;
     return param === '[';
 }
 
 exports.checkEndSquareBracket = function(param) {
-    // if (param === ']') return true;
-    // else return false;
     return param === ']';
 }
