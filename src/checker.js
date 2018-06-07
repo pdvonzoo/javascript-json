@@ -8,19 +8,22 @@ class ErrorMessage {
   NOT_PAIR_QUOTE(str) {
     return `${str}은 올바른 문자열이 아닙니다`
   }
+  NOT_FOUND_KEY() {
+    return `':'이 누락된 객체표현이 있습니다`
+  }
 }
 class Syntax {
   constructor() {
     this.ERROR_MESSAGE = new ErrorMessage();
     this.errorMessage = null;
   }
-  checkError(targetString, key) {
+  checkError(targetString, option) {
     if (this.isString(targetString)) {
       this.checkPairQuote(targetString);
     } else {
       this.isMixedType(targetString);
     }
-    this.isStringWithoutQuote(targetString, key);
+    this.isStringWithoutQuote(targetString, option);
     if (this.errorMessage) throw this.errorMessage;
   }
   isMixedType(targetString) {
@@ -31,7 +34,7 @@ class Syntax {
   }
   isStringWithoutQuote(targetString, key) {
     const exceptionWord = ['null', 'true', 'false'];
-    if (key) return;
+    if (key === 'key') return;
     else if (exceptionWord.indexOf(targetString) > -1) return;
     else if (!Number.isInteger(+targetString) && !this.isString(targetString)) {
       this.errorMessage = this.ERROR_MESSAGE.UNKNOWN_TYPE(targetString);
@@ -73,7 +76,9 @@ class Syntax {
     if (str === 'false') return false;
     return str;
   }
-
+  checkKey(context) {
+    if (context.temp === '') throw this.ERROR_MESSAGE.NOT_FOUND_KEY();
+  }
   isPairBracket(str) {
     if (!str) return;
     let minimumBracket = false;

@@ -76,6 +76,7 @@ exports.JsonParser = class {
   addValue(context) {
     if (context.arrayOpen || context.objectOpen) return;
     let processed = this.syntaxChecker.removeLastComma(context.chunk).trim();
+    this.syntaxChecker.checkKey(context); // :를 만나지 못해 key값이 생성되지 않았는지를 체크
     if (this.syntaxChecker.isNumber(processed)) {
       context.completeObj[context.temp] = parseInt(processed);
     } else if (processed.length) {
