@@ -61,6 +61,24 @@
 
 ## *어떻게 만들까?*
 
+### *프로그램 전체흐름*
+
+------
+
+![](/Users/woogie/Desktop/arrayParser.jpg)
+
+1. *lexer를 통해 데이터를 분석한다 ex ) { type : number, value : 123, child : [ ] }*
+
+2. *child가 없을 경우에는 그냥 리턴한다.*
+
+3. *child가 있을 경우에는 tokenizer를 통해 데이터를 배열이나 객체형태로 변환시켜준다.*
+
+   *ex ) "[ 1 ,2 ]" ==> [ 1, 2 ]*
+
+4. *변환된 데이터의 모든 원소를 parser하여서 lexer의 child에 추가해준다.*
+
+
+
 ### *문자열로 된 데이터를 배열이나 객체로 변환 (tokenizer)*
 
 --------
