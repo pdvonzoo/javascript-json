@@ -595,9 +595,36 @@
 
      
 
-     
+   - #### 테스트코드 작성 (STEP6) 에 대한 피드백
 
-     
+     ```
+     arrayParser 클래스 역할이 좀 커졌네요. 메서드도 많아서 수정하고 스스로 디버깅하기 어렵진 않나요?
+     분리하는게 답은 아니지만, 스스로 해결하기 어렵다면 이 큰 덩어리를 나누는 방법은 무엇인지 생각해보세요~
+     ```
+
+     - [JavaScript 객체지향](https://github.com/FEDevelopers/tech.description/wiki/%5BES6%5D%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-Javascript---Class)
+     - [JavaScript Class 정의](http://steadypost.net/post/lecture/id/13/)
+     - 상속
+     - arrayParser 안에 `{}` 를 쪼개는 `createCurlyObject` 메서드가 `createObject` 메서드와 비슷하다
+     - 따로 클래스로 빼면 어떨까?
+
+     ```
+     지금처럼 new Lexer로 할수도 있지만,
+     module.exports = Lexer; 로 클래스 자체를 반환하는 게 좀더 일반적이긴 합니다.
+     ```
+
+     - `module.exports = Lexer;` 로 수정한 후, `lexer.checkType` 메서드를 호출할 때 **에러가 발생**한다
+     - `lexer.checkType is not a function at ArrayParser.getResult`
+     - `const {lexer} = require('./lexer');` 하면 에러 내용이 달라진다
+     - `Cannot read property 'checkType' of undefined at ArrayParser.getResult` 
+     - 아직 import 할 때, `{}` 차이를 잘 모르겠다
+     - ES6의 export와 import를 사용하기 위해서 Babel 
+     - [이건 나중에 참고할 글](https://github.com/codepink/codepink.github.com/wiki/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EB%AA%A8%EB%93%88,-%EB%AA%A8%EB%93%88-%ED%8F%AC%EB%A7%B7,-%EB%AA%A8%EB%93%88-%EB%A1%9C%EB%8D%94%EC%99%80-%EB%AA%A8%EB%93%88-%EB%B2%88%EB%93%A4%EB%9F%AC%EC%97%90-%EB%8C%80%ED%95%9C-10%EB%B6%84-%EC%9E%85%EB%AC%B8%EC%84%9C)
+     - 
+
+   
+
+   
 
    
 
@@ -712,7 +739,7 @@
 
   
 
-  ​
+  
 
   ​
 

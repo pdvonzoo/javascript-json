@@ -4,6 +4,7 @@
 
 const util = require('./utility');
 const Lexer = require('./lexer');
+const lexer = new Lexer();
 
 class ArrayParser {
     constructor(stringData) {
@@ -12,7 +13,8 @@ class ArrayParser {
             child: [],
         };
 
-        this.lexer = new Lexer();
+        // 생성자로 추가하면, getResult() 에서 lexer 에서 catch 구문에 걸림
+        // this.lexer = new Lexer();
 
         this.dividedCharacterDatas = [];
 
@@ -32,8 +34,8 @@ class ArrayParser {
 
     getResult() {
         this.dividedCharacterDatas = util.divideString(this.inputString);
-        console.log(lexer);
-        console.log(Lexer);
+        // console.log(lexer);
+        // console.log(Lexer);
         this.resultObject.type = lexer.checkType(this.inputString);
         this.resultObject = this.createObject(this.dividedCharacterDatas, this.resultObject);
 
@@ -70,7 +72,7 @@ class ArrayParser {
 
     determineType() {
         const dataType = lexer.decisionType(this.mergeData);
-        setResultObjectChildData(dataType);
+        this.setResultObjectChildData(dataType);
         this.mergeData = "";
     }
 
@@ -134,13 +136,13 @@ class ArrayParser {
                 case util.checkComma(element):
                     this.determineType();
                     break;
-                case this.checkEndCondition(this.repeatCount, arrayEndPoint):
+                case util.checkEndCondition(this.repeatCount, arrayEndPoint):
                     this.determineType();
                     break;
                 case this.closedInnerSquareBracket(element):
-                    this.mergeData = recursionCase(this.mergeData);
+                    this.mergeData = this.recursionCase(this.mergeData);
                     break;
-                case this.checkOneMoreSquareBracket(this.startSquareBracketsCount):
+                case util.checkOneMoreSquareBracket(this.startSquareBracketsCount):
                     this.mergeData += element;
                     break;
             }
