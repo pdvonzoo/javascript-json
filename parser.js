@@ -9,12 +9,12 @@ function checkArray(wordData) {
   }
 }
 
-function changeSign(wordElement) {
+function isArrayTypeValueChangeElement(wordElement) {
   return wordElement.replace(/\[|\]/, "").trim();
 }
 
-function checkHaveNum(wordData) {
-  return wordData.search(/[0-9]/);
+function existNumberTypeValueInString(wordData) {
+  return wordData.search(/[0-9]/) ? false : true;
 }
 
 // Number 확인 함수
@@ -22,14 +22,16 @@ function checkNumber(wordData) {
   const splitWord = wordData.split(",");
 
   const childValue = splitWord.map(element => {
-    const value = changeSign(element);
-    if (checkHaveNum(value) !== -1) {
+    const value = isArrayTypeValueChangeElement(element);
+    if (existNumberTypeValueInString(value) === true) {
       const childArr = {
         type: 'Number',
         value: value,
         child: [],
       }
       return childArr;
+    } else {
+      return false;
     }
   });
   return childValue;
