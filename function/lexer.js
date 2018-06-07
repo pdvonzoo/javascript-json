@@ -5,9 +5,7 @@
 const util = require('./utility');
 
 class Lexer {
-    constructor(stringData) {
-
-    }
+    constructor() {}
 
     decisionType(inputData) {
         const initString = "";
@@ -77,4 +75,4 @@ class Lexer {
     }
 }
 
-module.exports = new Lexer();
+module.exports = Lexer;

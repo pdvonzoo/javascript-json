@@ -54,3 +54,20 @@ exports.checkStartSquareBracket = function(param) {
 exports.checkEndSquareBracket = function(param) {
     return param === ']';
 };
+
+exports.checkFirstLetterBracket = (param) => {
+    return param === '{';
+};
+
+exports.checkNoDataExists = (inputData) => {
+    return inputData.trim() === "";
+};
+
+exports.checkEndCondition = (repeatCount, arrayEndPoint) => {
+    return repeatCount === arrayEndPoint;
+};
+
+exports.checkOneMoreSquareBracket = (bracketCount) => {
+    // return this.startSquareBracketsCount >= 1;
+    return bracketCount >= 1;
+};

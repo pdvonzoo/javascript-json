@@ -3,7 +3,7 @@
 */
 
 const util = require('./utility');
-const lexer = require('./lexer');
+const Lexer = require('./lexer');
 
 class ArrayParser {
     constructor(stringData) {
@@ -12,117 +12,81 @@ class ArrayParser {
             child: [],
         };
 
-        this.dividedCharacterDatas = [];
-        this.inputString = stringData.trim();
-        this.curlyObjectMode = false;
-        this.errorMode = false;
-        this.errorContent = "";
+        this.lexer = new Lexer();
 
+        this.dividedCharacterDatas = [];
+
+        this.inputString = stringData.trim();
         this.inputStringLength = this.inputString.length;
         this.inputStringFirstCharacter = this.inputString[0];
         this.inputStringLastCharacher = this.inputString[this.inputStringLength-1];
 
-        if (this.checkFirstLetterBracket(this.inputStringFirstCharacter)) {
-            this.changeObjectProperties();
-        }
-
-        this.setResultObjectChildData = function(data) {
-            this.resultObject.child.push(data);
-        };
-        
-        // tokenizer Constructor ----------------------------------------------------------------------*
-
+        this.errorMode = false;
+        this.errorContent = "";
         this.mergeData = "";
         this.repeatCount = 0;
         this.startSquareBracketsCount = 0;
         this.endSquareBracketsCount = 0;
-        this.startCurlyBracketsCount = 0;
-        this.endCurlyBracketsCount = 0;
-        this.curlyBracketsMode = false;
         this.recursionMode = false;
-        
-        this.equalCurlyBracket = function() {
-            if (this.startCurlyBracketsCount === this.endCurlyBracketsCount) {
-                this.curlyBracketsMode = false;
-                this.mergeData = this.recursionCase(this.mergeData);
-            }
-        };
-
-        this.adjustBracketCount = function() {
-            if (this.startSquareBracketsCount >= 3) {
-                this.startSquareBracketsCount--;
-            } else {
-                this.endSquareBracketsCount++;
-            }
-        };
-
-        this.checkTwoMoreSquareBracket = function() {
-            return this.startSquareBracketsCount >= 2 && this.endSquareBracketsCount === 0;
-        };
-
-        this.checkOneMoreSquareBracket = function() {
-            return this.startSquareBracketsCount >= 1;
-        };
-
-        this.checkEndCondition = function(arrayEndPoint) {
-            return this.repeatCount === arrayEndPoint;
-        };
-
-        this.determineType = function() {
-            Array.prototype.push.call(this.resultObject.child, lexer.decisionType(this.mergeData));
-            this.mergeData = "";
-        };
-
-        this.closedInnerSquareBracket = function(element) {
-            if (this.endSquareBracketsCount >= 1 && 
-                this.endSquareBracketsCount == this.startSquareBracketsCount-1) {
-                    this.mergeData += element;
-                    this.startSquareBracketsCount--;
-                    this.endSquareBracketsCount--;
-                    return true;
-                }
-        };
-    }
-
-    checkFirstLetterBracket(param) {
-        if (param === '{') return true;
-        else return false;
-    }
-
-    changeObjectProperties() {
-        this.resultObject.type = "Object";
-        delete this.resultObject.child;
-        this.resultObject.key = null;
-        this.resultObject.value = null;
-        this.curlyObjectMode = true;
-    }
-
-    recursionCase(mergeData) {
-        const secondArrayParser = new ArrayParser(mergeData);
-        mergeData = secondArrayParser.getResult();
-        return mergeData;
     }
 
     getResult() {
-
         this.dividedCharacterDatas = util.divideString(this.inputString);
+        console.log(lexer);
+        console.log(Lexer);
+        this.resultObject.type = lexer.checkType(this.inputString);
+        this.resultObject = this.createObject(this.dividedCharacterDatas, this.resultObject);
 
-        if (this.curlyObjectMode) {
-            this.createCurlyObject();
-        } else {
-            this.resultObject.type = lexer.checkType(this.inputString);
-            this.resultObject = this.createObject(this.dividedCharacterDatas, this.resultObject);
-        }
-
-        if (this.errorMode) {
-            return this.errorContent;
-        }
+        if (this.errorMode) return this.errorContent;
 
         return this.resultObject;
     }
 
-    checkNoDataExists(inputData) {
-        return inputData.trim() === "";
+    adjustBracketCount() {
+        if (this.startSquareBracketsCount >= 3) this.startSquareBracketsCount--;
+        else this.endSquareBracketsCount++;
+    }
+
+    checkTwoMoreSquareBracket() {
+        return this.startSquareBracketsCount >= 2 && this.endSquareBracketsCount === 0;
+    }
+
+    equalCurlyBracket() {
+        if (this.startCurlyBracketsCount === this.endCurlyBracketsCount) {
+            this.curlyBracketsMode = false;
+            this.mergeData = this.recursionCase(this.mergeData);
+        }
+    }
+
+    closedInnerSquareBracket(element) {
+        if (this.endSquareBracketsCount >= 1 && 
+            this.endSquareBracketsCount == this.startSquareBracketsCount-1) {
+                this.mergeData += element;
+                this.startSquareBracketsCount--;
+                this.endSquareBracketsCount--;
+                return true;
+            }
+    }
+
+    determineType() {
+        const dataType = lexer.decisionType(this.mergeData);
+        setResultObjectChildData(dataType);
+        this.mergeData = "";
+    }
+
+    setResultObjectChildData(data) {
+        Array.prototype.push.call(this.resultObject.child, data);
+    }
+
+    recursionCase(mergeData) {
+
+        if (util.checkFirstLetterBracket(mergeData)) {
+            this.changeObjectProperties();
+        }
+
+        const secondArrayParser = new ArrayParser(mergeData);
+        mergeData = secondArrayParser.getResult();
+        return mergeData;
     }
 
     checkBracket(element) {
@@ -130,7 +94,7 @@ class ArrayParser {
         if (util.checkStartCurlyBracket(element)) {
             this.startCurlyBracketsCount++;
             if (!this.curlyBracketsMode) {
-                this.curlyBracketsMode = this.checkNoDataExists(this.mergeData);
+                this.curlyBracketsMode = util.checkNoDataExists(this.mergeData);
             }
         }
         if (util.checkEndCurlyBracket(element)) {
@@ -170,92 +134,20 @@ class ArrayParser {
                 case util.checkComma(element):
                     this.determineType();
                     break;
-                case this.checkEndCondition(arrayEndPoint):
+                case this.checkEndCondition(this.repeatCount, arrayEndPoint):
                     this.determineType();
                     break;
                 case this.closedInnerSquareBracket(element):
-                    const recursionArrayParser = new ArrayParser(this.mergeData);
-                    this.mergeData = recursionArrayParser.getResult();
+                    this.mergeData = recursionCase(this.mergeData);
                     break;
-                case this.checkOneMoreSquareBracket():
+                case this.checkOneMoreSquareBracket(this.startSquareBracketsCount):
                     this.mergeData += element;
                     break;
             }
         });
 
         return this.resultObject;
-    }
-
-    createCurlyObject() {
-        let key;
-        let mergeData = "";
-        let squareBracketMode = false;
-        let startSquareBracket = 0;
-        let endSquareBracket = 0;
-
-        Array.prototype.forEach.call(this.dividedCharacterDatas, element => {
-            if (element === "]") {
-                endSquareBracket++;
-                if (startSquareBracket === endSquareBracket) {
-                    mergeData += element;
-                    squareBracketMode = false;
-                    this.curlyObjectMode = true;
-                    mergeData = this.recursionCase(mergeData);
-                    return;
-                }
-                mergeData += element;
-                return;
-            }
-
-            if (element === "[") {
-                mergeData += element;
-                startSquareBracket++;
-                squareBracketMode = true;
-                return;
-            }
-            
-            if (squareBracketMode) {
-                mergeData += element;
-                return;
-            }
-            
-            if (element === '{') {
-                return;
-            }
-
-            if (element === '}' || element === ',') {
-                mergeData = this.setObjectData("value", mergeData);
-            }
-            
-            if (element === ":") {
-                mergeData = this.setObjectData("key", mergeData);
-                return;
-            }
-
-            mergeData += element;
-        });
-    }
-
-    setObjectData(mode, inputData) {
-        const initString = "";
-
-        if (mode === "key") {
-            if (this.resultObject.key === null) {
-                this.resultObject.key = inputData;
-            } else {
-                this.resultObject.key2 = inputData;
-            }
-        } else {
-            if (this.resultObject.value === null) {
-                this.resultObject.value = inputData;
-            } else {
-                this.resultObject.value2 = inputData;
-            }
-        }
-
-        return initString;
-    }
-    
+    }    
 }
 
 module.exports = ArrayParser;
