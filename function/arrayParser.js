@@ -2,8 +2,12 @@
     arrayParser JS
 */
 
+exports.ArrayParser = (stringData) => new ArrayParser(stringData);
+
 const util = require('./utility');
 const Lexer = require('./lexer');
+const {ObjectParser} = require('./objectParser');
+
 const lexer = new Lexer();
 
 class ArrayParser {
@@ -30,6 +34,9 @@ class ArrayParser {
         this.startSquareBracketsCount = 0;
         this.endSquareBracketsCount = 0;
         this.recursionMode = false;
+
+        this.startCurlyBracketsCount = 0;
+        this.endCurlyBracketsCount = 0;
     }
 
     getResult() {
@@ -82,8 +89,23 @@ class ArrayParser {
 
     recursionCase(mergeData) {
 
+        if (this.mergeData === "{easy:['hello',{a:'a'},'world']}") {
+            console.log();
+        }
+
+        if (this.mergeData === "{a:'a'}") {
+            console.log();
+        }
+
         if (util.checkFirstLetterBracket(mergeData)) {
-            this.changeObjectProperties();
+            // this.changeObjectProperties();
+            // const newObjectParser = new ObjectParser(mergeData);
+            const newObjectParser = ObjectParser(mergeData);
+            console.log(newObjectParser);
+            this.mergeData = newObjectParser.getResult();
+            // console.log(newObjectParser);
+            // mergeData = newObjectParser.getResult();
+            return this.mergeData;
         }
 
         const secondArrayParser = new ArrayParser(mergeData);
@@ -120,6 +142,8 @@ class ArrayParser {
 
         Array.prototype.forEach.call(dividedCharacterDatas, element => {
 
+            if (this.mergeData === "{a:'a'");
+
             this.repeatCount++;
             this.checkBracket(element);
 
@@ -152,4 +176,4 @@ class ArrayParser {
     }    
 }
 
-module.exports = ArrayParser;
+// module.exports = ArrayParser;
