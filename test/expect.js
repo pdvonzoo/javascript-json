@@ -18,16 +18,11 @@ class Expect {
 
     checkEqualArray(answer, result) {
         if (!Array.isArray(result)) return false;
-        // console.log(answer.every((v,i) => v === result[i]));
         return answer.every((v,i) => v === result[i]);
     }
 
     toBe(result) {
-
         const answer = this.answer;
-
-        // console.log("----------------------");
-        // console.log(answer, result);
 
         if (this.equal(answer, result)) { console.log("OK"); }
         else {

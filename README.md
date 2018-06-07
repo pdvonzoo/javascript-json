@@ -620,7 +620,32 @@
      - 아직 import 할 때, `{}` 차이를 잘 모르겠다
      - ES6의 export와 import를 사용하기 위해서 Babel 
      - [이건 나중에 참고할 글](https://github.com/codepink/codepink.github.com/wiki/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EB%AA%A8%EB%93%88,-%EB%AA%A8%EB%93%88-%ED%8F%AC%EB%A7%B7,-%EB%AA%A8%EB%93%88-%EB%A1%9C%EB%8D%94%EC%99%80-%EB%AA%A8%EB%93%88-%EB%B2%88%EB%93%A4%EB%9F%AC%EC%97%90-%EB%8C%80%ED%95%9C-10%EB%B6%84-%EC%9E%85%EB%AC%B8%EC%84%9C)
-     - 
+
+     ---
+
+     - ObjectParser 을 구성하였다.
+     - 그런데, 결국은 상호참조가 되어버림.
+     - 어떻게 다시 돌리기 힘들어서, import export 를 많이 검색함
+     - ES6의 코드가 안돌아감 `대체 왜?`
+     - 그래서 npm 중 Babel module 을 설치해서 돌려봄 = `안됨`
+     - 결국은 함수를 통해서 생성해서 반환시켜줌 (__)
+     - arrayParser 에서 objectParser 을 분리하다가, 계속 넘겨준 데이터가 초기화되는 버그가 발생
+     - 원인은 생성자에서 this.mergeData = data 로 받고 맨 뒤에 this.mergeData = "" 하는 어이없는 실수를 발생
+
+     ---
+
+     - 원인이 무엇인지 모르겠는데, module.exports = Lexer; 로 클래스를 바로 넘겨버리면
+     - 다른쪽에서 lexer.js의 메서드들을 사용할 수가 없는 문제가 발생
+     - 생성자에서 `this.Lexer = new Lexer();` 을 통해서 생성했음에도 메서드에 접근이 안됨
+     - 일단은 `const lexer = new Lexer();` 전역변수를 통해서 해결
+
+     ---
+
+     
+
+     
+
+     
 
    
 

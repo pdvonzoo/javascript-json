@@ -17,16 +17,11 @@ class ArrayParser {
             child: [],
         };
 
-        // 생성자로 추가하면, getResult() 에서 lexer 에서 catch 구문에 걸림
-        // this.lexer = new Lexer();
-
         this.dividedCharacterDatas = [];
-
         this.inputString = stringData.trim();
         this.inputStringLength = this.inputString.length;
         this.inputStringFirstCharacter = this.inputString[0];
         this.inputStringLastCharacher = this.inputString[this.inputStringLength-1];
-
         this.errorMode = false;
         this.errorContent = "";
         this.mergeData = "";
@@ -34,15 +29,12 @@ class ArrayParser {
         this.startSquareBracketsCount = 0;
         this.endSquareBracketsCount = 0;
         this.recursionMode = false;
-
         this.startCurlyBracketsCount = 0;
         this.endCurlyBracketsCount = 0;
     }
 
     getResult() {
         this.dividedCharacterDatas = util.divideString(this.inputString);
-        // console.log(lexer);
-        // console.log(Lexer);
         this.resultObject.type = lexer.checkType(this.inputString);
         this.resultObject = this.createObject(this.dividedCharacterDatas, this.resultObject);
 
@@ -88,23 +80,9 @@ class ArrayParser {
     }
 
     recursionCase(mergeData) {
-
-        if (this.mergeData === "{easy:['hello',{a:'a'},'world']}") {
-            console.log();
-        }
-
-        if (this.mergeData === "{a:'a'}") {
-            console.log();
-        }
-
         if (util.checkFirstLetterBracket(mergeData)) {
-            // this.changeObjectProperties();
-            // const newObjectParser = new ObjectParser(mergeData);
             const newObjectParser = ObjectParser(mergeData);
-            console.log(newObjectParser);
             this.mergeData = newObjectParser.getResult();
-            // console.log(newObjectParser);
-            // mergeData = newObjectParser.getResult();
             return this.mergeData;
         }
 
@@ -175,5 +153,3 @@ class ArrayParser {
         return this.resultObject;
     }    
 }
-
-// module.exports = ArrayParser;

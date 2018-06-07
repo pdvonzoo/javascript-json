@@ -19,45 +19,26 @@ class ObjectParser {
         };
 
         this.dividedCharacterDatas = [];
-        /*
-            왜 this.mergeData = data; 는 안먹히고,
-            this.inputString = data.trim() 은 먹히는지..?
-            mergeData 네이밍이 문제가 있는듯함
-            아래서 mergeData 를 초기화 했던 것이 문제가 되었음
-        */
-        // this.inputString = data.trim();
-        // this.inputString = data;
         this.inputData = data;
-
         this.curlyObjectMode = true;
-
         this.startCurlyBracketsCount = 0;
         this.endCurlyBracketsCount = 0;
         this.curlyBracketsMode = false;
-
         this.startSquareBracket = 0;
         this.endSquareBracket = 0;
-
         this.squareBracketMode = false;
         this.mergeData = "";
-
-        // this.key
     }
 
     getResult() {
-        console.log(this.inputData);
         this.dividedCharacterDatas = util.divideString(this.inputData);
-        // this.resultObject.type = lexer.checkType(this.mergeData);
         this.resultObject = this.createCurlyObject();
-
         if (this.errorMode) return this.errorContent;
-
         return this.resultObject;
     }
 
     recursionCase() {
         if (util.checkFirstLetterBracket(this.mergeData)) {
-            // this.changeObjectProperties();
             const newObjectParser = new ObjectParser(this.mergeData);
             this.mergeData = newObjectParser.getResult();
             return this.mergeData;
@@ -65,8 +46,6 @@ class ObjectParser {
 
         const newArrayParser = ArrayParser(this.mergeData);
         this.mergeData = newArrayParser.getResult();
-        // const newArrayParser = new ArrayParser(mergeData);
-        // mergeData = newArrayParser.getResult();
         return this.mergeData;
     }
 
@@ -105,7 +84,7 @@ class ObjectParser {
                     return;
                 case util.checkEndCurlyBracketOrComma(element):
                     this.mergeData = this.setObjectData("value", this.mergeData);
-                    return; // 원래 break 가 없었음 (해결필요)
+                    return;
                 case util.checkColon(element):
                     this.mergeData = this.setObjectData("key", this.mergeData);
                     return;

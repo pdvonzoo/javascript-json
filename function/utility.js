@@ -56,8 +56,6 @@ exports.checkEndSquareBracket = function(param) {
 };
 
 exports.checkFirstLetterBracket = (param) => {
-    console.log(param);
-    console.log(param[0]);
     return param[0] === '{';
 };
 
@@ -70,7 +68,6 @@ exports.checkEndCondition = (repeatCount, arrayEndPoint) => {
 };
 
 exports.checkOneMoreSquareBracket = (bracketCount) => {
-    // return this.startSquareBracketsCount >= 1;
     return bracketCount >= 1;
 };
 
