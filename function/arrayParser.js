@@ -17,28 +17,18 @@ class ArrayParser {
             child: [],
         };
 
-        this.dividedCharacterDatas = [];
         this.inputString = stringData.trim();
-        this.inputStringLength = this.inputString.length;
-        this.inputStringFirstCharacter = this.inputString[0];
-        this.inputStringLastCharacher = this.inputString[this.inputStringLength-1];
-        this.errorMode = false;
-        this.errorContent = "";
         this.mergeData = "";
-        this.repeatCount = 0;
         this.startSquareBracketsCount = 0;
         this.endSquareBracketsCount = 0;
-        this.recursionMode = false;
         this.startCurlyBracketsCount = 0;
         this.endCurlyBracketsCount = 0;
     }
 
     getResult() {
-        this.dividedCharacterDatas = util.divideString(this.inputString);
+        const dividedCharacterDatas = util.divideString(this.inputString);
         this.resultObject.type = lexer.checkType(this.inputString);
-        this.resultObject = this.createObject(this.dividedCharacterDatas, this.resultObject);
-
-        if (this.errorMode) return this.errorContent;
+        this.resultObject = this.createObject(dividedCharacterDatas, this.resultObject);
 
         return this.resultObject;
     }
@@ -115,6 +105,7 @@ class ArrayParser {
 
     createObject(dividedCharacterDatas, resultObject) {
 
+        let repeatCount = 0;
         const arrayEndPoint = dividedCharacterDatas.length;
         this.resultObject = resultObject;
 
@@ -122,7 +113,7 @@ class ArrayParser {
 
             if (this.mergeData === "{a:'a'");
 
-            this.repeatCount++;
+            repeatCount++;
             this.checkBracket(element);
 
             if (util.checkSpace(element)) return;
@@ -138,7 +129,7 @@ class ArrayParser {
                 case util.checkComma(element):
                     this.determineType();
                     break;
-                case util.checkEndCondition(this.repeatCount, arrayEndPoint):
+                case util.checkEndCondition(repeatCount, arrayEndPoint):
                     this.determineType();
                     break;
                 case this.closedInnerSquareBracket(element):
