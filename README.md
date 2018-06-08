@@ -665,6 +665,7 @@
     - string
     - function
     - symbol
+  - 그래서 Array를 판별할때는 `Array.isArray(arrayData)` 을 사용
   - 
 
 
