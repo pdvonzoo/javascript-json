@@ -16,12 +16,7 @@ class ObjectParser {
             value: null,
         };
 
-        this.dividedCharacterDatas = [];
         this.inputData = data;
-        this.curlyObjectMode = true;
-        this.startCurlyBracketsCount = 0;
-        this.endCurlyBracketsCount = 0;
-        this.curlyBracketsMode = false;
         this.startSquareBracket = 0;
         this.endSquareBracket = 0;
         this.squareBracketMode = false;
@@ -29,8 +24,8 @@ class ObjectParser {
     }
 
     getResult() {
-        this.dividedCharacterDatas = util.divideString(this.inputData);
-        this.resultObject = this.createCurlyObject();
+        const dividedCharacterDatas = util.divideString(this.inputData);
+        this.resultObject = this.createCurlyObject(dividedCharacterDatas);
         if (this.errorMode) return this.errorContent;
         return this.resultObject;
     }
@@ -57,16 +52,14 @@ class ObjectParser {
         if (this.startSquareBracket === this.endSquareBracket) {
             this.mergeData += element;
             this.squareBracketMode = false;
-            this.curlyObjectMode = true;
             this.mergeData = this.recursionCase(this.mergeData);
             return;
         }
         this.mergeData += element;
     }
 
-    createCurlyObject() {
-        Array.prototype.forEach.call(this.dividedCharacterDatas, element => {
-
+    createCurlyObject(dividedCharacterDatas) {
+        Array.prototype.forEach.call(dividedCharacterDatas, element => {
             switch(true) {
                 case util.checkEndSquareBracket(element):
                     this.endSquareBracket++;
