@@ -1,7 +1,7 @@
-const { DataStructure } = require('./structure');
-const { Syntax } = require('./checker');
-const { arrayParser } = require('./parser');
-const { jsonParser } = require('./parser');
+const { DataStructure } = require('../src/structure');
+const { Syntax } = require('../src/checker');
+const { arrayParser } = require('../src/parser');
+const { jsonParser } = require('../src/parser');
 const FORMAT = {
   ARRAY: function (testValue, expectValue, errorArray) {
     const errorMessage = `FAIL

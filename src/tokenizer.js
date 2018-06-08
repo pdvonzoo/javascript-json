@@ -4,7 +4,7 @@ class Tokenizer {
     this.syntaxChecker = syntaxChecker;
   }
   getType(str) {
-    if (['null', 'true', 'false'].indexOf(str) > -1) return str;
+    if ([null, true, false].indexOf(str) > -1) return str;
     if (toString.call(str) === '[object Array]') return 'array';
     if (toString.call(str) === '[object Object]') return 'object';
     if (toString.call(str) === '[object Number]') return 'number';
