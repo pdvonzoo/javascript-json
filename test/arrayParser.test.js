@@ -60,28 +60,25 @@
     - when 어떻게 동작한다
     - then 동작한 결과가 어떠해야 한다
 */
+const {test} = require('./test');
+const {expect} = require('./expect');
+const {ArrayParser} = require('../function/arrayParser');
+const arrayParser = ArrayParser("[123, [22], 33]");
 
-const ArrayParser = require('./arrayParser');
+console.log("arrayParser.js 테스트를 시작합니다");
+console.log("--------------------------------------------");
 
-console.log(ArrayParser);
+test("타입을 올바르게 결정하는지 확인한다", () => {
+    const testData = "[123, [22], 33]";
+    const testResult = arrayParser.getResult(testData);
+    const answer = {"type":"Array","child":[{"type":"Number","value":"123","child":[]},{"type":"Array","child":[{"type":"Number","value":"22","child":[]}]},{"type":"Number","value":"33","child":[]}]};
 
-class ArrayParserTest { 
+    expect(answer).toBe(testResult);
+});
 
-    constructor() {
+console.log("--------------------------------------------");
+console.log("lexer.js 테스트가 완료되었습니다");
 
-    }
-
-    printLog() {
-        console.log(ArrayParser);
-        const testArrayParser = ArrayParser("[123]");
-    }
-}
-
-const test = new ArrayParserTest();
-
-console.log(test);
-console.log(test.printLog);
-console.log(test.printLog());
 
 
 
