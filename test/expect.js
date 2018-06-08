@@ -14,6 +14,9 @@ class Expect {
         if (Array.isArray(answer)) {
             return this.checkEqualArray(answer, result);
         }
+        if (answer === result) {
+            return true;
+        }
     }
 
     checkEqualArray(answer, result) {

@@ -6,10 +6,8 @@ exports.ObjectParser = (data) => new ObjectParser(data);
 
 const util = require('./utility');
 const lexer = require('./lexer');
-// const ArrayParser = require('./arrayParser');
 const {ArrayParser} = require('./arrayParser');
 
-// 상속을 이용하려 했으나, 상호참조가 발생함..
 class ObjectParser {
     constructor(data) {
         this.resultObject = {
