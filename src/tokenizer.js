@@ -1,10 +1,12 @@
 const structure = require('./structure').DataStructure;
 class Tokenizer {
-  constructor(syntaxChecker) {
+  constructor(syntaxChecker, countByType) {
     this.syntaxChecker = syntaxChecker;
+    this.countByType = countByType;
   }
   getType(str) {
-    if ([null, true, false].indexOf(str) > -1) return str;
+    if (toString.call(str) === '[object Boolean]') return 'boolean';
+    if (toString.call(str) === '[object Null]') return 'null';
     if (toString.call(str) === '[object Array]') return 'array';
     if (toString.call(str) === '[object Object]') return 'object';
     if (toString.call(str) === '[object Number]') return 'number';
@@ -26,6 +28,7 @@ class Tokenizer {
   getObjectByType(value) {
     let finalObject = null;
     const type = this.getType(value);
+    this.countByType[type]++;
     switch (type) {
       case 'array':
         finalObject = {
@@ -51,16 +54,8 @@ class Tokenizer {
     }
     return finalObject;
   }
-  tokenize(value) {
-    if (toString.call(value) !== '[object array]') return this.getObjectByType(value);
-    else {
-      const fixedArray = value.reduce((ac, cv) => {
-        const type = this.getType(cv);
-        ac.push(this.getObjectByType(cv));
-        return ac;
-      }, []);
-      return fixedArray;
-    }
+  tokenize(value, countByType) {
+    return this.getObjectByType(value, countByType);
   }
 }
 exports.Tokenizer = Tokenizer;
