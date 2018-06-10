@@ -99,5 +99,16 @@ exports.checkCorrectObject = (param) => {
     }
 }
 
+exports.checkCorrectColon = (param) => {
+    const toJsonStringData = JSON.stringify(param, null, 2)
+    const inclusionKEY = toJsonStringData.includes("key");
+    const inclusionKEY2 = toJsonStringData.includes("key2");
+    const inclusionVALUE = toJsonStringData.includes("value");
+    const inclusionVALUE2 = toJsonStringData.includes("value2");
+
+    if (inclusionKEY && inclusionVALUE2 && !inclusionKEY2) {
+        print.errorOmissionColon();
+    }
+}
 
 
