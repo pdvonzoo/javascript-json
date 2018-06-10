@@ -11,7 +11,7 @@ const {ObjectParser} = require('./objectParser');
 const lexer = new Lexer();
 
 class ArrayParser {
-    constructor(stringData) {
+    constructor(stringData, recursionMode) {
         this.resultObject = {
             type: null,
             child: [],
@@ -23,13 +23,16 @@ class ArrayParser {
         this.endSquareBracketsCount = 0;
         this.startCurlyBracketsCount = 0;
         this.endCurlyBracketsCount = 0;
+        this.recursionMode = recursionMode;
     }
 
     getResult() {
+        util.checkCorrectArray(this.inputString);
+        util.checkCorrectObject(this.inputString);
         const dividedCharacterDatas = util.divideString(this.inputString);
         this.resultObject.type = lexer.checkType(this.inputString);
         this.resultObject = this.createObject(dividedCharacterDatas, this.resultObject);
-
+        util.checkCorrectColon(this.resultObject);
         return this.resultObject;
     }
 
@@ -76,7 +79,7 @@ class ArrayParser {
             return this.mergeData;
         }
 
-        const secondArrayParser = new ArrayParser(mergeData);
+        const secondArrayParser = new ArrayParser(mergeData, true);
         mergeData = secondArrayParser.getResult();
         return mergeData;
     }
@@ -110,9 +113,6 @@ class ArrayParser {
         this.resultObject = resultObject;
 
         Array.prototype.forEach.call(dividedCharacterDatas, element => {
-
-            if (this.mergeData === "{a:'a'");
-
             repeatCount++;
             this.checkBracket(element);
 
@@ -127,6 +127,7 @@ class ArrayParser {
                     this.mergeData += element;
                     break;
                 case util.checkComma(element):
+                    if(util.checkMergeDataIsNull(this.mergeData)) return;
                     this.determineType();
                     break;
                 case util.checkEndCondition(repeatCount, arrayEndPoint):

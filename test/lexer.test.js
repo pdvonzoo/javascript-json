@@ -20,7 +20,7 @@ test("타입을 올바르게 결정하는지 확인한다", () => {
 test("올바른 문자열인지 확인한다", () => {
     const testData1 = "[123, [22], 33]";
     const testData2 = "'1a'3'";
-    const testResult = lexer.checkCorrectString(testData1);
+    const testResult = lexer.checkCorrectData(testData1);
     const answer = testData1;
     expect(answer).toBe(testResult);
 });

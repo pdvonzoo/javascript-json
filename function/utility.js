@@ -111,4 +111,11 @@ exports.checkCorrectColon = (param) => {
     }
 }
 
+exports.checkMergeDataIsNull = (mergeData) => {
+    if (this.checkString(mergeData) && mergeData === "") {
+        print.notifySpaceData();
+        return true;
+    }
+}
+
 
