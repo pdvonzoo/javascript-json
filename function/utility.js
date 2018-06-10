@@ -2,6 +2,8 @@
     Utility JS
 */
 
+const print = require('./print');
+
 exports.divideString = function(inputString) {
     return inputString.split("");
 };
@@ -16,7 +18,7 @@ exports.removeFirstParenthesis = function(inputData) {
 };
 
 exports.removeSpace = function(inputData) {
-    if (typeof(inputData) === "string") {
+    if (this.checkString(inputData)) {
         return inputData.trim();
     } else {
         return inputData;
@@ -70,3 +72,21 @@ exports.checkEndCurlyBracketOrComma = (param) => {
 exports.checkColon = (param) => {
     return param === ':';
 };
+
+exports.existBracketPair = (param) => {
+    return param.includes("[") && param.includes("]");
+};
+
+exports.checkString = (param) => {
+    return typeof(param) === "string";
+}
+
+exports.checkCorrectArray = (param) => {
+    const startSquareBracketNum = (param.match(/\[/g) || []).length;
+    const endSquareBracktNum = (param.match(/\]/g) || []).length;
+
+    if (startSquareBracketNum !== endSquareBracktNum) {
+        print.errorAbnormalArray();
+    }
+}
+
