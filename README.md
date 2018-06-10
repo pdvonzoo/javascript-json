@@ -651,6 +651,8 @@
      - 객체안에 colon이 누락된 경우가 있는지 체크한다.
      - 그외 엄격한 검사 로직을 1개 추가하고 이를 검증하는 코드를 구현한다.
 
+   
+
    - #### 실행결과
 
      ```javascript
@@ -662,7 +664,7 @@
      var result = ArrayParser(str);
      // 정상적으로 종료되지 않은 배열이 있습니다.
      
-     var s = "['1a3',[null,false,['11',112,'99'], {a:'str', b: [912,[5656,33]], true]";
+     var s = "['1a3',[null,false,['11',112,'99'], {a:'str', b: [912,[5656,33]], true]]";
      var result = ArrayParser(str);
      // 정상적으로 종료되지 않은 객체가 있습니다.
      
@@ -674,6 +676,97 @@
      ```
 
      
+
+   - #### 구현사항
+
+     - print class 를 따로 구성해서, `console.log` 로 찍히는 부분을 따로 뺌
+
+     - 처음 입력받은 전체 `String Data` 의 `괄호 갯수([], {})를 확인`해서 갯수가 맞지 않으면 `process.exit()`
+
+       ```javascript
+       const startSquareBracketNum = (param.match(/\[/g) || []).length;
+       const endSquareBracktNum = (param.match(/\]/g) || []).length;
+       ```
+
+     - Object의 `콜론(:)` 은, 해당 데이터를 현재 코드에 돌려보니, 정상적으로 작동하지만 `key-value` 쌍이 맞지 않게 결과가 출력됨
+
+     - 그래서, 최종 결과를 출력하기 전에, key-value 가 문자열에 포함되어 있는지 확인함
+
+       - `key` - `value`
+       - `key2` - `value2`
+
+     - 그 외, 엄격한 로직검사을 1개 추가
+
+       ```javascript
+       testCase : "[123, [22],, 33]"
+       ```
+
+       현재 나의 코드에서는 결과가 아래와 같이 출력됨
+
+       ```javascript
+       {
+         "type": "Array",
+         "child": [
+           {
+             "type": "Number",
+             "value": "123",
+             "child": []
+           },
+           {
+             "type": "Array",
+             "child": [
+               {
+                 "type": "Number",
+                 "value": "22",
+                 "child": []
+               }
+             ]
+           },
+           {
+             "type": "Number",
+             "value": "",
+             "child": []
+           },
+           {
+             "type": "Number",
+             "value": "33",
+             "child": []
+           }
+         ]
+       }
+       ```
+
+       중간 부분이 공백으로 처리되지만, `type`은 `Number`로 체크됨
+
+       공백도 하나의 type 으로 지정할까 생각했지만, **공백을 데이터로 판별하는 것은 왠지 맞지않다고 생각됨**
+
+       
+
+   
+
+   - #### 에러사항
+
+     1. 끝나는 `종료조건 (repeatCount === arrayEndPoint)` 조건에 해당되는 바람에 안에 타입들을 분석하지 못함
+
+        테스트케이스 케이스 구문 수정 필요 
+
+        `"['1a3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]]"`  =>
+
+        `"['1a3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]"` 
+
+        
+
+   - #### 질문사항
+
+     1. Print 클래스를 만들었을 경우, 함수 네이밍을 어떻게 해야하나요?
+
+        ```
+        비정상적인 배열에 대한 에러를 출력하려고 하는 함수를 만드려고 합니다.
+        print.printErrorAbnormalArray() ?
+        print.ErrorAbnormalArray() ?
+        ```
+
+        
 
 
 
