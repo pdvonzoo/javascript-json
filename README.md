@@ -643,15 +643,49 @@
 
      
 
+8. ### [STEP 7] 오류상황 탐지
+
+   - #### 요구사항
+
+     - 배열이나 객체가 제대로 닫히지 않았는지 체크하는 부분을 추가한다.
+     - 객체안에 colon이 누락된 경우가 있는지 체크한다.
+     - 그외 엄격한 검사 로직을 1개 추가하고 이를 검증하는 코드를 구현한다.
+
+   - #### 실행결과
+
+     ```javascript
+     var s = "['1a3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]";
+     var result = ArrayParser(str);
+     //정상출력
+     
+     var s = "['1a3',[null,false,['11',112,'99' , {a:'str', b:[912,[5656,33]]}, true]";
+     var result = ArrayParser(str);
+     // 정상적으로 종료되지 않은 배열이 있습니다.
+     
+     var s = "['1a3',[null,false,['11',112,'99'], {a:'str', b: [912,[5656,33]], true]";
+     var result = ArrayParser(str);
+     // 정상적으로 종료되지 않은 객체가 있습니다.
+     
+     var s = "['1a3',[null,false,['11',112,'99'], {a:'str', b  [912,[5656,33]]}, true]";
+     var result = ArrayParser(str);
+     // ':'이 누락된 객체표현이 있습니다.
+     
+     이외 오류상황을 최대한 탐지해서 오류내용과 함께 발생시킨다.
+     ```
+
      
 
-     
 
-   
 
-   
 
-   
+
+
+
+
+
+
+
+
 
 - ### [typeOf](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof)
 
@@ -738,7 +772,7 @@
 
   ```javascript
   var votes = ["kim", "hong", "lee", "hong", "lee", "lee", "hong"];
-
+  
   var reducer = function(accumulator, value, index, array) {
     if (accumulator.hasOwnProperty(value)) {
       accumulator[value] = accumulator[value] + 1;
@@ -747,7 +781,7 @@
     }
     return accumulator;
   }
-
+  
   var initialValue = {};
   var result = votes.reduce(reducer, initialValue);
   console.log(result); // { kim: 1, hong: 3, lee: 3 }
@@ -764,46 +798,4 @@
   `array` 는 votes 와 똑같은 데이터가 받아짐
 
   
-
-  
-
-  ​
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
