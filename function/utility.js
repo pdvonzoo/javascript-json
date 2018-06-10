@@ -90,3 +90,14 @@ exports.checkCorrectArray = (param) => {
     }
 }
 
+exports.checkCorrectObject = (param) => {
+    const startCurlyBracketNum = (param.match(/\{/g) || []).length;
+    const endCurlyBracketNum = (param.match(/\}/g) || []).length;
+
+    if (startCurlyBracketNum !== endCurlyBracketNum) {
+        print.errorAbnormalObject();
+    }
+}
+
+
+
