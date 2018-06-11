@@ -121,7 +121,7 @@
 
    1. 알 수 없는 타입에 걸림
    2. 현재 코드에서 쪼개지는 방식
-      1. ['1a3',[null,false,**['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99']**,{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true] 
+      1. ['1a3',**[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99']**,{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true] 
       2. [null,false,**['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112]**,55, '99']
       3. ['11',[112233],**{easy : ['hello', {a:'a'}, 'world']}**,112]
       4. `{easy : ['hello', {a:'a'}, 'world']}`
@@ -510,13 +510,163 @@
      console.log(math.multiply(1, 2)); //2
      ```
 
+   - [require with class constructor](https://stackoverflow.com/questions/42553700/node-js-require-class-with-constructor-parameter)
 
+   - 테스트 함수를 만드는 이유
 
+     ```
+     소프트웨어가 업데이트 되면서 각각의 버전이 올라갈 때
+     예전에 맞물려있는 기능들이 정상적으로 동작되는지 확인이 필요함
+     즉, 테스트가 가능하게 만드는것이 목적임
+     ```
 
+   - 테스트가 가능한 부분이 많은것이지, 틀린것이 아님
 
+     ```
+     예를들어, CLASS 생성이 잘 되는지 안되는지 (PASS/FAIL)
+     15개의 분기문이 있으면 = 15개의 테스트 함수가 동작한다는 말
+     그러나 테스트가 가능한 부분이 많은것일뿐, 틀린것이 아님
+     ```
 
+   - 메서드마다 중요한 것, 할 수 있는것부터 테스트케이스를 작성하며, 최종적으로는 모든 메서드의 테스트케이스를 작성하는 것
 
+   - 자동화 해주는 툴들도 많지만, 왜 필요한 것인지, 어떻게 하는 것인지에 대한 기초적인 지식을 쌓기 위함이 이번 arrayParser #6 임
 
+   - ### 디버깅
+
+     1. main.js 에서 코드실행
+     2. `const arrayParserClass = require('./arrayParser');`
+     3. `const arrayParser = new arrayParserClass(testCase1);`
+
+        1. arrayParser.js 로 이동해서 constructor 수행함 (arrayParser.js:11 ~)
+        2. 이때의 testCase1 은 `"[123, [22], 33]"`
+     4. `const result = arrayParser.getResult();`
+
+        1. `this.dividedCharacterDatas = util.divideString(this.inputString);`
+           - 결과 값 : `"[123, [22], 33]"`
+        2. `this.resultObject.type = lexer.checkType(this.inputString);`
+           - 결과 값 : `"Array"`
+        3. `this.resultObject = tokenizer.createObject(this.dividedCharacterDatas, this.resultObject);`
+           1. **해당 부분에서 데이터를 한글자씩 판별하며 합침 ("[123,")**
+           2. `forEach.call` 에 의해 동작 (tokenizer.js:100)
+           3. "123" 에 대한 객체가 잘 만들어지는것을 확인 함
+           4. 그리고 this.resultObject.child 에 정상적으로 push 함
+           5. mergeData = "" (init) (tokenizer.js:60)
+           6. **이제 다시 데이터를 한글자씩 판별하며 합침 ("[22]")**
+           7. `]` 문자일 때, `case this.closedInnerSquareBracket():` 에 해당함
+           8. 근데 갑자기, `this.mergeData` 가 `undefined` ???
+              - 확인해보니 `tokenizer.js:120` 구문에서, `this.mergeData` 가 `undefined` 가 됨
+              - 왜냐하면, `case this.closedInnerSquareBracket():` 은
+              - `this.closedInnerSquareBracket = function(element)`
+              - element 를 파라미터로 받기 때문인데, 넘겨주는게 없으니
+              - `this.mergeData = element;` 에서 `this.mergeData` 가 `undefined` 가 되는 것임
+              - 이걸 빠트리다니 하...
+           9. 그래서 일단 `this.mergeData` 는 정상적으로 출력되는것이 확인됨
+           10. 이후 `const recursionArrayParser = new secondArrayParser(this.mergeData);` 에서.. 바로 `loader.js` 로 이동해 `tryModuleLoad` 에서 finally - if(threw) 에 걸림 = 강제종료
+           11. 
+     5. 
+
+   - #### 클래스를 합치고 나서 TESTCASE 7 작동
+
+     - testCase가 구문 체크의 오류인지, 이상한 분기문으로 빠져 정상작동이 안됨
+     - DEBUG DATA : `"{easy:['hello',{a:'a'},'world']"`
+     - 일단은 `{` 문자가 나오고 나서, `[]` 구문이 먼저 처리되는 듯 함
+     - 로직이 현재 헷갈려서 전 코드를 봐야겠음
+     - `"{easy:['hello',{"` 일 때, `curlyBracketMode`가 `false` 가 됨
+     - `"['11',[112233],{easy:['hello',{a:'a'},'world']},112]"`
+       - this.startSquareBracketsCount : 2
+       - this.endSquareBracketsCount : 1
+       - 즉, `[` 가 2개, `]` 가 1개 있다는 뜻
+       - 그래서 어느 조건에 걸리냐면
+       - `closedInnerSquareBracket` 에 걸림
+       - 그럼 어떻게 되냐면, 현재의 `this.mergeData` 를 가지고 `new ArrayParser(this.mergeData)` 를 수행하게됨
+       - 원래 코드에서는 `endSquareBracketsCount`가 `0` 이기 때문에 안걸렸는데
+       - 여기에서는 1 이기 때문에 걸린것
+       - 왜 2, 1이 나왔냐면, `object` 를 할 때, `[]` 문자에 의해서 증가가 되는 것임
+
+     ```javascript
+           "type": "Object",
+           "key": "a",
+           "value": "'str'",
+           "key2": ",b",
+     ```
+
+     - key2 에서 , 가 걸러지지 않고 b가 바로 출력됨
+
+     
+
+   - #### 테스트코드 작성 (STEP6) 에 대한 피드백
+
+     ```
+     arrayParser 클래스 역할이 좀 커졌네요. 메서드도 많아서 수정하고 스스로 디버깅하기 어렵진 않나요?
+     분리하는게 답은 아니지만, 스스로 해결하기 어렵다면 이 큰 덩어리를 나누는 방법은 무엇인지 생각해보세요~
+     ```
+
+     - [JavaScript 객체지향](https://github.com/FEDevelopers/tech.description/wiki/%5BES6%5D%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-Javascript---Class)
+     - [JavaScript Class 정의](http://steadypost.net/post/lecture/id/13/)
+     - 상속
+     - arrayParser 안에 `{}` 를 쪼개는 `createCurlyObject` 메서드가 `createObject` 메서드와 비슷하다
+     - 따로 클래스로 빼면 어떨까?
+
+     ```
+     지금처럼 new Lexer로 할수도 있지만,
+     module.exports = Lexer; 로 클래스 자체를 반환하는 게 좀더 일반적이긴 합니다.
+     ```
+
+     - `module.exports = Lexer;` 로 수정한 후, `lexer.checkType` 메서드를 호출할 때 **에러가 발생**한다
+     - `lexer.checkType is not a function at ArrayParser.getResult`
+     - `const {lexer} = require('./lexer');` 하면 에러 내용이 달라진다
+     - `Cannot read property 'checkType' of undefined at ArrayParser.getResult` 
+     - 아직 import 할 때, `{}` 차이를 잘 모르겠다
+     - ES6의 export와 import를 사용하기 위해서 Babel 
+     - [이건 나중에 참고할 글](https://github.com/codepink/codepink.github.com/wiki/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EB%AA%A8%EB%93%88,-%EB%AA%A8%EB%93%88-%ED%8F%AC%EB%A7%B7,-%EB%AA%A8%EB%93%88-%EB%A1%9C%EB%8D%94%EC%99%80-%EB%AA%A8%EB%93%88-%EB%B2%88%EB%93%A4%EB%9F%AC%EC%97%90-%EB%8C%80%ED%95%9C-10%EB%B6%84-%EC%9E%85%EB%AC%B8%EC%84%9C)
+
+     ---
+
+     - ObjectParser 을 구성하였다.
+     - 그런데, 결국은 상호참조가 되어버림.
+     - 어떻게 다시 돌리기 힘들어서, import export 를 많이 검색함
+     - ES6의 코드가 안돌아감 `대체 왜?`
+     - 그래서 npm 중 Babel module 을 설치해서 돌려봄 = `안됨`
+     - 결국은 함수를 통해서 생성해서 반환시켜줌 (__)
+     - arrayParser 에서 objectParser 을 분리하다가, 계속 넘겨준 데이터가 초기화되는 버그가 발생
+     - 원인은 생성자에서 this.mergeData = data 로 받고 맨 뒤에 this.mergeData = "" 하는 어이없는 실수를 발생
+
+     ---
+
+     - 원인이 무엇인지 모르겠는데, module.exports = Lexer; 로 클래스를 바로 넘겨버리면
+     - 다른쪽에서 lexer.js의 메서드들을 사용할 수가 없는 문제가 발생
+     - 생성자에서 `this.Lexer = new Lexer();` 을 통해서 생성했음에도 메서드에 접근이 안됨
+     - 일단은 `const lexer = new Lexer();` 전역변수를 통해서 해결
+
+     ---
+
+     
+
+     
+
+     
+
+   
+
+   
+
+   
+
+- ### [typeOf](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof)
+
+  - https://cimfalab.github.io/deepscan/2016/07/typeof
+  - `typeOf` 의 타입에는 `Array` 가 **존재하지 않음**
+  - `typeof` 의 반환 값
+    - undefined
+    - object
+    - boolean
+    - number
+    - string
+    - function
+    - symbol
+  - 그래서 Array를 판별할때는 `Array.isArray(arrayData)` 을 사용
+  - 
 
 
 
@@ -524,12 +674,12 @@
 
   ```javascript
   let data= [1, 2, 3, 4, 5]
-
+  
   // forEach 를 사용해서 원소의 값들을 각각 3씩 증가시키기
   let result = [];
   data.forEach(x => { result.push(x + 3) });
   console.log(result);
-
+  
   // map 을 사용해서 원소의 값들을 각각 3씩 증가시키기
   let result2 = data.map(x => { return x + 3});
   console.log(result2);
@@ -613,11 +763,12 @@
 
   `array` 는 votes 와 똑같은 데이터가 받아짐
 
-  ​
+  
+
+  
 
   ​
 
-  ​
 
 
 
@@ -656,5 +807,3 @@
 
 
 
-
-​
