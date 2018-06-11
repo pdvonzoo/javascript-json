@@ -1,8 +1,7 @@
 const structure = require('./arrayer').DataStructure;
 class Tokenizer {
-  constructor(syntaxChecker, countByType) {
+  constructor(syntaxChecker) {
     this.syntaxChecker = syntaxChecker;
-    this.countByType = countByType;
   }
   getType(str) {
     if (toString.call(str) === '[object Boolean]') return 'boolean';
@@ -28,7 +27,6 @@ class Tokenizer {
   getObjectByType(value) {
     let finalObject = null;
     const type = this.getType(value);
-    this.countByType[type]++;
     switch (type) {
       case 'array':
         finalObject = {
