@@ -11,7 +11,7 @@ class ParsingData {
     this.objectOpen = false;
   }
 }
-class DataStructure {
+class ArrayStructure {
   constructor(syntaxChecker, ArrayParser, JsonParser) {
     this.syntaxChecker = syntaxChecker;
     this.arrayParser = new ArrayParser(this, syntaxChecker);
@@ -49,4 +49,4 @@ class DataStructure {
     return type === 'array' ? parsedData.completeArr : parsedData.completeObj;
   }
 }
-exports.DataStructure = DataStructure;
+exports.ArrayStructure = ArrayStructure;

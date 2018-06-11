@@ -1,4 +1,4 @@
-const DataStructure = require('./structure.js').DataStructure;
+const ArrayStructure = require('./arrayer.js').ArrayStructure;
 const Syntax = require('./checker.js').Syntax;
 const Tokenizer = require('./tokenizer.js').Tokenizer;
 const arrayParser = require('./parser').ArrayParser;
@@ -9,7 +9,7 @@ class ArrayParser {
     this.countByType = { object: 0, array: 0, boolean: 0, null: 0, number: 0, string: 0 };
     this.syntaxChecker = new Syntax();
     this.tokenizer = new Tokenizer(this.syntaxChecker, this.countByType);
-    this.dataStructure = new DataStructure(this.syntaxChecker, arrayParser, jsonParser);
+    this.dataStructure = new ArrayStructure(this.syntaxChecker, arrayParser, jsonParser);
   }
   parse(str) {
     this.syntaxChecker.isPairBracket(str);

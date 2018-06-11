@@ -1,4 +1,4 @@
-const structure = require('./structure').DataStructure;
+const structure = require('./arrayer').DataStructure;
 class Tokenizer {
   constructor(syntaxChecker, countByType) {
     this.syntaxChecker = syntaxChecker;
