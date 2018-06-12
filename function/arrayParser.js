@@ -52,12 +52,12 @@ class ArrayParser {
         const numberRegex = /[^\']\d+[^\']/g;
 
         const dataNumberObject = {
-            array: inputData.match(arrayRegex).length,
-            string: inputData.match(stringRegex).length,
-            null: inputData.match(nullRegex).length,
-            boolean: inputData.match(booleanRegex).length,
-            object: inputData.match(objectRegex).length,
-            number: inputData.match(numberRegex).length
+            array: util.convertNormalData(inputData, arrayRegex),
+            string: util.convertNormalData(inputData, stringRegex),
+            null: util.convertNormalData(inputData, nullRegex),
+            boolean: util.convertNormalData(inputData, booleanRegex),
+            object: util.convertNormalData(inputData, objectRegex),
+            number: util.convertNormalData(inputData, numberRegex),
         };
         
         return dataNumberObject;

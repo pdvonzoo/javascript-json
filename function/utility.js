@@ -131,4 +131,14 @@ exports.checkMergeDataIsNull = (mergeData) => {
     }
 }
 
+exports.convertNormalData = (param, regex) => {
+    const regexData = param.match(regex);
+    
+    if (regexData === null) {
+        return 0;
+    } else {
+        return regexData.length;
+    }
+}
+
 
