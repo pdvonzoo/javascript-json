@@ -100,14 +100,27 @@ exports.checkCorrectObject = (param) => {
 }
 
 exports.checkCorrectColon = (param) => {
-    const toJsonStringData = JSON.stringify(param, null, 2)
-    const inclusionKEY = toJsonStringData.includes("key");
-    const inclusionKEY2 = toJsonStringData.includes("key2");
-    const inclusionVALUE = toJsonStringData.includes("value");
-    const inclusionVALUE2 = toJsonStringData.includes("value2");
+    
+    /* 
+        원래 적용하려했던 Regex
+        key, value, key2, value2 문자열이 동시에 있는지 검사한다.
+    */
+    // const regex = /(?=.*key)(?=.*value)(?=.*key2)(?=.*value2).*/g;
+    
+    const toJsonStringData = JSON.stringify(param);
 
-    if (inclusionKEY && inclusionVALUE2 && !inclusionKEY2) {
-        print.errorOmissionColon();
+    const objectRegex = /Object/g;
+    const keyValueRegex = /(?=.*key)(?=.*value)/g;
+    const key2Regex = /(?=.*key2)/g;
+    const value2Regex = /(?=.*value2)/g;
+
+    if (objectRegex.test(toJsonStringData)) {
+        if (!keyValueRegex.test(toJsonStringData)) {
+            print.errorOmissionColon();
+        }
+        if (!key2Regex.test(toJsonStringData) && value2Regex.test(toJsonStringData)) {
+            print.errorOmissionColon();
+        }
     }
 }
 

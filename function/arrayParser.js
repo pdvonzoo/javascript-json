@@ -79,7 +79,7 @@ class ArrayParser {
             return this.mergeData;
         }
 
-        const secondArrayParser = new ArrayParser(mergeData, true);
+        const secondArrayParser = new ArrayParser(mergeData);
         mergeData = secondArrayParser.getResult();
         return mergeData;
     }

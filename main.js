@@ -17,7 +17,7 @@ const testCase10 = "['1a3',[null,false,['11',112,'99'], {a:'str', b: [912,[5656,
 const testCase11 = "['1a3',[null,false,['11',112,'99'], {a:'str', b  [912,[5656,33]]}, true]]"; // ERROR OBJECT (:)
 const testCase12 = "[123, [22],, 33]";
 
-const arrayParser = ArrayParser(testCase12);
+const arrayParser = ArrayParser(testCase8);
 const result = arrayParser.getResult();
 
 console.log(JSON.stringify(result, null, 2));
