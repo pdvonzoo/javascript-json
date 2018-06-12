@@ -1,6 +1,6 @@
 # Array Parser
 
-문자열로 되어 있는 배열 **(ex. "[1,2,3]")**을 입력 받고 입력 받은 문자열을 분석하여
+문자열로 된 배열 **(ex. "[1,2,3]")**을 입력 받고 입력 받은 문자열을 분석하여
 
 새로운 자료구조로 만들어서 반환한다
 
@@ -38,9 +38,7 @@
 }
 ```
 
-
-
-####ArrayParser의 기능
+###ArrayParser의 기능
 
 - [[[[]]]]와 같은 다중 중첩배열 구조도 분석할 수 있다
 
@@ -48,17 +46,15 @@
 - 문법적 오류가 있다면 검출해낸다 (컴마 없음, 괄호 개수 안맞음, 문자+숫자 혼합과 같은 오류)
 - 분석한 배열의 모든 원소의 타입을 체크해 타입별 개수를 출력한다
 
-
-
-#### Flow
+###Flow
 
 크게 세 가지 과정을 거쳐서 파싱한다
 
-**1. Arrayer**
+###1. Arrayer
 
 문자열로 되어 있는 입력값을 배열형태로 만든다
 
-이 과정이 가장 핵심적이며 가장 많은 루프가 돌게 된다
+이 과정이 가장 핵심적이며 가장 많은 루프가 돈다
 
 
 
@@ -79,31 +75,63 @@
 
    분석하다가 누적된 문자열이 배열이나 객체일 때에 전체 분석을 멈추고  배열, 객체를 분석을 끝내고 다시 전체 문자열 분석을 시작하는 것이다
 
-   > 알고리즘
+   **Parser("['whale',1,[1,2,3,['a','b',nulll]],false]") 분석**
 
-![process1-2](./images/process1.png)
+![process1](./images/process1.png)
 
+**1. 배열 "[1,2,3,['a','b',null]]"가 완성되었을 때 로직**
 
+![process2](./images/process2.png)
 
-![process1-2](./images/process2.png)
+**2. "[1,2,3,['a','b',null]]"를 재귀를 이용해 처리한다 배열을 또 완성되면 위와 같이 재귀로 처리**
 
-![process1-2](./images/process3.png)
+![process3](./images/process3.png)
 
-![process1-2](./images/process4.png)
+**3. "['a','b',null]"를 재귀를 이용해 처리한다 더이상 배열이 없어서 재귀가 끝난다**
 
-![process1-2](./images/process5.png)
+![process4](./images/process4.png)
 
-**2.Checker**
+**4. 완성된 배열 ['a','b',null] 을 리턴한다 **
 
-배열형태로 만드는 도중에 문법적 오류가 있는지 체크한다
+![process5](./images/process5.png)
 
-배열의 한 원소가 완성될 때마다 그 원소의 값의 문법을 체크한다
+**5. 완성된 배열 "[1,2,3,['a','b',null]]"를 리턴하고 나머지 원소 false까지 분석하고 마친다**
+
+![process6](./images/process6.png)
+
+**6. 완성된 상태**
+
+###2. Checker
+
+Arrayer과정에서 하나의 원소가 완성될 때에 그 원소에 문법적 오류가 있는지 체크한다
 
 오류가 있으면 에러를 throw한다
 
-**3. Tokenizer**
+에러 체크 내용은 다음과 같다
 
-배열형태로 만들어진 배열의 원소마다 객체 자료구조로 매핑한다
+- '1'23'와 같은 quote 개수 오류
+- 123a와 같은 타입 오류
+- "[]","{}" 괄호 개수가 맞지 않는 경우 ex) [1,2]]
+- 객체 안에서 ":"가 빠진 경우
+- quote('')없이 문자열인 경우
 
+###3. Tokenizer
 
+1번과정(Arrayer)을 거친 배열이 입력된다
 
+입력된 배열의 원소마다 루프를 돌며 객체 자료구조로 매핑한다
+
+자료구조는 다음과 같다
+
+```
+Tokenizer([1,null,'whale'])
+->
+{ type: 'array'
+  value: 'ArrayObject'
+  child: 
+   [ { type: 'number', value: 1, child: [] },
+     { type: 'null', value: null, child: [] },
+     { type: 'string', value: 'whale', child: [] } 
+    ] 
+}
+```
