@@ -2,7 +2,7 @@
     Utility JS
 */
 
-const print = require('./print');
+const printManager = require('./printManager');
 
 exports.divideString = function(inputString) {
     return inputString.split("");
@@ -86,7 +86,7 @@ exports.checkCorrectArray = (param) => {
     const endSquareBracktNum = (param.match(/\]/g) || []).length;
 
     if (startSquareBracketNum !== endSquareBracktNum) {
-        print.errorAbnormalArray();
+        printManager.errorAbnormalArray();
     }
 }
 
@@ -95,7 +95,7 @@ exports.checkCorrectObject = (param) => {
     const endCurlyBracketNum = (param.match(/\}/g) || []).length;
 
     if (startCurlyBracketNum !== endCurlyBracketNum) {
-        print.errorAbnormalObject();
+        printManager.errorAbnormalObject();
     }
 }
 
@@ -116,17 +116,17 @@ exports.checkCorrectColon = (param) => {
 
     if (objectRegex.test(toJsonStringData)) {
         if (!keyValueRegex.test(toJsonStringData)) {
-            print.errorOmissionColon();
+            printManager.errorOmissionColon();
         }
         if (!key2Regex.test(toJsonStringData) && value2Regex.test(toJsonStringData)) {
-            print.errorOmissionColon();
+            printManager.errorOmissionColon();
         }
     }
 }
 
 exports.checkMergeDataIsNull = (mergeData) => {
     if (this.checkString(mergeData) && mergeData === "") {
-        print.notifySpaceData();
+        printManager.notifySpaceData();
         return true;
     }
 }

@@ -7,6 +7,7 @@ exports.ArrayParser = (stringData) => new ArrayParser(stringData);
 const util = require('./utility');
 const Lexer = require('./lexer');
 const {ObjectParser} = require('./objectParser');
+const printManager = require('./printManager');
 
 const lexer = new Lexer();
 
@@ -34,6 +35,32 @@ class ArrayParser {
         this.resultObject = this.createObject(dividedCharacterDatas, this.resultObject);
         util.checkCorrectColon(this.resultObject);
         return this.resultObject;
+    }
+
+    getStats() {
+        const dataNumberObject = this.analyzeTypeNumber();
+        return printManager.analyzeTypeData(dataNumberObject);
+    }
+    
+    analyzeTypeNumber() {
+        const inputData = this.inputString;
+        const stringRegex = /\'[a-z0-9]+\'/g;
+        const nullRegex = /null/g;
+        const booleanRegex = /(true|false)+/g;
+        const arrayRegex = /\[/g;
+        const objectRegex = /\{/g;
+        const numberRegex = /[^\']\d+[^\']/g;
+
+        const dataNumberObject = {
+            array: inputData.match(arrayRegex).length,
+            string: inputData.match(stringRegex).length,
+            null: inputData.match(nullRegex).length,
+            boolean: inputData.match(booleanRegex).length,
+            object: inputData.match(objectRegex).length,
+            number: inputData.match(numberRegex).length
+        };
+        
+        return dataNumberObject;
     }
 
     adjustBracketCount() {
