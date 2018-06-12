@@ -2,6 +2,8 @@
     Utility JS
 */
 
+const print = require('./print');
+
 exports.divideString = function(inputString) {
     return inputString.split("");
 };
@@ -16,7 +18,7 @@ exports.removeFirstParenthesis = function(inputData) {
 };
 
 exports.removeSpace = function(inputData) {
-    if (typeof(inputData) === "string") {
+    if (this.checkString(inputData)) {
         return inputData.trim();
     } else {
         return inputData;
@@ -70,3 +72,63 @@ exports.checkEndCurlyBracketOrComma = (param) => {
 exports.checkColon = (param) => {
     return param === ':';
 };
+
+exports.existBracketPair = (param) => {
+    return param.includes("[") && param.includes("]");
+};
+
+exports.checkString = (param) => {
+    return typeof(param) === "string";
+}
+
+exports.checkCorrectArray = (param) => {
+    const startSquareBracketNum = (param.match(/\[/g) || []).length;
+    const endSquareBracktNum = (param.match(/\]/g) || []).length;
+
+    if (startSquareBracketNum !== endSquareBracktNum) {
+        print.errorAbnormalArray();
+    }
+}
+
+exports.checkCorrectObject = (param) => {
+    const startCurlyBracketNum = (param.match(/\{/g) || []).length;
+    const endCurlyBracketNum = (param.match(/\}/g) || []).length;
+
+    if (startCurlyBracketNum !== endCurlyBracketNum) {
+        print.errorAbnormalObject();
+    }
+}
+
+exports.checkCorrectColon = (param) => {
+    
+    /* 
+        원래 적용하려했던 Regex
+        key, value, key2, value2 문자열이 동시에 있는지 검사한다.
+    */
+    // const regex = /(?=.*key)(?=.*value)(?=.*key2)(?=.*value2).*/g;
+    
+    const toJsonStringData = JSON.stringify(param);
+
+    const objectRegex = /Object/g;
+    const keyValueRegex = /(?=.*key)(?=.*value)/g;
+    const key2Regex = /(?=.*key2)/g;
+    const value2Regex = /(?=.*value2)/g;
+
+    if (objectRegex.test(toJsonStringData)) {
+        if (!keyValueRegex.test(toJsonStringData)) {
+            print.errorOmissionColon();
+        }
+        if (!key2Regex.test(toJsonStringData) && value2Regex.test(toJsonStringData)) {
+            print.errorOmissionColon();
+        }
+    }
+}
+
+exports.checkMergeDataIsNull = (mergeData) => {
+    if (this.checkString(mergeData) && mergeData === "") {
+        print.notifySpaceData();
+        return true;
+    }
+}
+
+

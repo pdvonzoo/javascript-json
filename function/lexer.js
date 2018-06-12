@@ -3,6 +3,7 @@
 */
 
 const util = require('./utility');
+const print = require('./print');
 
 class Lexer {
     constructor() {}
@@ -16,7 +17,7 @@ class Lexer {
         } else {
             inputData = (inputData === "null") ? null : inputData;
             inputData = util.removeSpace(inputData);
-            inputData = this.checkCorrectString(inputData);
+            inputData = this.checkCorrectData(inputData);
 
             const dataObject = {
                 type: this.checkType(inputData),
@@ -28,9 +29,13 @@ class Lexer {
         return initString;
     }
 
-    checkCorrectString(inputData) {
+    checkCorrectData(inputData) {
 
         if(typeof(inputData) !== "string") {
+            return inputData;
+        }
+
+        if (util.existBracketPair(inputData)) {
             return inputData;
         }
 
@@ -48,8 +53,7 @@ class Lexer {
         if (errorCount >= 3) {
             this.errorMode = true;
             this.errorContent = inputData;
-            console.log(inputData + "(은/는) 올바른 문자열이 아닙니다");
-            process.exit();
+            print.errorAbnormalString(inputData);
         }
         return inputData;
     }
@@ -68,10 +72,7 @@ class Lexer {
         if (params.includes("[") && params.includes("]")) { return 'Array'; }
         if (params[0] === "'" && params[parameterEndIndex] === "'") { return 'String'; }
         if (onlyNumberRegex.test(params)) { return "Number"; } 
-        else {
-            console.log(params + "(은/는) 알 수 없는 타입입니다");
-            process.exit();
-        }
+        else { print.errorUnknownType(params); }
     }
 }
 
