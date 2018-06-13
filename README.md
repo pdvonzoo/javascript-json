@@ -48,6 +48,10 @@
 
 크게 세 가지 과정을 거쳐서 파싱한다
 
+1. Materializer : 문자열인 배열을 배열로 실체화한다
+2. Checker : Materializer과정 안에서 문법적 오류를 검출해낸다
+3. Tokenizer: 2까지 과정을 마친 배열을 새로운 구조(객체 구조)로 매핑시킨다
+
 ```js
 const input = "I am input";
 const materializer = Mateializer(input); // 1.Materializer + 2.Checker (Materializer 내부에 Checker과정이 있다)
