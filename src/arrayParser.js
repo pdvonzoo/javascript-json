@@ -1,4 +1,4 @@
-const ArrayStructure = require('./arrayer.js').ArrayStructure;
+const Materializer = require('./materializer.js').Materializer;
 const Syntax = require('./checker.js').Syntax;
 const Tokenizer = require('./tokenizer.js').Tokenizer;
 const arrayParser = require('./parser').ArrayParser;
@@ -8,13 +8,13 @@ class ArrayParser {
   constructor() {
     this.syntaxChecker = new Syntax();
     this.tokenizer = new Tokenizer(this.syntaxChecker);
-    this.dataStructure = new ArrayStructure(this.syntaxChecker, arrayParser, jsonParser);
+    this.materializer = new Materializer(this.syntaxChecker, arrayParser, jsonParser);
   }
   parse(str) {
     this.syntaxChecker.isPairBracket(str);
-    const arrayed = this.dataStructure.parser(str);
-    const fixedArray = this.tokenizer.tokenize(arrayed);
-    return fixedArray;
+    const materialized = this.materializer.parser(str);
+    const completedData = this.tokenizer.tokenize(materialized);
+    return completedData;
   }
 }
 

@@ -52,16 +52,16 @@
 
 ```js
 const input = "I am input";
-const arrayed = Arrayer(input); // 1.Arrayer + 2.Checker (Arrayer 내부에 Checker과정이 있다)
+const materializer = Mateializer(input); // 1.Materializer + 2.Checker (Materializer 내부에 Checker과정이 있다)
 const tokenized = Tokenizer(arrayed); // 3.Tokenizer
 return tokenized;
 ```
 
 
 
-### 1. Arrayer
+### 1. Materializer
 
-문자열로 되어 있는 입력값을 배열형태로 만든다
+String type으로 되어 있는 배열형태 문자열을 유효한 배열로 만든다
 
 이 과정이 가장 핵심적이며 가장 많은 루프가 돈다
 
@@ -129,7 +129,7 @@ return tokenized;
 
 ### 2. Checker
 
-Arrayer과정에서 하나의 원소가 완성될 때에 그 원소에 문법적 오류가 있는지 체크한다
+Materializer과정에서 하나의 원소가 완성될 때에 그 원소에 문법적 오류가 있는지 체크한다
 
 오류가 있으면 에러를 throw한다
 
@@ -145,7 +145,7 @@ Arrayer과정에서 하나의 원소가 완성될 때에 그 원소에 문법적
 
 ### 3. Tokenizer
 
-1번과정(Arrayer)을 거친 배열이 입력된다
+1번과정(Materializer)을 거친 배열이 입력된다
 
 입력된 배열의 원소마다 루프를 돌며 객체 자료구조로 매핑한다
 

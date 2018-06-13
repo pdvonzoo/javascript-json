@@ -11,7 +11,7 @@ class ParsingData {
     this.objectOpen = false;
   }
 }
-class ArrayStructure {
+class Materializer {
   constructor(syntaxChecker, ArrayParser, JsonParser) {
     this.syntaxChecker = syntaxChecker;
     this.arrayParser = new ArrayParser(this, syntaxChecker);
@@ -49,4 +49,4 @@ class ArrayStructure {
     return type === 'array' ? parsedData.completeArr : parsedData.completeObj;
   }
 }
-exports.ArrayStructure = ArrayStructure;
+exports.Materializer = Materializer;
