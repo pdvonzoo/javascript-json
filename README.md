@@ -103,7 +103,7 @@ F. A-E과정을 거쳐 완성된 최종배열을 반환한다
 
 
 
-**++Parser("['whale',1,[1,2,3,['a','b',nulll]],false]") 분석 과정++**
+**Parser("['whale',1,[1,2,3,['a','b',nulll]],false]") 분석 과정 모식도**
 
 <img src="./images/process1.png" width="550">
 
