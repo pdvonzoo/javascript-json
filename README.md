@@ -1,80 +1,198 @@
-/* Design
-  ArrayParser4 여러가지 타입 분석
+# Array Parser
 
-  요구사항
-  숫자타입이외에 string, boolean, null 타입도 지원하도록 구현한다.
-  ['1a3',[null,false,['11',[112233],112],55, '99'],33, true]"
-  올바른 문자열이 아닌 경우 오류를 발생한다.
+문자열을 입력 받고 입력 받은 문자열을 분석하여
+
+새로운 자료구조로 만들어서 반환한다
+
+**Input**
+
+```js
+"['whale',  1, true]";
+```
+
+**Output**
+
+```js
+{
+  "type": "array",
+  "value": "ArrayObject",
+  "child": [
+    {
+      "type": "string",
+      "value": "whale",
+      "child": []
+    },
+    {
+      "type": "number",
+      "value": 1,
+      "child": []
+    },
+    {
+      "type": "boolean",
+      "value": true,
+      "child": []
+    }
+  ]
+}
+```
+
+## 기능
+
+- [[[[]]]]와 같은 다중 중첩배열 구조도 분석할 수 있다
+
+- 7가지 타입을 분석할 수 있다 (Object, Array, String, Number, True, False, Null)
+- 문법적 오류가 있다면 검출해낸다 (컴마 없음, 괄호 개수 안맞음, 문자+숫자 혼합과 같은 오류)
+- 분석한 배열의 모든 원소의 타입을 체크해 타입별 개수를 출력한다
+
+## 동작 흐름
+
+크게 세 가지 과정을 거쳐서 파싱한다
+
+1. Materializer : 문자열인 배열을 배열로 실체화한다
+2. Checker : Materializer과정 안에서 문법적 오류를 검출해낸다
+3. Tokenizer: 2까지 과정을 마친 배열을 새로운 구조(객체 구조)로 매핑시킨다
+
+```js
+const input = "I am input";
+const materializer = Mateializer(input); // 1.Materializer + 2.Checker (Materializer 내부에 Checker과정이 있다)
+const tokenized = Tokenizer(arrayed); // 3.Tokenizer
+return tokenized;
+```
+
+
+
+### 1. Materializer
+
+String type으로 되어 있는 배열형태 문자열을 유효한 배열로 만든다
+
+이 과정이 가장 핵심적이며 가장 많은 루프가 돈다
+
+#### 분석 Logic
+
+1. 입력된 문자열을 split('')을 이용해 문자열을 배열로 만든다
+
+```js
+"['whale',1,null]"
+-> ["[","'","w","h","a","l","e",",","1",",","n","u","l","l","]"]
+```
+2. 배열화된 문자열을 모두 분석한다
+
+**분석 순서**
+
+A. 양쪽의 Bracket "[" 와 "]"를 제거한다
+
+B. 배열화된 모든 문자열이 반복문을 돌며 임시 변수에 저장된다
+
+C. "," 문자열을 만나게 되면 ","를 만나기 전까지 B를 반복하며 누적된 값을 Checker모듈을 이용하여 문법적 오류를 검사한다
+
+> 여기서 **한 가지 문제**가 생긴다
+>
+> 배열과 객체 타입도 문자열에 포함되어 있기 때문에 배열과 객체 안의 ","를 만나면
+>
+> "[whale"과 같은 문자열이 만들어지는 것이다
+>
+> 그래서 배열과 객체는 "["와 "{"가 시작될 때부터 "]"와 "}"로 종료될 때지 분석해서 누적한다 중첩배열인 경우엔 "["와 "]" 개수를 카운트해서 같은 수로 종료될 때까지 분석한다
+>
+> **결론적으로 배열은 통째로 하나의 완성 문자열이 되는 것이다**
+
+D. 문법적 오류가 발생했다면 에러메세지를 throw하고 문제가 없다면 최종적으로 반환할 배열에 임시변수에 누적된 값을 PUSH하고 임시 변수는 초기화 시킨다
+
+E. 누적된 값이 배열이나 객체라면 재귀를 이용해 다시 분석한다
+
+중첩이 계속되어도 재귀함수가 있기 때문에 배열이나 객체가 없을 때까지 계속한다
+
+그리고 재귀를 거쳐 완성된 배열이나 객체 값을 최종배열에 PUSH한다
+
+F. A-E과정을 거쳐 완성된 최종배열을 반환한다
+
+
+
+**Parser("['whale',1,[1,2,3,['a','b',nulll]],false]") 분석 과정 모식도**
+
+<img src="./images/process1.png" width="550">
+
+**[1] 배열 "[1,2,3,['a','b',null]]"가 완성되었을 때 로직**
+
+<img src="./images/process2.png" width="550">
+
+**[2] "[1,2,3,['a','b',null]]"를 재귀를 이용해 처리한다 배열을 또 완성되면 위와 같이 재귀로 처리**
+
+<img src="./images/process3.png" width="550">
+
+**[3] "['a','b',null]"를 재귀를 이용해 처리한다 더이상 배열이 없어서 재귀가 끝난다**
+
+<img src="./images/process4.png" width="550">
+
+**[4] 완성된 배열 ['a','b',null] 을 리턴한다**
+
+<img src="./images/process5.png" width="550">
+
+**[5] 완성된 배열 "[1,2,3,['a','b',null]]"를 리턴하고 나머지 원소 false까지 분석하고 마친다**
+
+<img src="./images/process6.png" width="550">
+
+**[6] 최종 결과 배열**
+
+
+
+---
+
+
+### 2. Checker
+
+Materializer과정에서 누적된 하나의 값이 완성될 때에 배열에 PUSH하기 전에 그 값에 문법적 오류가 있는지 체크한다
+
+오류가 있으면 에러를 throw한다
+
+**에러 체크 내용**
+
+- '1'23'와 같은 quote 개수 오류
+- 123a와 같은 타입 오류
+- "[]","{}" 괄호 개수가 맞지 않는 경우 ex) [1,2]]
+- 객체 안에서 ":"가 빠진 경우
+- quote('')없이 문자열인 경우
+
+
+
+추가적으로 분석 과정에서 불필요한 문자열들을 제거하고 입력된 값의 타입을 문자열로 반환하는 기능도 한다
+
+**추가 기능**
+
+- Materializer과정에서 문자열 누적에 오류를 생기게 하는 불필요한 문자들(Comma, Bracket, Equal, Quote)을 제거해주는 기능
+
+
+
+### 3. Tokenizer
+
+1-2번 과정을 거친 배열이 입력된다
+
+입력된 배열의 모든 원소에 루프를 돌며 객체구조로 매핑한다
+
+입력 예를 통해 매핑되는 객체구조는 다음과 같다
+
+```js
+Tokenizer([1,null,'whale'])
+->
+{ type: 'array'
+  value: 'ArrayObject'
+  child: 
+   [ { type: 'number', value: 1, child: [] },
+     { type: 'null', value: null, child: [] },
+     { type: 'string', value: 'whale', child: [] } 
+    ] 
+}
+```
+- 매핑할 때 타입 체크는 내부에 원소별로 타입을 반환하는 함수를 이용한다
+- 배열, 객체 중첩구조가 입력될 때에는 재귀를 이용하여 무한 중첩까지 매핑한다
+
+Tokenizer과정이 모두 끝난다면 최종적으로 완성된 객체를 반환한다
+
+
+
+### 추가 기능
+
+- Statistic 모듈을 이용하여 분석된 배열의 타입 개수를 통계하는 기능
+
+- TestCode를 사용하여 위의 3가지 모듈 안의 함수들을 개별적으로 테스트하는 기능
+
   
-  ArrayParser : 배열을 분석하는 Class
-    [0] constuctor
-      - generateObject : 객체 생성을 담당하는 GenerateObject의 인스턴스를 담는 변수
-      - parsedData : parsing하는데 필요한 변수들을 담는 객체
-      - initalizeData : parsedData를 초기화
-      - errorMessage : 에러가 발생하면 에러메세지를 담아두는 변수
-    [1] initializeParsedData
-      : parsing에 필요한 데이터들을 초기화하는 함수
-      - checkedArr : 최종적으로 return할 배열을 담아두는 배열 변수
-      - arrayString : arrayCount가 1이상일 때 즉 array문자열 안에를 읽고 있을 때,
-      임시적으로 담아둘 문자열 변수
-      - arrayCount : '['이 나오면 1을 증가시키고 ']'를 만나면 1을 감소시킨다
-      0이 되는 순간, 즉 array 한 개가 완성되는 순간을 알기 위해 있는 변수
-      
-    [2] parse
-    들어온 문자열을 배열화시키고 원소들은 타입별로 객체로 매핑한 후 리턴하는 함수
-
-    Flow
-      1. 문자열의 제일 오른쪽에 '[', 제일 왼쪽에 ']'가 있는지를 체크하고 이것에 불일치한다면
-      errorMessage를 저장한다
-      2. errorMessage변수에 값이 들어와 있다면 에러메세지를 리턴한다
-      3. 문자열을 크게 array타입과 나머지 타입으로 구분하여 배열화해서 arrayed변수에 담는다
-      4. 배열화가 끝나면 parsedData는 초기화한다
-      5. arrayed변수에 담긴 원소들을 reduce를 사용하여 타입별로 객체화하여 fixedArray(최종값)에 담는다
-      6. 객체화가 마무리된 fixedArray를 리턴한다
-    
-    [3] changeToArrayStructure(parsedData, str)
-    문자열을 배열화해서 리턴한다
-
-    Flow
-      1. 입력받은 문자열의 양쪽의 Bracket을 제거한다
-      2. for문으로 문자열 분석
-        a. 빈 문자열이 나오면 건너뛴다 (continue)
-        b. addString함수를 이용해 ','를 기준으로 문자열을 덩어리로 나누고 나눠진 것들을 checkedArr에 추가한다
-      3. 문자열 분석이 완료되면 분석된 문자열이 추가된 checkedArr를 리턴한다
-
-    [4] addString(str, idx)
-    문자열을 ','를 기준으로 나누고 나눠진 문자열덩어리에 오류가 있는지 체크하고
-    오류가 나온다면 분석을 멈추고 에러메세지를 담은 후 리턴한다
-    
-    variable
-      -lengthBeforeMeetComma : 다음 ','까지의 길이
-      - chunked : ','전까지 문자열을 파싱하며 임시로 담아줄 변수
-    Flow
-      1. for문 안에서 호출되기 때문에 전체 문자열과 인덱스를 매개변수로 받는다
-      2. lengthBeforeMeetComma 전까지만 반복문을 사용하도록 해서 분석한다
-      3. lengthBeforeMeetComma === -1인 경우, 즉 문자열의 끝일 경우는 문자열 끝까지 chunked에 담는다
-      4. for문
-        a. '['문자열이 들어온 경우 arrayCount를 증가시켜 지금은 배열 안의 문자열을 분석하고 있음을 알린다
-        arrayCount가 1이상일 때만 arrayString에 따로 담아주기 위함
-        b. ']'문자열이 들어온 경우는 arrayCount를 감소시킨다
-        arrayCount가 0이 되는 경우, 즉 배열이 끝나는 경우 그동안 arrayString에 저장된 문자열을 checkedArr에 push한다
-      5. for문이 끝나 한 덩어리가 된 chunked문자열에 오류가 있는지 체크한 후 있다면 에러를 리턴한다
-      6. arrayCount > 0 이면 arrayString에 문자열을 추가하고 arrayCount가 0이면 checkedArr에 push한다
-    
-    [5] addStringByArrayCount(chunkedString)
-    문자열을 arrayCount값에 따라서 추가하는 함수
-    
-    Flow
-      1. arrayCount > 0 이면 arrayString에 문자열을 추가하고 arrayCount가 0이면 checkedArr에 push한다
-
-    [6] isErrorInString(context, chunkedString)
-    문자열이 올바른 문자열인지 체크하고 에러가 있으면 1을 리턴하는 함수
-
-    Flow
-      1. checkPairQuote를 이용해 '의 개수가 올바르지 않을 때 errorMessage변수에
-      에러메세지 전달
-      2. checkWrongType 이용해 1d3과 같은 틀린 문자열이 잇으면 errorMessage변수에
-      에러메시지 전달
-      3. 에러가 검출되어서 errorMessage에 한 개라도 메세지가 추가된다면 1을 리턴한다
-  
-*/
