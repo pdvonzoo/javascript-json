@@ -33,3 +33,25 @@ exports.notifySpaceData = () => {
     console.log("제거 후, 정상적인 데이터로 반환합니다 :)");
     console.log("---------------------------------------");
 };
+
+exports.analyzeTypeData = (object) => {
+    let resultString = "";
+    resultString += "타입 갯수를 분석하여 결과를 출력합니다\n";
+    for (let key in object) {
+        let analyzedTypeData = key + ": " + object[key] + "\n";
+        resultString += analyzedTypeData;
+    }
+    return resultString;
+}
+
+exports.printCutOffLine = () => {
+    console.log("*-----------------------------------------------*");
+}
+
+exports.printToJSON = (param) => {
+    console.log(JSON.stringify(param, null, 2));
+}
+
+exports.printData = (param) => {
+    console.log(param);
+}

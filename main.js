@@ -3,6 +3,7 @@
 */
 
 const {ArrayParser} = require('./function/arrayParser');
+const printManager = require('./function/printManager');
 
 const testCase1 = "[123, [22], 33]";
 const testCase2 = "[123, [1,2,3,4,5], 33]";
@@ -16,8 +17,12 @@ const testCase9 = "['1a3',[null,false,['11',112,'99' , {a:'str', b:[912,[5656,33
 const testCase10 = "['1a3',[null,false,['11',112,'99'], {a:'str', b: [912,[5656,33]], true]]"; // ERROR OBJECT
 const testCase11 = "['1a3',[null,false,['11',112,'99'], {a:'str', b  [912,[5656,33]]}, true]]"; // ERROR OBJECT (:)
 const testCase12 = "[123, [22],, 33]";
+const testCase13 = "['1a3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]]";
 
-const arrayParser = ArrayParser(testCase8);
+const arrayParser = ArrayParser(testCase12);
 const result = arrayParser.getResult();
+const stats = arrayParser.getStats();
 
-console.log(JSON.stringify(result, null, 2));
+printManager.printToJSON(result);
+printManager.printCutOffLine();
+printManager.printData(stats);

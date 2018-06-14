@@ -3,7 +3,7 @@
 */
 
 const util = require('./utility');
-const print = require('./print');
+const printManager = require('./printManager');
 
 class Lexer {
     constructor() {}
@@ -53,7 +53,7 @@ class Lexer {
         if (errorCount >= 3) {
             this.errorMode = true;
             this.errorContent = inputData;
-            print.errorAbnormalString(inputData);
+            printManager.errorAbnormalString(inputData);
         }
         return inputData;
     }
@@ -72,7 +72,7 @@ class Lexer {
         if (params.includes("[") && params.includes("]")) { return 'Array'; }
         if (params[0] === "'" && params[parameterEndIndex] === "'") { return 'String'; }
         if (onlyNumberRegex.test(params)) { return "Number"; } 
-        else { print.errorUnknownType(params); }
+        else { printManager.errorUnknownType(params); }
     }
 }
 
