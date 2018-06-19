@@ -29,6 +29,6 @@
   - [STEP 6 : 테스트 코드 작성](https://github.com/antaehyeon/javascript-json/blob/step9/README/step6.md)
   - [STEP 7 : 오류상황 탐지](https://github.com/antaehyeon/javascript-json/blob/step9/README/step7.md)
   - [STEP 8 : 통계](https://github.com/antaehyeon/javascript-json/blob/step9/README/step8.md)
-  - STEP 9 : 문서화
+  - [STEP 9 : 문서화](https://github.com/antaehyeon/javascript-json/blob/step9/README/step9.md)
   - [기타 : 기술적인 부분](https://github.com/antaehyeon/javascript-json/blob/step9/README/tech.md)
 

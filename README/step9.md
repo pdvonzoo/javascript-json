@@ -69,7 +69,7 @@
       number: 3
       ```
 
-    - 이외 결과는 이곳을 참조
+    - 이외 결과는 [이곳](https://github.com/antaehyeon/javascript-json/blob/step9/README/arrayParser_output.md)을 참조
 
 
 
