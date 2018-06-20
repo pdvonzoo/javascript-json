@@ -23,6 +23,6 @@ const arrayParser = ArrayParser(testCase12);
 const result = arrayParser.getResult();
 const stats = arrayParser.getStats();
 
-printManager.printToJSON(result);
+console.log(printManager.printToJSON(result));
 printManager.printCutOffLine();
 printManager.printData(stats);

@@ -48,8 +48,8 @@ exports.printCutOffLine = () => {
     console.log("*-----------------------------------------------*");
 }
 
-exports.printToJSON = (param) => {
-    console.log(JSON.stringify(param, null, 2));
+exports.printToJSON = (param) => { 
+    return JSON.stringify(param, null, 2);
 }
 
 exports.printData = (param) => {
