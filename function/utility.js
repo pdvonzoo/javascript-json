@@ -124,8 +124,9 @@ exports.checkCorrectColon = (param) => {
     }
 }
 
-exports.checkMergeDataIsNull = (mergeData) => {
+exports.checkMergeDataIsNull = (mergeData, mode) => {
     if (this.checkString(mergeData) && mergeData === "") {
+        if (mode === "test") return true;
         printManager.notifySpaceData();
         return true;
     }
