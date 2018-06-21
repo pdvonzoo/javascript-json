@@ -170,5 +170,20 @@ class ArrayParser {
         });
 
         return this.resultObject;
-    }    
+    }
+
+    /* TEST METHOD */
+    setStartSquareBracketNum(param) {
+        this.startSquareBracketsCount = param;
+    }
+
+    getSquareBracketPairCount() {
+        const squareBracketPairCountObject = {
+            start : this.startSquareBracketsCount,
+            end : this.endSquareBracketsCount
+        }
+        return squareBracketPairCountObject;
+    }
+
+
 }

@@ -23,6 +23,15 @@ test("타입을 올바르게 분석하는지 확인한다", () => {
     expect(answer).toBe(testResult);
 });
 
+test("괄호 갯수를 조정하는 함수를 호출 후, 클래스 내에서 값이 정상적으로 바뀌는지 확인한다", () => {
+    arrayParser.setStartSquareBracketNum(3);
+    arrayParser.adjustBracketCount();
+    const testResult = arrayParser.getSquareBracketPairCount();
+    const answer = {"start":2,"end":1};
+
+    expect(answer).toBe(testResult);
+});
+
 console.log("--------------------------------------------");
 console.log("arrayParser.js 테스트가 완료되었습니다");
 
