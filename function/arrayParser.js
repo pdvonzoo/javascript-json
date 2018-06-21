@@ -100,7 +100,7 @@ class ArrayParser {
     }
 
     recursionCase(mergeData) {
-        if (util.checkFirstLetterBracket(mergeData)) {
+        if (util.checkFirstLetterCurlyBracket(mergeData)) {
             const newObjectParser = ObjectParser(mergeData);
             this.mergeData = newObjectParser.getResult();
             return this.mergeData;
@@ -173,8 +173,9 @@ class ArrayParser {
     }
 
     /* TEST METHOD */
-    setStartSquareBracketNum(param) {
-        this.startSquareBracketsCount = param;
+    setSquareBracketCount(startCount, endCount) {
+        this.startSquareBracketsCount = startCount;
+        this.endSquareBracketsCount = endCount;
     }
 
     getSquareBracketPairCount() {
@@ -183,6 +184,18 @@ class ArrayParser {
             end : this.endSquareBracketsCount
         }
         return squareBracketPairCountObject;
+    }
+
+    setMergeData(param) {
+        this.mergeData = param;
+    }
+
+    getResultObject() {
+        return this.resultObject;
+    }
+
+    setResultObject(object) {
+        this.resultObject = object;
     }
 
 

@@ -24,12 +24,48 @@ test("타입을 올바르게 분석하는지 확인한다", () => {
 });
 
 test("괄호 갯수를 조정하는 함수를 호출 후, 클래스 내에서 값이 정상적으로 바뀌는지 확인한다", () => {
-    arrayParser.setStartSquareBracketNum(3);
+    arrayParser.setSquareBracketCount(3, 0);
     arrayParser.adjustBracketCount();
     const testResult = arrayParser.getSquareBracketPairCount();
-    const answer = {"start":2,"end":1};
+    const answer = {"start":2,"end":0};
 
     expect(answer).toBe(testResult);
+});
+
+test("2개 이상의 시작괄호 조건을 검사한다", () => {
+    arrayParser.setSquareBracketCount(2, 0);
+    const testResult = arrayParser.checkTwoMoreSquareBracket();
+    const answer = true;
+
+    expect(answer).toBe(testResult);
+});
+
+test("시작한 괄호가 닫히는 문자인지 확인한다", () =>{
+    arrayParser.setSquareBracketCount(2, 1);
+    const testResult = arrayParser.closedInnerSquareBracket();
+    const answer = true;
+
+    expect(answer).toBe(testResult);
+});
+
+test("Type을 결정하고, resultObject에 추가되는 값이 정상적인지 확인한다", () => {
+    arrayParser.setMergeData("123");
+    arrayParser.determineType();
+    const testResult = arrayParser.getResultObject();
+    const answer = {"type":"Array","child":[{"type":"Number","value":"123","child":[]},{"type":"Array","child":[{"type":"Number","value":"22","child":[]}]},{"type":"Number","value":"33","child":[]},{"type":"Number","value":"123","child":[]}]};
+    
+    expect(answer).toBe(testResult);
+});
+
+test("재귀가 동작하는지, 정상적인 결과값을 반환하는지 확인한다", () => {
+    arrayParser.setResultObject({
+        type: null,
+        child: [],
+    });
+    const testResult = JSON.stringify(arrayParser.recursionCase("{a:'str'}"));
+    const answer = "{\"type\":\"Object\",\"key\":\"a\",\"value\":\"'str'\"}";
+    
+    expect(answer).toBe(testResult);    
 });
 
 console.log("--------------------------------------------");

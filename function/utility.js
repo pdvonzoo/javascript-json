@@ -49,7 +49,7 @@ exports.checkEndSquareBracket = function(param) {
     return param === ']';
 };
 
-exports.checkFirstLetterBracket = (param) => {
+exports.checkFirstLetterCurlyBracket = (param) => {
     return param[0] === '{';
 };
 
