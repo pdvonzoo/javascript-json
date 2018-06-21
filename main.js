@@ -19,10 +19,10 @@ const testCase11 = "['1a3',[null,false,['11',112,'99'], {a:'str', b  [912,[5656,
 const testCase12 = "[123, [22],, 33]";
 const testCase13 = "['1a3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]]";
 
-const arrayParser = ArrayParser(testCase12);
+const arrayParser = ArrayParser(testCase13);
 const result = arrayParser.getResult();
 const stats = arrayParser.getStats();
 
-printManager.printToJSON(result);
+console.log(printManager.printToJSON(result));
 printManager.printCutOffLine();
 printManager.printData(stats);

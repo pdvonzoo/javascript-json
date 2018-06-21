@@ -31,7 +31,7 @@ class ObjectParser {
     }
 
     recursionCase() {
-        if (util.checkFirstLetterBracket(this.mergeData)) {
+        if (util.checkFirstLetterCurlyBracket(this.mergeData)) {
             const newObjectParser = new ObjectParser(this.mergeData);
             this.mergeData = newObjectParser.getResult();
             return this.mergeData;

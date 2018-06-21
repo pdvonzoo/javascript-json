@@ -49,7 +49,7 @@ exports.checkEndSquareBracket = function(param) {
     return param === ']';
 };
 
-exports.checkFirstLetterBracket = (param) => {
+exports.checkFirstLetterCurlyBracket = (param) => {
     return param[0] === '{';
 };
 
@@ -124,8 +124,9 @@ exports.checkCorrectColon = (param) => {
     }
 }
 
-exports.checkMergeDataIsNull = (mergeData) => {
+exports.checkMergeDataIsNull = (mergeData, mode) => {
     if (this.checkString(mergeData) && mergeData === "") {
+        if (mode === "test") return true;
         printManager.notifySpaceData();
         return true;
     }

@@ -119,5 +119,76 @@ test("':' 문자가 있는지 확인한다", () => {
     expect(answer).toBe(testResult);
 });
 
+test("'[' 문자와 ']' 문자가 동시에 있는지 확인한다", () => {
+    const testData = "[123, [22], 33]";
+    const testResult = util.existBracketPair(testData);
+    const answer = true;
+    expect(answer).toBe(testResult);
+});
+
+test("입력된 데이터가 문자열(String)인지 확인한다", () => {
+    const testData = "ABCDE";
+    const testResult = util.checkString(testData);
+    const answer = true;
+    expect(answer).toBe(testResult);
+});
+
+test("데이터가 null 인지 확인한다", () => {
+    const testData = "";
+    const testResult = util.checkMergeDataIsNull(testData, "test");
+    const answer = true;
+    expect(answer).toBe(testResult);
+});
+
+test ("Array를 판단하는 정규식이 제대로 작동하는지 확인한다", () => {
+    const testData = "[123, [22],, 33]";
+    const regex = /\[/g;
+    const testResult = util.convertNormalData(testData, regex);
+    const answer = 2;
+    expect(answer).toBe(testResult);
+});
+
+
+test("String를 판단하는 정규식이 제대로 작동하는지 확인한다", () => {
+    const testData = "[123, [22],, 33]";
+    const regex = /\'[a-z0-9]+\'/g;
+    const testResult = util.convertNormalData(testData, regex);
+    const answer = 0;
+    expect(answer).toBe(testResult);
+});
+
+test ("null을 판단하는 정규식이 제대로 작동하는지 확인한다", () => {
+    const testData = "['1a3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]]";
+    const regex = /null/g;
+    const testResult = util.convertNormalData(testData, regex);
+    const answer = 1;
+    expect(answer).toBe(testResult);
+});
+
+test ("Boolean을 판단하는 정규식이 제대로 작동하는지 확인한다", () => {
+    const testData = "['1a3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]]";
+    const regex = /(true|false)+/g;
+    const testResult = util.convertNormalData(testData, regex);
+    const answer = 2;
+    expect(answer).toBe(testResult);
+});
+
+test ("Object를 판단하는 정규식이 제대로 작동하는지 확인한다", () => {
+    const testData = "['1a3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]]";
+    const regex = /\{/g;
+    const testResult = util.convertNormalData(testData, regex);
+    const answer = 1;
+    expect(answer).toBe(testResult);
+});
+
+test ("Number를 판단하는 정규식이 제대로 작동하는지 확인한다", () => {
+    const testData = "['1a3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]]";
+    const regex = /[^\']\d+[^\']/g;
+    const testResult = util.convertNormalData(testData, regex);
+    const answer = 4;
+    expect(answer).toBe(testResult);
+});
+
+
 console.log("--------------------------------------------");
 console.log("Utility.js 테스트가 완료되었습니다");
