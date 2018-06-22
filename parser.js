@@ -1,7 +1,3 @@
-const commandMSG = {
-  noneData: 'none Data',
-};
-
 const dataType = {
   array: 'Array',
   object: 'Object',
@@ -15,23 +11,6 @@ const ERROR_MSG = {
   BLOCK_ERROR: 'BLOCK ERROR',
   TYPE_ERROR: 'TYPE ERROR'
 };
-
-class result {
-  constructor({
-    type,
-    value,
-    child
-  }) {
-    this.type = type;
-    this.value = value;
-    this.child = this.isChild(child);
-  }
-
-  isChild() {
-    this.type = dataType.array,
-      this.value = dataType.arrayObj
-  }
-}
 
 // block error 확인
 function getCheckErrorBlock(arrWord) {
@@ -129,6 +108,7 @@ function getChildDataType(strData) {
   const parsing = dataParser(strData)
 
   let child = [];
+
   for (let value of parsing) {
     let isArray = Object.prototype.toString.call(value);
 
@@ -180,7 +160,7 @@ const errorcase2 = ']3213, 2[';
 const errorcase3 = '[1, 55, 3]]';
 
 // const testcase7 = '[1, [[2]]]';
-// const testcase6 = '[123,[22,23,[11,[112233],112],55],33]';
+// const testcase8 = '[123,[22,23,[11,[112233],112],55],33]';
 
 const test = arrayParser(testcase1);
 console.log(JSON.stringify(test, null, 2));
