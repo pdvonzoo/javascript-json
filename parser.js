@@ -1,7 +1,24 @@
-function getFilterData(data) {
-  const delOutsideArr = data.substring(1, data.length - 1);
+const commandMSG = {
+  noneData: 'none Data',
+  array: 'Array',
+  object: 'Object;'
+};
 
-  let splitData = delOutsideArr.split('');
+const ERROR_MSG = {
+  BLOCK_ERROR: 'BLOCK ERROR',
+  TYPE_ERROR: 'TYPE ERROR'
+};
+
+function getFilterData(data) {
+  let delOutsideArr = '';
+  let splitData = '';
+
+  if (data.match(/(\[|\])/)) {
+    delOutsideArr = data.substring(1, data.length - 1);
+    splitData = delOutsideArr.split('');
+  } else {
+    splitData = data.split('');
+  }
   let filteringData = splitData.filter(element => {
     return element !== ' ';
   }).reduce((accData, index) => {
@@ -10,66 +27,112 @@ function getFilterData(data) {
   return filteringData;
 }
 
-function test(arr) {
-  let arrTest = [];
-  console.log(arr)
-  const test = arr.reduce((accVal, value, index) => {
-    if (value.match(',')) console.log('"," 임', value)
-    if (value.match(/[0-9]/)) console.log(accVal, value);
-    if (value.match(']')) console.log('"]" 임', value, index)
-  });
+function isHaveArrKeyStrNum(strElement, arrKey) {
+  return strElement.match(/[0-9]/) && arrKey === 0 && !strElement.match(/(\[|\])/);
+}
+
+function isHaveSquareBracketVal(strElement) {
+  return strElement.match(/(\[)/);
+}
+
+function isHaveArrKeyNoneBracketVal(arrKey, strElement) {
+  return arrKey && !strElement.match(/(\[|\])/) && strElement !== ',';
+}
+
+function isHaveNoneArrKeyCloseBracketVal(arrKey, strElement){
+  return arrKey === 0 && strElement.match(/(\])/);
+}
+
+function isHaveArrKeyCloseBracketVal(arrKey, strElement) {
+  return arrKey && strElement.match(/(\])/);
 }
 
 function parser(str) {
   const filteringData = getFilterData(str);
-  const splitData = filteringData.split('');
-  // test(splitData);
+  const splitData = filteringData.split(',');
 
-  let child = [];
+  let result = [];
   let arrKey = 0;
-  let strElement = '';
 
   for (let key in splitData) {
     const value = splitData[key];
 
-    if (value.match(/[0-9]/) && arrKey === 0) child.push(value);
-    if (value.match(/[0-9]/) && arrKey > 0) child[child.length -1].push(value);
+    if (isHaveArrKeyStrNum(value, arrKey)) result.push(value);
 
-    if (value.match(/(\[)/g)) {
-      child.push(new Array());
-      const arrCondition = Object.prototype.toString.call(child[child.length - 1]);
-      if (arrCondition === '[object Array]') arrKey = child.length - 1;
-    }
-    if (value === ',') { // 함수화 (',') 발견 시
-      if (strElement.match(/[0-9]/)) strElement = strElement + value;
-      strElement !== '' ? child[child.length - 1].push(strElement) : null;
-      strElement = '';
+    if (isHaveSquareBracketVal(value)) {
+      result.push(new Array);
+      arrKey = result.length - 1;
+      result[arrKey].push(value.substring(1));
     }
 
-    if (value.match(/(\])/g)) { // 함수화 (']') 발견시
-      return chlid;
-      strElement !== '' ? child[child.length - 1].push(strElement) : null;
-      strElement = child.pop();
-      if (key !== str.length - 1) {
-        child[child.length - 1].push(strElement);
-        strElement = '';
-      }
+    if (isHaveArrKeyNoneBracketVal(arrKey, value)) result[arrKey].push(value);
+    
+    if(isHaveNoneArrKeyCloseBracketVal(arrKey, value)) {
+      const sliceStr = value.substr(value, value.length - 1);
+      result[arrKey].push(sliceStr);
     }
 
-
-    // if (arrKey !== str.length && value.match(/[0-9]/)) child[child.length - 1].push(value);
-
-    console.log(child);
-    console.log(arrKey, value);
+    if (isHaveArrKeyCloseBracketVal(arrKey, value)) {
+      const sliceStr = value.substr(value, value.length - 1);
+      result[arrKey].push(sliceStr);
+      const temp = result.pop();
+      result.push(temp);
+      arrKey = 0;
+    }
   }
+  return result;
 }
+
+// block error 확인
+function getCheckErrorBlock(arrWord) {
+  let arrBracket = 0;
+  const splitWord = arrWord.split('');
+
+  splitWord.forEach(matchArrVal => {
+    if (matchArrVal === '[') arrBracket++;
+    if (matchArrVal === ']') {
+      if (arrBracket === 0) throw new Error(ERROR_MSG.BLOCK_ERROR);
+      arrBracket--;
+    }
+  });
+
+  if (arrBracket === 0) {
+    const childData = parser(arrWord);
+    let checkType = {
+      type: commandMSG.array,
+      child: childData 
+    };
+    return checkType;
+  }
+  throw new Error(ERROR_MSG.BLOCK_ERROR);
+}
+
+// 각각에 데이터함수에서 데이터 확인
+function ArrayParser(word) {
+  const checkArr = getCheckErrorBlock(word);
+
+  const parsingData = {
+    type: checkArr.type,
+    child: checkArr.child
+  };
+  return parsingData;
+}
+
 
 const testcase1 = '[1, 2,[3,4, 5]]';
 const testcase2 = '[12, [14, 55], 15]';
 const testcase3 = '[1, [55, 3]]';
-const testcase4 = '[1, [[2]]]';
-const testcase5 = '[123,[22,23,[11,[112233],112],55],33]';
+const testcase4 = '[1,3,[1,2],4,[5,6]]';
+const testcase5 = '[[1123, 354445324328103829],[1,2],4,[5,6]]';
 const testcase6 = '12345';
-const testcase7 = '[1,3,[1,2],4,[5,6]]';
-const result = parser(testcase1);
+const errorcase1 = '[3213, 2';
+const errorcase2 = ']3213, 2[';
+const errorcase3 = '[1, 55, 3]]';
+
+// const testcase5 = '[1, [[2]]]';
+// const testcase6 = '[123,[22,23,[11,[112233],112],55],33]';
+// const result = parser(testcase3);
 // console.log(JSON.stringify(result, null, 2));
+
+const result2 = ArrayParser(testcase1);
+console.log(JSON.stringify(result2, null, 2));
