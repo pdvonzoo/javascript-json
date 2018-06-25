@@ -153,7 +153,7 @@ function getChildTokenType(strData) {
 }
 
 // 오류 check parser로 보냄. 
-function getResultObjectData(word) {
+function getResultObj(word) {
   const checkArr = getCheckErrorBlock(word);
 
   if (checkArr === true) {
@@ -181,5 +181,5 @@ const errorcase3 = '[1, 55, 3]]';
 // const testcase9 = '[1, [[2]]]';
 // const testcase10 = '[123,[22,23,[11,[112233],112],55],33]';
 
-const test = getResultObjectData(testcase1);
+const test = getResultObj(testcase1);
 console.log(JSON.stringify(test, null, 2));
