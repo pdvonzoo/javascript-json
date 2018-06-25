@@ -101,7 +101,7 @@ function parsingObj(splitData, arrKey, result) {
   return result;
 }
 
-function arrayParser(str) {
+function getArrayParser(str) {
   const checkErrorBracket = getCheckErrorBlock(str);
 
   if (checkErrorBracket === true) {
@@ -110,12 +110,12 @@ function arrayParser(str) {
 
     let result = [];
     let arrKey = 0;
-    const objResult = parsingObj(splitData, arrKey, result);
-    return objResult;
+    const resultObj = parsingObj(splitData, arrKey, result);
+    return resultObj;
   }
 }
 
-function childOfChildData(value, child) {
+function getChildOfChildObj(value, child) {
   let childOfChildData = {
     type: 'Array',
     value: 'ArrayObject',
@@ -131,7 +131,7 @@ function childOfChildData(value, child) {
   return child.push(childOfChildData);
 }
 
-function childData(value, child) {
+function getChildObj(value, child) {
   let childData = {
     type: dataType.number,
     value: value,
@@ -140,36 +140,36 @@ function childData(value, child) {
 }
 
 // child data Type 분류
-function getChildDataType(strData) {
-  const parsing = arrayParser(strData);
+function getChildTokenType(strData) {
+  const parsing = getArrayParser(strData);
 
   let child = [];
 
   for (let value of parsing) {
     let isArray = Object.prototype.toString.call(value);
-    (isArray === '[object Array]') ? childOfChildData(value, child): childData(value, child);
+    (isArray === '[object Array]') ? getChildOfChildObj(value, child): getChildObj(value, child);
   }
   return child;
 }
 
 // 오류 check parser로 보냄. 
-function getObjectData(word) {
+function getResultObjectData(word) {
   const checkArr = getCheckErrorBlock(word);
 
   if (checkArr === true) {
-    const parsingData = {
+    const parserObjResult = {
       type: dataType.array,
-      child: getChildDataType(word),
+      child: getChildTokenType(word),
     };
-    return parsingData;
+    return parserObjResult;
   }
 }
 
 const testcase1 = '[1, 2,[3,4, 5]]';
 const testcase2 = '[12, [14, 55], 15]';
 const testcase3 = '[1, [55, 3]]';
-const testcase4 = '[1,3,[1,2],4,[5,6]]';
-const testcase5 = '[[1123, 354445324328103829],[1,2],4,[5,6]]';
+const testcase4 = '[1,3,[1,2],4,[5,6],7]';
+const testcase5 = '[[1123, 354445324328103829],6,[1,2],4,[5,6]]';
 const testcase6 = '12345';
 const testcase7 = '[[]]';
 const testcase8 = '[[1]]';
@@ -181,5 +181,5 @@ const errorcase3 = '[1, 55, 3]]';
 // const testcase9 = '[1, [[2]]]';
 // const testcase10 = '[123,[22,23,[11,[112233],112],55],33]';
 
-const test = getObjectData(testcase1);
+const test = getResultObjectData(testcase1);
 console.log(JSON.stringify(test, null, 2));
