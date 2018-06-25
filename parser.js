@@ -83,13 +83,15 @@ function parsingObj(splitData, arrKey, result) {
 
     if (isHaveSquareBracketVal(value)) {
       result.push(new Array);
-      let arrKey = result.length - 1;
+      arrKey = result.length - 1;
       const delCloseBracket = value.substring(1, value.length - 1);
       const delSquareBracket = value.substring(1);
       value.match(/[\]]/g) ? result[arrKey].push(delCloseBracket) : result[arrKey].push(delSquareBracket);
+
     } else if (isHaveNoneArrKeyCloseBracketVal(arrKey, value)) {
       const sliceStr = value.substr(value, value.length - 1);
       result[arrKey].push(sliceStr);
+
     } else if (isHaveArrKeyCloseBracketVal(arrKey, value)) {
       const sliceStr = value.substr(value, value.length - 1);
       result[arrKey].push(sliceStr);
@@ -179,5 +181,5 @@ const errorcase3 = '[1, 55, 3]]';
 // const testcase9 = '[1, [[2]]]';
 // const testcase10 = '[123,[22,23,[11,[112233],112],55],33]';
 
-const test = getObjectData(testcase8);
+const test = getObjectData(testcase1);
 console.log(JSON.stringify(test, null, 2));
