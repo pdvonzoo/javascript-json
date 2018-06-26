@@ -57,46 +57,91 @@ function isHaveArrKeyStrNum(value, arrKey, result) {
 }
 
 function isHaveArrKeyNoneBracketVal(value, arrKey, result) {
-  if (arrKey && !value.match(/(\[|\])/)) {
+  if (arrKey !== 0 && !value.match(/(\[|\])/)) {
     return result[arrKey].push(value);
   }
 }
 
-function isHaveSquareBracketVal(value) {
-  return value.match(/(\[)/);
+function isHaveSquareBracketVal(value, arrKey, result) {
+  if (value.match(/^(?=.*\[)(?=.*\]).*$/m)) {
+    result.push(new Array);
+    arrKey = result.length - 1;
+    const delAllBracket = value.substring(1, value.length - 1);
+    result[arrKey].push(delAllBracket);
+  } else if (value.match(/^(?=.*\[).*$/m)) {
+    return true;
+  }
 }
 
-function isHaveNoneArrKeyCloseBracketVal(arrKey, value) {
-  return arrKey === 0 && value.match(/(\])/);
+function isHaveCloseBracketVal(value, arrKey, result) {
+  if (arrKey && value.match(/(\])/)) {
+    const sliceStr = value.substr(value, value.length - 1);
+    const resultArr = result[arrKey].push(sliceStr);
+    return resultArr;
+  } else if (arrKey === 0 && value.match(/(\])/)) {
+    const sliceStr = value.substr(value, value.length - 1);
+    const resultArr = result.push(sliceStr);
+    return resultArr;
+  }
 }
 
 function isHaveArrKeyCloseBracketVal(arrKey, value) {
-  return arrKey && value.match(/(\])/);
+  return arrKey !== 0 && value.match(/(\])/);
 }
 
+
+function isHaveStrArr(value, arrKey, result) {
+  if (value.match(/(\[)/)) {
+    const delSquareBracket = value.substring(1);
+    result.push(new Array);
+    arrKey = result.length - 1;
+    result[arrKey].push(delSquareBracket);
+    console.log(value, 'square Bracket', result)
+  } else if (value.match(/(\])/)) {
+    const delCloseBracket = value.substr(value, value.length - 1);
+    result[arrKey].push(delCloseBracket);
+    arrKey = 0;
+    console.log(value, 'close Bracket')
+  } else if (value.match(/^(?=.*\[)(?=.*\]).*$/m)) {
+    result.push(new Array);
+    arrKey = result.length - 1; 
+    const delAllBracket = value.substr(1, value.length - 1); 
+    result[arrKey].push(delAllBracket);
+    arrKey = 0;
+    console.log(value, 'all Bracket')
+  }
+  return result;
+}
+
+function isNoneStrArr(value, result) {
+  if (value.match(/^(?!.*\[)(?!.*\]).*$/m)) {
+    result.push(value);
+  }
+  return result;
+}
+
+// arrKey를 가지고 있는가 아닌가?
+function isHaveArrKey(value, arrKey) {
+  return arrKey > 0 && value.match(/[0-9]/);
+}
+
+function isNoneArrKey(value, arrKey) {
+  return arrKey === 0 && value.match(/[0-9]/);
+}
+
+// pasing시 조건
 function parsingObj(splitData, arrKey, result) {
   for (let key in splitData) {
     const value = splitData[key];
 
-    isHaveArrKeyStrNum(value, arrKey, result);
-    isHaveArrKeyNoneBracketVal(value, arrKey, result);
-
-    if (isHaveSquareBracketVal(value)) {
-      result.push(new Array);
-      arrKey = result.length - 1;
-      const delCloseBracket = value.substring(1, value.length - 1);
-      const delSquareBracket = value.substring(1);
-      value.match(/[\]]/g) ? result[arrKey].push(delCloseBracket) : result[arrKey].push(delSquareBracket);
-
-    } else if (isHaveNoneArrKeyCloseBracketVal(arrKey, value)) {
-      const sliceStr = value.substr(value, value.length - 1);
-      result[arrKey].push(sliceStr);
-
-    } else if (isHaveArrKeyCloseBracketVal(arrKey, value)) {
-      const sliceStr = value.substr(value, value.length - 1);
-      result[arrKey].push(sliceStr);
-      arrKey = 0;
+    if (isHaveArrKey(value, arrKey)) {
+      result[arrKey].push(value);
+      isHaveStrArr(value, result)
+      isHaveStrArr(value, arrKey, result);
+    } else if (isNoneArrKey(value, arrKey)) {
+      isNoneStrArr(value, result)
     }
+
   }
   return result;
 }
@@ -108,6 +153,7 @@ function getArrayParser(str) {
     const filteringData = getFilterData(str);
     const splitData = filteringData.split(',');
 
+    console.log(splitData)
     let result = [];
     let arrKey = 0;
     const resultObj = parsingObj(splitData, arrKey, result);
@@ -167,19 +213,31 @@ function getResultObj(word) {
 
 const testcase1 = '[1, 2,[3,4, 5]]';
 const testcase2 = '[12, [14, 55], 15]';
-const testcase3 = '[1, [55, 3]]';
+const testcase3 = '[1, [55, 3],[]]';
 const testcase4 = '[1,3,[1,2],4,[5,6],7]';
-const testcase5 = '[[1123, 354445324328103829],6,[1,2],4,[5,6]]';
+const testcase5 = '[[1123, 354445324328103829],[1,2],4,[5,6]]';
 const testcase6 = '12345';
 const testcase7 = '[[]]';
-const testcase8 = '[[1]]';
-const errorcase1 = '[3213, 2';
-const errorcase2 = ']3213, 2[';
-const errorcase3 = '[1, 55, 3]]';
+const testcase8 = '[[],[]]'
+const testcase9 = '[[1]]';
+const testcase10 = '[11, [22], 33]';
 
+// const errorcase1 = '[3213, 2';
+// const errorcase2 = ']3213, 2[';
+// const errorcase3 = '[1, 55, 3]]';
 
-// const testcase9 = '[1, [[2]]]';
-// const testcase10 = '[123,[22,23,[11,[112233],112],55],33]';
+// const testcase10 = '[1, [[2]]]';
+// const testcase11 = '[123,[22,23,[11,[112233],112],55],33]';
 
-const test = getResultObj(testcase1);
-console.log(JSON.stringify(test, null, 2));
+const test1 = getResultObj(testcase1);
+const test2 = getResultObj(testcase2);
+const test3 = getResultObj(testcase2);
+const test4 = getResultObj(testcase7);
+const test5 = getResultObj(testcase8);
+const test6 = getResultObj(testcase9);
+// console.log(test1);
+// console.log(test2);
+// console.log(test3);
+// console.log(test4);
+// console.log(test5);
+// console.log(JSON.stringify(test1, null, 2));
