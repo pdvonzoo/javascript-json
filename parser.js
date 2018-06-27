@@ -50,72 +50,12 @@ function getFilterData(data) {
   return filteringData;
 }
 
-function isHaveArrKeyStrNum(value, arrKey, result) {
-  if (value.match(/[0-9]/) && arrKey === 0 && !value.match(/(\[|\])/)) {
-    return result.push(value);
-  }
-}
-
-function isHaveArrKeyNoneBracketVal(value, arrKey, result) {
-  if (arrKey !== 0 && !value.match(/(\[|\])/)) {
-    return result[arrKey].push(value);
-  }
-}
-
-function isHaveSquareBracketVal(value, arrKey, result) {
-  if (value.match(/^(?=.*\[)(?=.*\]).*$/m)) {
-    result.push(new Array);
-    arrKey = result.length - 1;
-    const delAllBracket = value.substring(1, value.length - 1);
-    result[arrKey].push(delAllBracket);
-  } else if (value.match(/^(?=.*\[).*$/m)) {
-    return true;
-  }
-}
-
-function isHaveCloseBracketVal(value, arrKey, result) {
-  if (arrKey && value.match(/(\])/)) {
-    const sliceStr = value.substr(value, value.length - 1);
-    const resultArr = result[arrKey].push(sliceStr);
-    return resultArr;
-  } else if (arrKey === 0 && value.match(/(\])/)) {
-    const sliceStr = value.substr(value, value.length - 1);
-    const resultArr = result.push(sliceStr);
-    return resultArr;
-  }
-}
-
-function isHaveArrKeyCloseBracketVal(arrKey, value) {
-  return arrKey !== 0 && value.match(/(\])/);
-}
-
-
-function isHaveStrArr(value, arrKey, result) {
-  if (value.match(/(\[)/)) {
-    const delSquareBracket = value.substring(1);
-    result.push(new Array);
-    arrKey = result.length - 1;
-    result[arrKey].push(delSquareBracket);
-    console.log(value, 'square Bracket', result)
-  } else if (value.match(/(\])/)) {
-    const delCloseBracket = value.substr(value, value.length - 1);
-    result[arrKey].push(delCloseBracket);
-    arrKey = 0;
-    console.log(value, 'close Bracket')
-  } else if (value.match(/^(?=.*\[)(?=.*\]).*$/m)) {
-    result.push(new Array);
-    arrKey = result.length - 1; 
-    const delAllBracket = value.substr(1, value.length - 1); 
-    result[arrKey].push(delAllBracket);
-    arrKey = 0;
-    console.log(value, 'all Bracket')
-  }
-  return result;
-}
-
-function isNoneStrArr(value, result) {
-  if (value.match(/^(?!.*\[)(?!.*\]).*$/m)) {
+// 배열 기호 token이 섞이지 않은 아닌 순수한 숫자 token 
+function isNoneArrStrOfArrKey(value, arrKey, result) {
+  if (value.match(/^(?!.*\[)(?!.*\]).*$/m) && arrKey === 0) {
     result.push(value);
+  } else if (value.match(/^(?!.*\[)(?!.*\]).*$/m) && arrKey > 0) {
+    result[arrKey].push(value);
   }
   return result;
 }
@@ -129,19 +69,70 @@ function isNoneArrKey(value, arrKey) {
   return arrKey === 0 && value.match(/[0-9]/);
 }
 
+// bracket Check test 함수
+function isHaveStrArr(value, arrKey, result) {
+  if (value.match(/^(?=.*\[)(?=.*\]).*$/m)) {
+    arrKey = result.length - 1;
+    console.log(value, 'all Bracket', arrKey);
+  } else if (value.match(/^(?=.*\[)|(?=.*\]).*$/m)) {
+    console.log(value, 'either Bracket');
+    console.log(result)
+  }
+}
+
 // pasing시 조건
-function parsingObj(splitData, arrKey, result) {
+function parsingObj(splitData) {
+  let result = [];
+  let arrKey = 0;
+
   for (let key in splitData) {
     const value = splitData[key];
 
-    if (isHaveArrKey(value, arrKey)) {
-      result[arrKey].push(value);
-      isHaveStrArr(value, result)
-      isHaveStrArr(value, arrKey, result);
-    } else if (isNoneArrKey(value, arrKey)) {
-      isNoneStrArr(value, result)
+    if (value.match(/^(?=.*\[)(?!.*[0-9])(?=.*\]).*$/m)) result.push(new Array);
+    if (isNoneArrKey(value, arrKey)) {
+      // array Token을 가지고 있을 경우( '[', ']', '[ ]') 
+      if (value.match(/^(?=.*\[)|(?=.*\]).*$/m)) {
+        if (value.match(/^(?=.*\[)(?=.*\]).*$/m)) {
+          result.push(new Array);
+          arrKey = result.length - 1;
+          const delAllBracket = value.substring(1, value.length - 1);
+          result[arrKey].push(delAllBracket);
+          arrKey = 0;
+        } else if (value.match(/(\])/)) {
+          const delCloseBracket = value.substr(value, value.length - 1);
+          result[arrKey].push(delCloseBracket);
+          arrKey = 0;
+        } else if (value.match(/(\[)/)) {
+          const delSquareBracket = value.substring(1);
+          result.push(new Array);
+          arrKey = result.length - 1;
+          result[arrKey].push(delSquareBracket);
+        }
+      } else {
+        isNoneArrStrOfArrKey(value, arrKey, result);
+      }
+    } else if (isHaveArrKey(value, arrKey)) {
+      if (value.match(/^(?=.*\[)|(?=.*\]).*$/m)) {
+        if (value.match(/^(?=.*\[)(?=.*\]).*$/m)) {
+          result.push(new Array);
+          arrKey = result.length - 1;
+          const delAllBracket = value.substr(1, value.length - 1);
+          result[arrKey].push(delAllBracket);
+          arrKey = 0;
+        } else if (value.match(/(\])/)) {
+          const delCloseBracket = value.substr(value, value.length - 1);
+          result[arrKey].push(delCloseBracket);
+          arrKey = 0;
+        } else if (value.match(/(\[)/)) {
+          const delSquareBracket = value.substring(1);
+          result.push(new Array);
+          arrKey = result.length - 1;
+          result[arrKey].push(delSquareBracket);
+        }
+      } else {
+        isNoneArrStrOfArrKey(value, arrKey, result);
+      }
     }
-
   }
   return result;
 }
@@ -153,10 +144,7 @@ function getArrayParser(str) {
     const filteringData = getFilterData(str);
     const splitData = filteringData.split(',');
 
-    console.log(splitData)
-    let result = [];
-    let arrKey = 0;
-    const resultObj = parsingObj(splitData, arrKey, result);
+    const resultObj = parsingObj(splitData);
     return resultObj;
   }
 }
@@ -219,7 +207,7 @@ const testcase5 = '[[1123, 354445324328103829],[1,2],4,[5,6]]';
 const testcase6 = '12345';
 const testcase7 = '[[]]';
 const testcase8 = '[[],[]]'
-const testcase9 = '[[1]]';
+const testcase9 = '[[1],[2]]';
 const testcase10 = '[11, [22], 33]';
 
 // const errorcase1 = '[3213, 2';
@@ -231,13 +219,25 @@ const testcase10 = '[11, [22], 33]';
 
 const test1 = getResultObj(testcase1);
 const test2 = getResultObj(testcase2);
-const test3 = getResultObj(testcase2);
-const test4 = getResultObj(testcase7);
-const test5 = getResultObj(testcase8);
-const test6 = getResultObj(testcase9);
+const test3 = getResultObj(testcase3);
+
+const test4 = getResultObj(testcase4);
+const test5 = getResultObj(testcase5);
+const test6 = getResultObj(testcase6);
+
+const test7 = getResultObj(testcase7);
+const test8 = getResultObj(testcase8);
+const test9 = getResultObj(testcase9);
+const test10 = getResultObj(testcase10);
+
+console.log(JSON.stringify(test1, null, 2));
 // console.log(test1);
 // console.log(test2);
 // console.log(test3);
 // console.log(test4);
 // console.log(test5);
-// console.log(JSON.stringify(test1, null, 2));
+// console.log(test6);
+// console.log(test7);
+// console.log(test8);
+// console.log(test9);
+// console.log(test10);
