@@ -69,16 +69,45 @@ function isNoneArrKey(value, arrKey) {
   return arrKey === 0 && value.match(/[0-9]/);
 }
 
+// 괄호 token 조건 함수
+function isAllBracket(value) {
+  return value.match(/^(?=.*\[)(?=.*\]).*$/m);
+}
+
+function isSquareBracket(value) {
+  return value.match(/(\[)/);
+}
+
+function isCloseBracket(value) {
+  return value.match(/(\])/);
+}
+
 // bracket Check test 함수
 function isHaveStrBracket(value) {
   return value.match(/^(?=.*\[)|(?=.*\]).*$/m) || value.match(/^(?=.*\[)(?=.*\]).*$/m);
 }
 
-function getNullValInArray(value, result){
-  if (value.match(/^(?=.*\[)(?!.*[0-9])(?=.*\]).*$/m)){
+function getNullValInArray(value, result) {
+  if (value.match(/^(?=.*\[)(?!.*[0-9])(?=.*\]).*$/m)) {
     const emptyArr = result.push(new Array);
     return emptyArr;
   }
+}
+
+function getResultArr(value, arrKey, result) {
+  if (isAllBracket(value)) {
+    result.push(new Array);
+    arrKey = result.length - 1;
+    const delAllBracket = value.substring(1, value.length - 1);
+    result[arrKey].push(delAllBracket);
+  } else if (isCloseBracket(value)) {
+    const delCloseBracket = value.substr(value, value.length - 1);
+    result[arrKey].push(delCloseBracket);
+  } else if (isSquareBracket(value)) {
+    const delSquareBracket = value.substring(1);
+    result[arrKey].push(delSquareBracket);
+  }
+  return result;
 }
 
 // pasing시 조건
@@ -90,45 +119,36 @@ function parsingObj(splitData) {
     const value = splitData[key];
 
     getNullValInArray(value, result);
+
     if (isNoneArrKey(value, arrKey)) {
       // array Token을 가지고 있을 경우( '[', ']', '[ ]') 
       if (isHaveStrBracket(value)) {
-        if (value.match(/^(?=.*\[)(?=.*\]).*$/m)) {
+        if (isAllBracket(value)) {
+          getResultArr(value, arrKey, result);
+          arrKey = 0;
+        } else if (isCloseBracket(value)) {
+          getResultArr(value, arrKey, result);
+          arrKey = 0;
+        } else if (isSquareBracket(value)) {
           result.push(new Array);
           arrKey = result.length - 1;
-          const delAllBracket = value.substring(1, value.length - 1);
-          result[arrKey].push(delAllBracket);
-          arrKey = 0;
-        } else if (value.match(/(\])/)) {
-          const delCloseBracket = value.substr(value, value.length - 1);
-          result[arrKey].push(delCloseBracket);
-          arrKey = 0;
-        } else if (value.match(/(\[)/)) {
-          const delSquareBracket = value.substring(1);
-          result.push(new Array);
-          arrKey = result.length - 1;
-          result[arrKey].push(delSquareBracket);
+          getResultArr(value, arrKey, result);
         }
       } else {
         isNoneArrStrOfArrKey(value, arrKey, result);
       }
     } else if (isHaveArrKey(value, arrKey)) {
       if (isHaveStrBracket(value)) {
-        if (value.match(/^(?=.*\[)(?=.*\]).*$/m)) {
+        if (isAllBracket(value)) {
+          getResultArr(value, arrKey, result);
+          arrKey = 0;
+        } else if (isCloseBracket(value)) {
+          getResultArr(value, arrKey, result);
+          arrKey = 0;
+        } else if (isSquareBracket(value)) {
           result.push(new Array);
           arrKey = result.length - 1;
-          const delAllBracket = value.substr(1, value.length - 1);
-          result[arrKey].push(delAllBracket);
-          arrKey = 0;
-        } else if (value.match(/(\])/)) {
-          const delCloseBracket = value.substr(value, value.length - 1);
-          result[arrKey].push(delCloseBracket);
-          arrKey = 0;
-        } else if (value.match(/(\[)/)) {
-          const delSquareBracket = value.substring(1);
-          result.push(new Array);
-          arrKey = result.length - 1;
-          result[arrKey].push(delSquareBracket);
+          getResultArr(value, arrKey, result);
         }
       } else {
         isNoneArrStrOfArrKey(value, arrKey, result);
@@ -231,4 +251,4 @@ const test8 = getResultObj(testcase8);
 const test9 = getResultObj(testcase9);
 const test10 = getResultObj(testcase10);
 
-console.log(JSON.stringify(test8, null, 2));
+console.log(JSON.stringify(test10, null, 2));
