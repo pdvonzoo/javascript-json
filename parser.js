@@ -94,6 +94,16 @@ function getNullValInArray(value, result) {
   }
 }
 
+// arrKey 값을 세팅
+function setArrKeyVal(value, arrKey, result) {
+  if (isAllBracket(value) || isCloseBracket(value)) {
+    return arrKey = 0;
+  } else if (isSquareBracket(value)) {
+    return arrKey = result.length - 1;
+  }
+}
+
+// 해당 값을 result 배열에 넣고 반환
 function getResultArr(value, arrKey, result) {
   if (isAllBracket(value)) {
     result.push(new Array);
@@ -120,6 +130,11 @@ function parsingObj(splitData) {
 
     getNullValInArray(value, result);
 
+    /*
+      TODO:
+        > parsingObj 함수 크기 줄이기 []
+        > 괄호별 중복 문제 refactoring 진행하기 []
+    */ 
     if (isNoneArrKey(value, arrKey)) {
       // array Token을 가지고 있을 경우( '[', ']', '[ ]') 
       if (isHaveStrBracket(value)) {
@@ -144,7 +159,7 @@ function parsingObj(splitData) {
           arrKey = 0;
         } else if (isCloseBracket(value)) {
           getResultArr(value, arrKey, result);
-          arrKey = 0;
+          arrKey = 0; 
         } else if (isSquareBracket(value)) {
           result.push(new Array);
           arrKey = result.length - 1;
