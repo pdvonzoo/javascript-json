@@ -70,13 +70,14 @@ function isNoneArrKey(value, arrKey) {
 }
 
 // bracket Check test 함수
-function isHaveStrArr(value, arrKey, result) {
-  if (value.match(/^(?=.*\[)(?=.*\]).*$/m)) {
-    arrKey = result.length - 1;
-    console.log(value, 'all Bracket', arrKey);
-  } else if (value.match(/^(?=.*\[)|(?=.*\]).*$/m)) {
-    console.log(value, 'either Bracket');
-    console.log(result)
+function isHaveStrBracket(value) {
+  return value.match(/^(?=.*\[)|(?=.*\]).*$/m) || value.match(/^(?=.*\[)(?=.*\]).*$/m);
+}
+
+function getNullValInArray(value, result){
+  if (value.match(/^(?=.*\[)(?!.*[0-9])(?=.*\]).*$/m)){
+    const emptyArr = result.push(new Array);
+    return emptyArr;
   }
 }
 
@@ -88,10 +89,10 @@ function parsingObj(splitData) {
   for (let key in splitData) {
     const value = splitData[key];
 
-    if (value.match(/^(?=.*\[)(?!.*[0-9])(?=.*\]).*$/m)) result.push(new Array);
+    getNullValInArray(value, result);
     if (isNoneArrKey(value, arrKey)) {
       // array Token을 가지고 있을 경우( '[', ']', '[ ]') 
-      if (value.match(/^(?=.*\[)|(?=.*\]).*$/m)) {
+      if (isHaveStrBracket(value)) {
         if (value.match(/^(?=.*\[)(?=.*\]).*$/m)) {
           result.push(new Array);
           arrKey = result.length - 1;
@@ -112,7 +113,7 @@ function parsingObj(splitData) {
         isNoneArrStrOfArrKey(value, arrKey, result);
       }
     } else if (isHaveArrKey(value, arrKey)) {
-      if (value.match(/^(?=.*\[)|(?=.*\]).*$/m)) {
+      if (isHaveStrBracket(value)) {
         if (value.match(/^(?=.*\[)(?=.*\]).*$/m)) {
           result.push(new Array);
           arrKey = result.length - 1;
@@ -206,8 +207,8 @@ const testcase4 = '[1,3,[1,2],4,[5,6],7]';
 const testcase5 = '[[1123, 354445324328103829],[1,2],4,[5,6]]';
 const testcase6 = '12345';
 const testcase7 = '[[]]';
-const testcase8 = '[[],[]]'
-const testcase9 = '[[1],[2]]';
+const testcase8 = '[[],[],4,[6,5,87],[78]]';
+const testcase9 = '[[1],[2,3]]';
 const testcase10 = '[11, [22], 33]';
 
 // const errorcase1 = '[3213, 2';
@@ -230,14 +231,4 @@ const test8 = getResultObj(testcase8);
 const test9 = getResultObj(testcase9);
 const test10 = getResultObj(testcase10);
 
-console.log(JSON.stringify(test1, null, 2));
-// console.log(test1);
-// console.log(test2);
-// console.log(test3);
-// console.log(test4);
-// console.log(test5);
-// console.log(test6);
-// console.log(test7);
-// console.log(test8);
-// console.log(test9);
-// console.log(test10);
+console.log(JSON.stringify(test8, null, 2));
