@@ -13,7 +13,8 @@ const ERROR_MSG = {
 };
 
 // block error 확인
-function getCheckErrorBlock(arrWord) {
+// checkBlockError / get not good words
+function checkBlockError(arrWord) {
   let arrBracket = 0;
   const splitWord = arrWord.split('');
 
@@ -138,10 +139,7 @@ function parsingObj(splitData) {
     if (isNoneArrKey(value, arrKey)) {
       // array Token을 가지고 있을 경우( '[', ']', '[ ]') 
       if (isHaveStrBracket(value)) {
-        if (isAllBracket(value)) {
-          getResultArr(value, arrKey, result);
-          arrKey = 0;
-        } else if (isCloseBracket(value)) {
+        if (isAllBracket(value) || isCloseBracket(value)) {
           getResultArr(value, arrKey, result);
           arrKey = 0;
         } else if (isSquareBracket(value)) {
@@ -154,12 +152,9 @@ function parsingObj(splitData) {
       }
     } else if (isHaveArrKey(value, arrKey)) {
       if (isHaveStrBracket(value)) {
-        if (isAllBracket(value)) {
+        if (isAllBracket(value) || isCloseBracket(value)) {
           getResultArr(value, arrKey, result);
           arrKey = 0;
-        } else if (isCloseBracket(value)) {
-          getResultArr(value, arrKey, result);
-          arrKey = 0; 
         } else if (isSquareBracket(value)) {
           result.push(new Array);
           arrKey = result.length - 1;
@@ -174,15 +169,11 @@ function parsingObj(splitData) {
 }
 
 function getArrayParser(str) {
-  const checkErrorBracket = getCheckErrorBlock(str);
-
-  if (checkErrorBracket === true) {
     const filteringData = getFilterData(str);
     const splitData = filteringData.split(',');
 
     const resultObj = parsingObj(splitData);
     return resultObj;
-  }
 }
 
 function getChildOfChildObj(value, child) {
@@ -224,7 +215,7 @@ function getChildTokenType(strData) {
 
 // 오류 check parser로 보냄. 
 function getResultObj(word) {
-  const checkArr = getCheckErrorBlock(word);
+  const checkArr = checkBlockError(word);
 
   if (checkArr === true) {
     const parserObjResult = {
@@ -267,3 +258,4 @@ const test9 = getResultObj(testcase9);
 const test10 = getResultObj(testcase10);
 
 console.log(JSON.stringify(test10, null, 2));
+// 조건문 이름 / 하위함수 나누기를 잘하기..(코드리뷰)
