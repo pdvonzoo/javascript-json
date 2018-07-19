@@ -12,8 +12,36 @@ const ERROR_MSG = {
   TYPE_ERROR: 'TYPE ERROR'
 };
 
-// block error 확인
-// checkBlockError / get not good words
+class dataStuctureObj {
+  constructor(type, value, child) {
+    this.type = type;
+    this.value = value;
+    this.child = child;
+  }
+
+  getChild() {
+    this.childArr = [];
+  }
+}
+
+
+class Stack {
+  constructor() {
+    this.list = [];
+    this.top = 0;
+  }
+
+  stackPush(data) {
+    if (data) this.list[this.top++].push(data);
+    else this.list.push(new Array);
+  }
+
+  stackPop() {
+    return this.list[--this.top];
+  }
+
+}
+
 function checkBlockError(arrWord) {
   let arrBracket = 0;
   const splitWord = arrWord.split('');
@@ -25,155 +53,39 @@ function checkBlockError(arrWord) {
       arrBracket--;
     }
   });
-
   if (arrBracket === 0) {
     return true;
   }
   throw new Error(ERROR_MSG.BLOCK_ERROR);
 }
 
-// string token에 불필요한 조건 데이터 filter
-function getFilterData(data) {
-  let delOutsideArr = '';
-  let splitData = '';
+function parsingData(strData) {
+  let stackArr = [];
+  let temp = '';
 
-  if (data.match(/(\[|\])/)) {
-    delOutsideArr = data.substring(1, data.length - 1);
-    splitData = delOutsideArr.split('');
-  } else {
-    splitData = data.split('');
-  }
-  let filteringData = splitData.filter(element => {
-    return element !== ' ';
-  }).reduce((accData, index) => {
-    return accData + index;
-  });
-  return filteringData;
-}
+  const openBrackets = ['['];
+  const closeBrackets = [']'];
 
-// 배열 기호 token이 섞이지 않은 아닌 순수한 숫자 token 
-function isNoneArrStrOfArrKey(value, arrKey, result) {
-  if (value.match(/^(?!.*\[)(?!.*\]).*$/m) && arrKey === 0) {
-    result.push(value);
-  } else if (value.match(/^(?!.*\[)(?!.*\]).*$/m) && arrKey > 0) {
-    result[arrKey].push(value);
-  }
-  return result;
-}
+  for (let key in strData) {
+    const value = strData[key];
 
-// arrKey를 가지고 있는가 아닌가?
-function isHaveArrKey(value, arrKey) {
-  return arrKey > 0 && value.match(/[0-9]/);
-}
-
-function isNoneArrKey(value, arrKey) {
-  return arrKey === 0 && value.match(/[0-9]/);
-}
-
-// 괄호 token 조건 함수
-function isAllBracket(value) {
-  return value.match(/^(?=.*\[)(?=.*\]).*$/m);
-}
-
-function isSquareBracket(value) {
-  return value.match(/(\[)/);
-}
-
-function isCloseBracket(value) {
-  return value.match(/(\])/);
-}
-
-// bracket Check test 함수
-function isHaveStrBracket(value) {
-  return value.match(/^(?=.*\[)|(?=.*\]).*$/m) || value.match(/^(?=.*\[)(?=.*\]).*$/m);
-}
-
-function getNullValInArray(value, result) {
-  if (value.match(/^(?=.*\[)(?!.*[0-9])(?=.*\]).*$/m)) {
-    const emptyArr = result.push(new Array);
-    return emptyArr;
-  }
-}
-
-// arrKey 값을 세팅
-function setArrKeyVal(value, arrKey, result) {
-  if (isAllBracket(value) || isCloseBracket(value)) {
-    return arrKey = 0;
-  } else if (isSquareBracket(value)) {
-    return arrKey = result.length - 1;
-  }
-}
-
-// 해당 값을 result 배열에 넣고 반환
-function getResultArr(value, arrKey, result) {
-  if (isAllBracket(value)) {
-    result.push(new Array);
-    arrKey = result.length - 1;
-    const delAllBracket = value.substring(1, value.length - 1);
-    result[arrKey].push(delAllBracket);
-  } else if (isCloseBracket(value)) {
-    const delCloseBracket = value.substr(value, value.length - 1);
-    result[arrKey].push(delCloseBracket);
-  } else if (isSquareBracket(value)) {
-    const delSquareBracket = value.substring(1);
-    result[arrKey].push(delSquareBracket);
-  }
-  return result;
-}
-
-// pasing시 조건
-function parsingObj(splitData) {
-  let result = [];
-  let arrKey = 0;
-
-  for (let key in splitData) {
-    const value = splitData[key];
-
-    getNullValInArray(value, result);
-
-    /*
-      TODO:
-        > parsingObj 함수 크기 줄이기 []
-        > 괄호별 중복 문제 refactoring 진행하기 []
-    */ 
-    if (isNoneArrKey(value, arrKey)) {
-      // array Token을 가지고 있을 경우( '[', ']', '[ ]') 
-      if (isHaveStrBracket(value)) {
-        if (isAllBracket(value) || isCloseBracket(value)) {
-          getResultArr(value, arrKey, result);
-          arrKey = 0;
-        } else if (isSquareBracket(value)) {
-          result.push(new Array);
-          arrKey = result.length - 1;
-          getResultArr(value, arrKey, result);
-        }
-      } else {
-        isNoneArrStrOfArrKey(value, arrKey, result);
-      }
-    } else if (isHaveArrKey(value, arrKey)) {
-      if (isHaveStrBracket(value)) {
-        if (isAllBracket(value) || isCloseBracket(value)) {
-          getResultArr(value, arrKey, result);
-          arrKey = 0;
-        } else if (isSquareBracket(value)) {
-          result.push(new Array);
-          arrKey = result.length - 1;
-          getResultArr(value, arrKey, result);
-        }
-      } else {
-        isNoneArrStrOfArrKey(value, arrKey, result);
-      }
+    // '[' 가 있으면 배열 생성 결과 배열에 push
+    if (openBrackets.indexOf(value) > -1) { 
+      stackArr.push(new Array);
+    } else if (closeBrackets.indexOf(value) > -1) { 
+      // ']' 가 있으면 결과 배열에서 pop해 빼고 마지막 배열의 끝에 push 
+      temp !== '' ? stackArr[stackArr.length - 1].push(temp) : null;
+      temp = stackArr.pop();
+    } else if (value === ',') { 
+      // ',' 가 있으면 합쳐진 문자열을 결과 배열에 push 
+      temp !== '' ? stackArr[stackArr.length - 1].push(temp) : null;
+      temp = '';
+    } else { 
+      //  ',' 가 보이기 전의 token값을 하나씩 합쳐놓게 함
+      temp = temp + value.trim();
     }
   }
-  return result;
-}
-
-function getArrayParser(str) {
-    const filteringData = getFilterData(str);
-    const splitData = filteringData.split(',');
-
-    const resultObj = parsingObj(splitData);
-    return resultObj;
+  return temp;
 }
 
 function getChildOfChildObj(value, child) {
@@ -201,9 +113,7 @@ function getChildObj(value, child) {
 }
 
 // child data Type 분류
-function getChildTokenType(strData) {
-  const parsing = getArrayParser(strData);
-
+function getChildTokenType(parsing) {
   let child = [];
 
   for (let value of parsing) {
@@ -213,16 +123,15 @@ function getChildTokenType(strData) {
   return child;
 }
 
-// 오류 check parser로 보냄. 
-function getResultObj(word) {
-  const checkArr = checkBlockError(word);
 
-  if (checkArr === true) {
-    const parserObjResult = {
-      type: dataType.array,
-      child: getChildTokenType(word),
-    };
-    return parserObjResult;
+function parsingObj(strData) {
+  const checkError = checkBlockError(strData);
+
+  if (checkError === true) {
+    // const splitData = strData.split('');
+    const result = parsingData(strData);
+    // const test = new getDataStuctureObj('Array', 'ArrayObject', result);
+    return result;
   }
 }
 
@@ -230,32 +139,36 @@ const testcase1 = '[1, 2,[3,4, 5]]';
 const testcase2 = '[12, [14, 55], 15]';
 const testcase3 = '[1, [55, 3],[]]';
 const testcase4 = '[1,3,[1,2],4,[5,6],7]';
-const testcase5 = '[[1123, 354445324328103829],[1,2],4,[5,6]]';
+const testcase5 = '[[1123, 354445324328103829,[1, 2, [3],4,5,6]],[1,2],4,[5,6]]';
 const testcase6 = '12345';
-const testcase7 = '[[]]';
+const testcase7 = '[[[]]]';
 const testcase8 = '[[],[],4,[6,5,87],[78]]';
 const testcase9 = '[[1],[2,3]]';
 const testcase10 = '[11, [22], 33]';
+const testcase11 = '[[[[1,[],2]],[]]]';
+const testcase12 = '[1, [[2]]]';
+const testcase13 = '[123,[22,23,[11,[112233],112],55],33]';
 
 // const errorcase1 = '[3213, 2';
 // const errorcase2 = ']3213, 2[';
 // const errorcase3 = '[1, 55, 3]]';
 
-// const testcase10 = '[1, [[2]]]';
-// const testcase11 = '[123,[22,23,[11,[112233],112],55],33]';
 
-const test1 = getResultObj(testcase1);
-const test2 = getResultObj(testcase2);
-const test3 = getResultObj(testcase3);
+// const test1 = parsingObj(testcase7);
+// const test2 = parsingObj(testcase2);
+// const test3 = parsingObj(testcase3);
 
-const test4 = getResultObj(testcase4);
-const test5 = getResultObj(testcase5);
-const test6 = getResultObj(testcase6);
+// const test4 = parsingObj(testcase4);
+// const test5 = parsingObj(testcase5);
+// const test6 = parsingObj(testcase6);
 
-const test7 = getResultObj(testcase7);
-const test8 = getResultObj(testcase8);
-const test9 = getResultObj(testcase9);
-const test10 = getResultObj(testcase10);
+// const test7 = parsingObj(testcase7);
+// const test8 = parsingObj(testcase8);
+// const test9 = parsingObj(testcase9);
 
-console.log(JSON.stringify(test10, null, 2));
-// 조건문 이름 / 하위함수 나누기를 잘하기..(코드리뷰)
+// const test10 = parsingObj(testcase10);
+const test11 = parsingObj(testcase11);
+// const test12 = parsingObj(testcase12);
+// const test13 = parsingObj(testcase13);
+
+console.log(JSON.stringify(test11, null, 2));
