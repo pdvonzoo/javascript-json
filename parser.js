@@ -12,18 +12,21 @@ const ERROR_MSG = {
   TYPE_ERROR: 'TYPE ERROR'
 };
 
-class dataStuctureObj {
+class DataStuctureObj {
   constructor(type, value, child) {
     this.type = type;
     this.value = value;
     this.child = child;
   }
 
-  getChild() {
+  getChild(data){
     this.childArr = [];
+    this.childArr.push(data);
   }
 }
-
+const test = new DataStuctureObj(dataType.array, dataType.arrayObj);
+console.log(test.getChild(new DataStuctureObj(dataType.array, dataType.arrayObj, [{type: dataType.number, value: 1}])));
+console.log(test.childArr)
 
 class Stack {
   constructor() {
@@ -32,60 +35,16 @@ class Stack {
   }
 
   stackPush(data) {
+    const checkType = Object.prototype.toString.call(data);
+    if (checkType === '[object Array]') this.list.push(new Array);
+    console.log(this.list)
     if (data) this.list[this.top++].push(data);
-    else this.list.push(new Array);
   }
 
   stackPop() {
     return this.list[--this.top];
   }
 
-}
-
-function checkBlockError(arrWord) {
-  let arrBracket = 0;
-  const splitWord = arrWord.split('');
-
-  splitWord.forEach(matchArrVal => {
-    if (matchArrVal === '[') arrBracket++;
-    if (matchArrVal === ']') {
-      if (arrBracket === 0) throw new Error(ERROR_MSG.BLOCK_ERROR);
-      arrBracket--;
-    }
-  });
-  if (arrBracket === 0) {
-    return true;
-  }
-  throw new Error(ERROR_MSG.BLOCK_ERROR);
-}
-
-function parsingData(strData) {
-  let stackArr = [];
-  let temp = '';
-
-  const openBrackets = ['['];
-  const closeBrackets = [']'];
-
-  for (let key in strData) {
-    const value = strData[key];
-
-    // '[' 가 있으면 배열 생성 결과 배열에 push
-    if (openBrackets.indexOf(value) > -1) { 
-      stackArr.push(new Array);
-    } else if (closeBrackets.indexOf(value) > -1) { 
-      // ']' 가 있으면 결과 배열에서 pop해 빼고 마지막 배열의 끝에 push 
-      temp !== '' ? stackArr[stackArr.length - 1].push(temp) : null;
-      temp = stackArr.pop();
-    } else if (value === ',') { 
-      // ',' 가 있으면 합쳐진 문자열을 결과 배열에 push 
-      temp !== '' ? stackArr[stackArr.length - 1].push(temp) : null;
-      temp = '';
-    } else { 
-      //  ',' 가 보이기 전의 token값을 하나씩 합쳐놓게 함
-      temp = temp + value.trim();
-    }
-  }
-  return temp;
 }
 
 function getChildOfChildObj(value, child) {
@@ -124,20 +83,62 @@ function getChildTokenType(parsing) {
 }
 
 
+function checkBlockError(arrWord) {
+  let arrBracket = 0;
+  const splitWord = arrWord.split('');
+
+  splitWord.forEach(matchArrVal => {
+    if (matchArrVal === '[') arrBracket++;
+    if (matchArrVal === ']') {
+      if (arrBracket === 0) throw new Error(ERROR_MSG.BLOCK_ERROR);
+      arrBracket--;
+    }
+  });
+  if (arrBracket === 0) {
+    return true;
+  }
+  throw new Error(ERROR_MSG.BLOCK_ERROR);
+}
+
+// parsing 기능 
+function parsingData(strData) {
+  let stack = new Stack();
+  let stackArr = [];
+  let temp = '';
+
+  const openBrackets = ['['];
+  const closeBrackets = [']'];
+
+  for (let key in strData) {
+    const value = strData[key];
+
+    if (openBrackets.indexOf(value) > -1) { 
+      stackArr.push(new Array);
+    } else if (closeBrackets.indexOf(value) > -1) { 
+      temp !== '' ? stackArr[stackArr.length - 1].push(temp) : null;
+      temp = stackArr.pop();
+    } else if (value === ',') { 
+      temp !== '' ? stackArr[stackArr.length - 1].push(temp) : null;
+      temp = '';
+    } else { 
+      temp = temp + value.trim();
+    }
+  }
+  return temp;
+}
+
 function parsingObj(strData) {
   const checkError = checkBlockError(strData);
 
   if (checkError === true) {
-    // const splitData = strData.split('');
     const result = parsingData(strData);
-    // const test = new getDataStuctureObj('Array', 'ArrayObject', result);
     return result;
   }
 }
 
 const testcase1 = '[1, 2,[3,4, 5]]';
 const testcase2 = '[12, [14, 55], 15]';
-const testcase3 = '[1, [55, 3],[]]';
+const testcase3 = '[1, [55, [3]],[]]';
 const testcase4 = '[1,3,[1,2],4,[5,6],7]';
 const testcase5 = '[[1123, 354445324328103829,[1, 2, [3],4,5,6]],[1,2],4,[5,6]]';
 const testcase6 = '12345';
@@ -149,26 +150,32 @@ const testcase11 = '[[[[1,[],2]],[]]]';
 const testcase12 = '[1, [[2]]]';
 const testcase13 = '[123,[22,23,[11,[112233],112],55],33]';
 
-// const errorcase1 = '[3213, 2';
-// const errorcase2 = ']3213, 2[';
-// const errorcase3 = '[1, 55, 3]]';
+const errorcase1 = '[3213, 2';
+const errorcase2 = ']3213, 2[';
+const errorcase3 = '[1, 55, 3]]';
+const errorcase4 = '[[[p, []]]';
 
 
-// const test1 = parsingObj(testcase7);
+// const test1 = parsingObj(testcase1);
 // const test2 = parsingObj(testcase2);
 // const test3 = parsingObj(testcase3);
 
-// const test4 = parsingObj(testcase4);
-// const test5 = parsingObj(testcase5);
-// const test6 = parsingObj(testcase6);
+const test4 = parsingObj(testcase4);
+const test5 = parsingObj(testcase5);
+const test6 = parsingObj(testcase6);
 
-// const test7 = parsingObj(testcase7);
-// const test8 = parsingObj(testcase8);
-// const test9 = parsingObj(testcase9);
+const test7 = parsingObj(testcase7);
+const test8 = parsingObj(testcase8);
+const test9 = parsingObj(testcase9);
 
-// const test10 = parsingObj(testcase10);
+const test10 = parsingObj(testcase10);
 const test11 = parsingObj(testcase11);
-// const test12 = parsingObj(testcase12);
-// const test13 = parsingObj(testcase13);
+const test12 = parsingObj(testcase12);
+const test13 = parsingObj(testcase13);
 
-console.log(JSON.stringify(test11, null, 2));
+// const errorTest1 = parsingObj(errorcase1); 
+// const errorTest2 = parsingObj(errorcase2); 
+// const errorTest3 = parsingObj(errorcase3); 
+// const errorTest4 = parsingObj(errorcase4); 
+
+console.log(JSON.stringify(test13, null, 2));
