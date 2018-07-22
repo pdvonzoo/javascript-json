@@ -12,52 +12,39 @@ const ERROR_MSG = {
   TYPE_ERROR: 'TYPE ERROR'
 };
 
-class DataTypeCheck {
+class Stack {
+  constructor() {
+    this.stack = [];
+  }
+
+  pushStack(data) {
+    this.stack[this.stack.length - 1].push(data);
+    console.log(this.stack)
+  }
+}
+
+class DataStructure {
   constructor(type, value, child) {
     this.type = type;
     this.value = value;
     this.child = child;
+    this.stack = [];
   }
 
-  // getChildOfChildType(value, child) {
-  //   let childOfChild = {
-  //     type: 'Array',
-  //     value: 'ArrayObject',
-  //     child: []
-  //   };
-  //   value.forEach(value => {
-  //     if (value.length === 0) return dataType.null;
-  //     childOfChild.child.push({
-  //       type: dataType.number,
-  //       value: value
-  //     });
-  //   });
-  //   return child.push(childOfChild);
-  // }
+  pushChildArr(value) {
+    this.child.push(value);
+  }
 
-  // getChildValue(value) {
-  //   if (value.length === 0) return dataType.null;
-  //   let childData = {
-  //     type: dataType.number,
-  //     value: value
-  //   };
-  //   return childData;
-  // }
+  isArray(value) {
+    const isArray = Object.prototype.toString.call(value);
+    return isArray === '[object Array]';
+  }
 
-  // isArray(value) {
-  //   const isArray = Object.prototype.toString.call(value);
-  //   return isArray === '[object Array]';
-  // }
-
-  // checkChildValType(parsingData) {
-  //   let child = [];
-  //   // console.log(parsingData)
-
-  //   for (let value of parsingData) {
-  //     (this.isArray(value)) ? this.getChildOfChildType(value, child): this.getChildValue(value);
-  //   }
-  //   return child;
-  // }
+  test(value) {
+    value.forEach(element => {
+      (this.isArray(element)) ? console.log(dataType.array, element): console.log(dataType.number, element);
+    });
+  }
 }
 
 function checkBlockError(arrWord) {
@@ -94,18 +81,23 @@ function isCloseBrackets(value) {
 
 // parsing 기능
 function stackData(strData) {
-  const checkType = new DataTypeCheck();
   const stackArr = [];
+  const stack = new Stack();
   let temp = '';
 
   for (let key in strData) {
     const value = strData[key];
 
     if (isOpenBrackets(value)) {
-      stackArr.push(new Array);
+      stackArr.push(new DataStructure(dataType.array, dataType.arrayObj, new Array));
+      // stack.pushStack(new DataStructure(dataType.array, dataType.arrayObj, new Array));
     } else if (isCommaOrCloseBrackets(value)) {
-      temp !== '' ? stackArr[stackArr.length - 1].push(new DataTypeCheck(dataType.array, dataType.arrayObj, temp)) : null;
+      temp !== '' ? stackArr[stackArr.length - 1].push(temp) : null;
       temp = '';
+      /*
+      TODO:
+      [] - token 타입이 숫자를 제외한 배열 일때 type: Array, value: ArrayObject를 어떻게 출력 할지 고민..
+      */
       if (isCloseBrackets(value)) temp = stackArr.pop();
     } else {
       temp = temp + value.trim();
@@ -118,13 +110,12 @@ function parsingObj(strData) {
   const checkError = checkBlockError(strData);
 
   if (checkError === true) {
-    const checkType = new DataTypeCheck();
-    const stack = stackData(strData);
+    const test = new DataStructure();
 
     const parsingResult = {
       type: dataType.array,
-      // child: checkType.checkChildValType(stack),
-      child: stack
+      // child: test.test(stackData(strData)),
+      child: stackData(strData)
     };
     return parsingResult;
   }
@@ -144,10 +135,10 @@ const testcase11 = '[[[[1,[],2]],[]]]';
 const testcase12 = '[1, [[2]]]';
 const testcase13 = '[123,[22,23,[11,[112233],112],55],33]';
 
-// const errorcase1 = '[3213, 2';
-// const errorcase2 = ']3213, 2[';
-// const errorcase3 = '[1, 55, 3]]';
-// const errorcase4 = '[[[p, []]]';
+const errorcase1 = '[3213, 2';
+const errorcase2 = ']3213, 2[';
+const errorcase3 = '[1, 55, 3]]';
+const errorcase4 = '[[[p, []]]';
 
 // const test1 = parsingObj(testcase1);
 // const test2 = parsingObj(testcase2);
