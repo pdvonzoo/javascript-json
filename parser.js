@@ -12,6 +12,34 @@ const ERROR_MSG = {
   TYPE_ERROR: 'TYPE ERROR'
 };
 
+class DataStucture {
+  constructor(type, value) {
+    this.type = type;
+    this.value = value;
+    this.child = [];
+  }
+}
+
+class Stack {
+  constructor() {
+    this.stack = [];
+  }
+
+  addData(data) {
+    this.stack.push(data);
+  }
+
+  popData() {
+    return this.stack.pop();
+  }
+
+  pushChild(child) {
+    if (this.stack.length === 0) return child;
+    let lastDataStructure = this.stack[this.stack.length - 1];
+    lastDataStructure.child.push(child);
+  }
+}
+
 function checkBlockError(arrWord) {
   let BracketPoint = 0;
   const splitWord = arrWord.split('');
@@ -44,56 +72,20 @@ function isCloseBrackets(value) {
   return closeBrackets.indexOf(value) > -1;
 }
 
-class DataStucture {
-  constructor(type, value) {
-    this.type = type;
-    this.value = value;
-    this.child = [];
-  }
-}
-
-class Stack {
-  constructor() {
-    this.stack = [];
-  }
-
-  addData(data) {
-    this.stack.push(data);
-  }
-
-  popData() {
-    return this.stack.pop();
-  }
-
-  pushChild(child) {
-    this.stack[this.stack.length - 1].push(child);
-  }
-
-  transferChild(child) {
-    const lastStack = this.stack.pop();
-    lastStack.child.push(child);
-    return lastStack;
-  }
-}
-
 // parsing 기능
 function stackData(strData) {
   const stack = new Stack();
-  // const stackArr = [];
   let temp = '';
-
-  // stack.buildStack();
 
   for (let key in strData) {
     const value = strData[key];
 
     if (isOpenBrackets(value)) {
       stack.addData(new DataStucture(dataType.array, dataType.arrayObj));
-
     } else if (isCommaOrCloseBrackets(value)) {
-      temp !== '' ? stack.addData(new DataStucture(dataType.number, temp)) : null;
+      temp ? stack.pushChild(new DataStucture(dataType.number, temp)) : null;
       temp = '';
-      if (isCloseBrackets(value)) temp = stack.transferChild(stack.popData());
+      if (isCloseBrackets(value)) temp = stack.pushChild(stack.popData());
     } else {
       temp = temp + value.trim();
     }
@@ -105,13 +97,9 @@ function parsingObj(strData) {
   const checkError = checkBlockError(strData);
 
   if (checkError === true) {
-    // const checkType = checkChildValType(stackData(strData));
-    const test = stackData(strData)
-
     const parsingResult = {
       type: dataType.array,
-      // child: checkType
-      child: test
+      child: stackData(strData)
     };
     return parsingResult;
   }
@@ -138,23 +126,23 @@ const errorcase2 = ']3213, 2[';
 const errorcase3 = '[1, 55, 3]]';
 const errorcase4 = '[[[p, []]]';
 
-// const test1 = parsingObj(testcase1);
-// const test2 = parsingObj(testcase2);
-// const test3 = parsingObj(testcase3);
+const test1 = parsingObj(testcase1);
+const test2 = parsingObj(testcase2);
+const test3 = parsingObj(testcase3);
 
-// const test4 = parsingObj(testcase4);
-// const test5 = parsingObj(testcase5);
-// const test6 = parsingObj(testcase6);
+const test4 = parsingObj(testcase4);
+const test5 = parsingObj(testcase5);
+const test6 = parsingObj(testcase6);
 
-// const test7 = parsingObj(testcase7);
-// const test8 = parsingObj(testcase8);
-// const test9 = parsingObj(testcase9);
+const test7 = parsingObj(testcase7);
+const test8 = parsingObj(testcase8);
+const test9 = parsingObj(testcase9);
 
-// const test10 = parsingObj(testcase10);
-// const test11 = parsingObj(testcase11);
-// const test12 = parsingObj(testcase12);
+const test10 = parsingObj(testcase10);
+const test11 = parsingObj(testcase11);
+const test12 = parsingObj(testcase12);
 
-// const test13 = parsingObj(testcase13);
+const test13 = parsingObj(testcase13);
 const test14 = parsingObj(testcase14);
 
 // const errorTest1 = parsingObj(errorcase1);
