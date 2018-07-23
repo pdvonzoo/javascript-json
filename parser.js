@@ -1,3 +1,11 @@
+/*
+  1. 중첩된 괄호가 비어있거나 부족한 괄호가 있으면 에러를 출력 올바르면 true가 반환되어 stackData 함수 실행
+  2. 괄호가 발견되면 Stack Class에 DataStructure Class에 객체를 Stack에 쌓는다
+  3. ','와 ']' 괄호가 조건이 되고 temp 변수에 데이터가 있다면,
+      stack의 마지막 데이터의 child에 데이터와 데이터 타입 객체를 push 하고 초기화 
+  4. ']' 괄호가 조건이 되면 stack의 마지막 데이터를 pop하고 마지막 stack에 있는 child에 push 반복
+*/
+
 const dataType = {
   array: 'Array',
   object: 'Object',
@@ -12,7 +20,7 @@ const ERROR_MSG = {
   TYPE_ERROR: 'TYPE ERROR'
 };
 
-class DataStucture {
+class DataStructure {
   constructor(type, value) {
     this.type = type;
     this.value = value;
@@ -81,9 +89,9 @@ function stackData(strData) {
     const value = strData[key];
 
     if (isOpenBrackets(value)) {
-      stack.addData(new DataStucture(dataType.array, dataType.arrayObj));
+      stack.addData(new DataStructure(dataType.array, dataType.arrayObj));
     } else if (isCommaOrCloseBrackets(value)) {
-      temp ? stack.pushChild(new DataStucture(dataType.number, temp)) : null;
+      temp ? stack.pushChild(new DataStructure(dataType.number, temp)) : null;
       temp = '';
       if (isCloseBrackets(value)) temp = stack.pushChild(stack.popData());
     } else {
