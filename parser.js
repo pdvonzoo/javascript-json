@@ -12,41 +12,6 @@ const ERROR_MSG = {
   TYPE_ERROR: 'TYPE ERROR'
 };
 
-class Stack {
-  constructor() {
-    this.stack = [];
-  }
-
-  pushStack(data) {
-    this.stack[this.stack.length - 1].push(data);
-    console.log(this.stack)
-  }
-}
-
-class DataStructure {
-  constructor(type, value, child) {
-    this.type = type;
-    this.value = value;
-    this.child = child;
-    this.stack = [];
-  }
-
-  pushChildArr(value) {
-    this.child.push(value);
-  }
-
-  isArray(value) {
-    const isArray = Object.prototype.toString.call(value);
-    return isArray === '[object Array]';
-  }
-
-  test(value) {
-    value.forEach(element => {
-      (this.isArray(element)) ? console.log(dataType.array, element): console.log(dataType.number, element);
-    });
-  }
-}
-
 function checkBlockError(arrWord) {
   let BracketPoint = 0;
   const splitWord = arrWord.split('');
@@ -79,26 +44,56 @@ function isCloseBrackets(value) {
   return closeBrackets.indexOf(value) > -1;
 }
 
+class DataStucture {
+  constructor(type, value) {
+    this.type = type;
+    this.value = value;
+    this.child = [];
+  }
+}
+
+class Stack {
+  constructor() {
+    this.stack = [];
+  }
+
+  addData(data) {
+    this.stack.push(data);
+  }
+
+  popData() {
+    return this.stack.pop();
+  }
+
+  pushChild(child) {
+    this.stack[this.stack.length - 1].push(child);
+  }
+
+  transferChild(child) {
+    const lastStack = this.stack.pop();
+    lastStack.child.push(child);
+    return lastStack;
+  }
+}
+
 // parsing 기능
 function stackData(strData) {
-  const stackArr = [];
   const stack = new Stack();
+  // const stackArr = [];
   let temp = '';
+
+  // stack.buildStack();
 
   for (let key in strData) {
     const value = strData[key];
 
     if (isOpenBrackets(value)) {
-      stackArr.push(new DataStructure(dataType.array, dataType.arrayObj, new Array));
-      // stack.pushStack(new DataStructure(dataType.array, dataType.arrayObj, new Array));
+      stack.addData(new DataStucture(dataType.array, dataType.arrayObj));
+
     } else if (isCommaOrCloseBrackets(value)) {
-      temp !== '' ? stackArr[stackArr.length - 1].push(temp) : null;
+      temp !== '' ? stack.addData(new DataStucture(dataType.number, temp)) : null;
       temp = '';
-      /*
-      TODO:
-      [] - token 타입이 숫자를 제외한 배열 일때 type: Array, value: ArrayObject를 어떻게 출력 할지 고민..
-      */
-      if (isCloseBrackets(value)) temp = stackArr.pop();
+      if (isCloseBrackets(value)) temp = stack.transferChild(stack.popData());
     } else {
       temp = temp + value.trim();
     }
@@ -110,12 +105,13 @@ function parsingObj(strData) {
   const checkError = checkBlockError(strData);
 
   if (checkError === true) {
-    const test = new DataStructure();
+    // const checkType = checkChildValType(stackData(strData));
+    const test = stackData(strData)
 
     const parsingResult = {
       type: dataType.array,
-      // child: test.test(stackData(strData)),
-      child: stackData(strData)
+      // child: checkType
+      child: test
     };
     return parsingResult;
   }
@@ -129,11 +125,13 @@ const testcase5 = '[[1123, 354445324328103829,[1, 2, [3],4,5,6]],[1,2],4,[5,6]]'
 const testcase6 = '12345';
 const testcase7 = '[[[]]]';
 const testcase8 = '[[],[],4,[6,5,87],[78]]';
-const testcase9 = '[[1],[2,3]]';
+const testcase9 = '[[1],[[2],3]]';
 const testcase10 = '[11, [22], 33]';
 const testcase11 = '[[[[1,[],2]],[]]]';
 const testcase12 = '[1, [[2]]]';
 const testcase13 = '[123,[22,23,[11,[112233],112],55],33]';
+const testcase14 = '[[[[12]]]]';
+
 
 const errorcase1 = '[3213, 2';
 const errorcase2 = ']3213, 2[';
@@ -142,7 +140,7 @@ const errorcase4 = '[[[p, []]]';
 
 // const test1 = parsingObj(testcase1);
 // const test2 = parsingObj(testcase2);
-const test3 = parsingObj(testcase3);
+// const test3 = parsingObj(testcase3);
 
 // const test4 = parsingObj(testcase4);
 // const test5 = parsingObj(testcase5);
@@ -155,11 +153,13 @@ const test3 = parsingObj(testcase3);
 // const test10 = parsingObj(testcase10);
 // const test11 = parsingObj(testcase11);
 // const test12 = parsingObj(testcase12);
+
 // const test13 = parsingObj(testcase13);
+const test14 = parsingObj(testcase14);
 
 // const errorTest1 = parsingObj(errorcase1);
 // const errorTest2 = parsingObj(errorcase2);
 // const errorTest3 = parsingObj(errorcase3);
 // const errorTest4 = parsingObj(errorcase4);
 
-console.log(JSON.stringify(test3, null, 2));
+console.log(JSON.stringify(test14, null, 2));
