@@ -1,27 +1,59 @@
 function ArrayParser(str) {
-  const result = {};
+  const trimmedStr = getTrimmedStr(str);
+  const resultObj = parseStr(trimmedStr)[0];
+  return resultObj;
+}
+
+function getTrimmedStr(str) {
+  return str.split(' ').join('');
+}
+
+function parseStr(str) {
+  let result;
   let token = '';
+  let i = 0;
 
-  const trimmedStr = str.split(' ').join('');
-
-  for (let char of trimmedStr) {
-    if (char === '[') {
-      result.type = 'array';
-      result.child = [];
-      continue;
+  while (i < str.length) {
+    if (str[i] === '[') {
+      if (result) {
+        [token, diffIdx] = parseStr(str.slice(i));
+        i += diffIdx;
+      }
+      else {
+        result = { type: 'array', child: [] };
+      }
     }
-    if (char === ',' || char === ']') {
-      let childObj = { type: 'number', value: token };
-      result.child.push(childObj);
+    else if (str[i] === ',') {
+      result.child.push(getChildObj(token));
       token = '';
-      continue;
     }
-    else token += char;
+    else if (str[i] === ']') {
+      result.child.push(getChildObj(token));
+      break;
+    }
+    else {
+      token += str[i];
+    }
+    i++;
   }
 
-  return result;
+  return [result, i];
+}
+
+function getChildObj(token) {
+  let childObj;
+  switch (typeof token) {
+    case 'string':
+      childObj = { type: 'number', value: +token };
+      break;
+    case 'object':
+      childObj = token;
+      break;
+  }
+  return childObj;
 }
 
 const str1 = '[123, 22, 33]';
-const result = ArrayParser(str1);
-console.log(result);
+const str2 = '[123,[22],33, [1,2,3,4,5]]';
+const result = ArrayParser(str2);
+console.log(JSON.stringify(result, null, 2));
