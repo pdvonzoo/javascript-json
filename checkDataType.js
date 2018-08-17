@@ -28,7 +28,8 @@ exports.CheckDataType = class CheckDataType {
   constructor() {
     this.error = new checkDataError();
   }
-  getDataType(value, stack) {
+
+  getDataStructure(value, stack) {
     if (this.isObjKeyValueType(value)) return this.getObjKeyValType(value, stack);
     if (this.isStringType(value)) return new DataStructure(dataType.string, value.trim());
     if (this.isNumberType(value)) return new DataStructure(dataType.number, value.trim());
@@ -61,7 +62,7 @@ exports.CheckDataType = class CheckDataType {
     const divideKeyValue = value.split(':');
     const objKey = divideKeyValue[0].trim();
     const objValue = divideKeyValue[1].trim();
-    this.error.checkObjKeyError(objKey)
+    this.error.checkObjKeyError(objKey);
     if (objValue === '[' || objValue === '{') {
       if (objValue === '[') stack.addData(new DataStructure(dataType.array, dataType.arrayObj, objKey));
       else stack.addData(new DataStructure(dataType.object, undefined, objKey));
