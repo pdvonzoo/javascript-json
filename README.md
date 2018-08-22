@@ -79,4 +79,90 @@ console.log(JSON.stringify(result, null, 2));
      { type: 'array', value: ArrayObject, child: [{type:'number', value:22, child:[]}] }
 ```
 
- 
+
+
+## step3. 요구사항
+
+- 무한중첩 구조도 동작하게 한다. [[[[[]]]]]
+- 배열의 원소에는 숫자타입만 존재한다.
+- 복잡한 세부로직은 함수로 분리해본다.
+- 중복된 코드역시 함수로 분리해서 일반화한다.
+- **프로그래밍 설계를 같이 PR한다.**
+- hint : 중첩문제를 풀기 위해 stack구조를 활용해서 구현할 수도 있다. 
+
+## 실행결과
+
+```
+var str = "[123,[22,23,[11,[112233],112],55],33]";
+var result = ArrayParser(str);
+console.log(JSON.stringify(result, null, 2)); 
+
+//중첩된 배열을 분석했음으로, 결과 역시 중첩된 객체형태이다.
+```
+
+
+
+## step3. 설계
+
+- str = "[1,[2,[3],4],5]"
+
+- 토큰별로 나누는 함수 생성 => 배열안에 다시 담는다 // ["1", "[", "2", "]", "[", "3", "]", "4", "]", "5"]
+
+- 반복문을 통해 각 토큰에 접근 한다.
+
+  1. 만약 숫자이면, 새로운 객체 타입을 만들어 숫자 데이터를 객체 안에 담는다.
+
+     ```
+     type: number,
+     value: 1,
+     child: []
+     ```
+
+     - 숫자 데이터가 담긴 데이터를 lastChild안에 담는다.
+
+     ```
+     type: array,
+     value: arrayObject,
+     child: [
+         type: number,
+     	value: 1,
+     	child: []
+     ]
+     ```
+
+  2. 만약 "["가 나오면, 새로운 객체 타입을 만들어 배열 데이터를 객체 안에 담는다.
+
+     ```
+     type: array,
+     value: arrayObject,
+     child: []
+     ```
+
+  3. 재귀를 통해서 lastChild에 접근하고 객체를 lastChild안에 담는다.
+
+     ```
+     type: array,
+     value: arrayObject,
+     child: [
+         type: array,
+     	value: arrayObject,
+     	child: []
+     ]
+     ```
+
+  4. 만약 "]"가 나오면 재귀를 통해, 끝에서 2번째 lastChild에 접근한다. (1번으로)
+
+     ```
+     type: array,
+     value: arrayObject,
+     child: [
+         type: array,
+     	value: arrayObject,
+     	child: [/*not here*/],
+     	// 여기에 접근
+     ]
+     ```
+
+  5. 반복문을 마치면, this.item.child인 arrayParserItem을 반환한다.
+
+     
