@@ -5,56 +5,59 @@ const ERROR_MSG = {
   MISS_COLON_ERROR: "':' 이 누락된 객체표현이 있습니다.",
   ARRAY_KEY_ERROR: "배열에는 키값을 설정할 수 없습니다.",
   TYPE_ERROR: '알 수 없는 타입입니다.',
-  COMMA_ERROR: '올바른 문자열이 아닙니다.'
+  QUOTES_ERROR: '올바른 문자열이 아닙니다.'
+}
+
+exports.ERROR_MSG = {
+  ERROR_MSG
 };
 
 exports.CheckError = class CheckError {
   checkBlockError(arrWord) {
-    let arrBracketPoint = 0;
-    let objBracketPoint = 0;
     const splitWord = arrWord.split('');
-    const requisite = arrBracketPoint === 0 && objBracketPoint === 0;
 
-    arrBracketPoint = this.checkArrBracket(splitWord, arrBracketPoint);
-    objBracketPoint = this.checkObjBracket(splitWord, objBracketPoint);
-    if (requisite) return true;
+    const isAllArrBracket = this.checkArrBracket(splitWord);
+    const isAllObjBracket = this.checkObjBracket(splitWord);
+    if (isAllArrBracket === true && isAllObjBracket === true) return true;
   }
 
-  checkArrBracket(splitWord, arrBracketPoint) {
-    const openArrCase = '[';
-    const closeArrCase = ']';
+  checkArrBracket(splitWord) {
+    const OpenArrCase = '[';
+    const CloseArrCase = ']';
+    let arrBracketPoint = 0;
 
     splitWord.forEach(matchCase => {
-      if (openArrCase === matchCase) arrBracketPoint++;
-      else if (closeArrCase === matchCase) {
+      if (OpenArrCase === matchCase) arrBracketPoint++;
+      else if (CloseArrCase === matchCase) {
         if (arrBracketPoint === 0) throw new Error(ERROR_MSG.BLOCK_ARRAY_ERROR);
         arrBracketPoint--;
       }
     });
     if (arrBracketPoint !== 0) throw new Error(ERROR_MSG.BLOCK_ARRAY_ERROR);
-    return arrBracketPoint;
+    else return true;
   }
 
-  checkObjBracket(splitWord, objBracketPoint) {
-    const openObjCase = '{';
-    const closeObjCase = '}';
+  checkObjBracket(splitWord) {
+    const OpenObjCase = '{';
+    const CloseObjCase = '}';
+    let objBracketPoint = 0;
 
     splitWord.forEach(matchCase => {
-      if (openObjCase === matchCase) objBracketPoint++;
-      else if (closeObjCase === matchCase) {
+      if (OpenObjCase === matchCase) objBracketPoint++;
+      else if (CloseObjCase === matchCase) {
         if (objBracketPoint === 0) throw new Error(ERROR_MSG.BLOCK_OBJECT_ERROR);
         objBracketPoint--;
       }
     });
     if (objBracketPoint !== 0) throw new Error(ERROR_MSG.BLOCK_OBJECT_ERROR);
-    return objBracketPoint;
+    else return true;
   }
 
   checkNumberError(value) {
     if (value.match(/[0-9]\D|\D[0-9]/)) throw new Error(ERROR_MSG.TYPE_ERROR + "\nERROR_VALUE: " + value);
   }
 
-  checkCommaError(value) {
+  checkQuotesError(value) {
     if (value.match(/['"]/m)) {
       let commaPoint = 0;
       const splitToken = value.split('');
@@ -64,12 +67,18 @@ exports.CheckError = class CheckError {
         if (matchCommaCase.indexOf(matchCase) > -1) commaPoint++;
         else if (matchCommaCase.indexOf(matchCase) > -1) commaPoint--;
       });
-      if (commaPoint % 2 !== 0) throw new Error(ERROR_MSG.COMMA_ERROR + "\nERROR_VALUE: " + value);
+      if (commaPoint % 2 !== 0) throw new Error(ERROR_MSG.QUOTES_ERROR + "\nERROR_VALUE: " + value);
     }
   }
 
   checkObjKeyError(value) {
-    if (/['".&^%$#@!*()]/m.test(value)) throw new Error(ERROR_MSG.KEY_NAME_ERROR + "\nERROR_VALUE: " + value);
+    if (/['".&^%$#@!_+=*()]/m.test(value)) throw new Error(ERROR_MSG.KEY_NAME_ERROR + "\nERROR_VALUE: " + value);
+  }
+
+  checkObjValueError(value) {
+    const rightTerms = ['true', 'false', 'null', '{', '['];
+    const requirement = rightTerms.indexOf(value) === -1 && !/[\'|\"]/m.test(value) && !/[\d]/m.test(value);
+    if (requirement) throw new Error(ERROR_MSG.QUOTES_ERROR + "\nTOKEN: " + value);
   }
 
   checkExpectedObjToken(value) {
@@ -77,6 +86,6 @@ exports.CheckError = class CheckError {
   }
 
   checkArrKeyError(lastData, child) {
-    if (lastData.type === 'Array Type' && child.key) throw new Error(ERROR_MSG.ARRAY_KEY_ERROR);
+    if (lastData.type === 'ARRAY' && child.key) throw new Error(ERROR_MSG.ARRAY_KEY_ERROR);
   }
 }
