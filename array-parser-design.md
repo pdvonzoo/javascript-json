@@ -5,11 +5,12 @@
 - ArrayParser 함수를 만든다.
 - 배열 안에는 숫자 데이터만 존재한다.
 - 결과값은 배열 형태의 문자열을 분석한 자료구조이다.
-- 배열 안에 배열이 있는 경우도 분석한다.
+- 배열이 무한으로 중첩된 경우도 분석할 수 있게 한다.
 
 ```javascript
 var str1 = "[123, 22, 33]";
 var str2 = "[123,[22],33, [1,2,3,4,5]]";
+var str3 = "[123,[22,23,[11,[112233],112],55],33]";
 var result = ArrayParser(str);
 console.log(JSON.stringify(result, null, 2));
 ```
@@ -18,10 +19,14 @@ console.log(JSON.stringify(result, null, 2));
 
 ```javascript
 { type: 'array',
-  child: 
-   [ { type: 'number', value: '123' },
-     { type: 'number', value: '22' },
-     { type: 'number', value: '33' }
+  child:
+    [ { type: 'number', value: '123' },
+      { type: 'number', value: '22' },
+      { type: 'array',
+        child: [ { type: 'number', value: '11' },
+                 { type: 'number', value: '55' }
+               ] 
+      }
     ] 
 }
 ```
@@ -31,6 +36,7 @@ console.log(JSON.stringify(result, null, 2));
 - [x] ArrayParser 함수 만들기
 - [x] ArrayParser 함수 쪼개고 리팩토링
 - [x] 중첩 배열 문자열 분석할 수 있도록 프로그램 변경
+- [x] 무한 중첩 배열 문자열 분석할 수 있도록 프로그램 변경
 
 ## 3. 설계
 
@@ -68,7 +74,7 @@ function ArrayParser(str) {
 - 공백 제거하는 함수
 
 ```javascript
-function getTrimmedStr(str) {
+function trimStr(str) {
   // 1. 입력받은 문자열의 앞, 뒤, 중간 모든 공백을 제거한다.
   return trimmedStr;
 }
