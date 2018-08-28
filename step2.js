@@ -19,14 +19,12 @@ class ArrayParser {
     return this.parseData(result);
   }
   //분석한 데이터를 반환해주는 함수
-  //중첩된 배열에서 '[' 괄호가 나오면 count를해서 isTrue에 false또는 true를 대입한다.
-  //isTrue가 false = 중첩된 배열 이라는 뜻, 그 배열은 새로운 객체에 담는다.
   parseData(splitData) {
     let isTrue = true;
     let count = 0;
-    for (let value of splitData) {
+    for (let n = 0; n < splitData.length; n++) {
       const dataSample = new dataSampleClass();
-      if (value === "") {
+      if (splitData[n] === "") {
         count++;
         count % 2 === 1 ? isTrue = false : isTrue = true;
         continue;
