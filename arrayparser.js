@@ -1,68 +1,78 @@
 // 데이터 타입에 따라 생성되는 class
 class Data {
     constructor(type, value) {
-        if (type === 'number') {
+        if (type === 'number' || type === 'string') {
             this.type = type;
             this.value = value;
-            this.child = [];
-        } else if (type === 'array') {
+        }
+        if (type === 'array' || type === 'object') {
             this.type = type;
+            this.value = 'ArrayObject'
             this.child = [];
         }
     }
 }
 
-const arrayParser = function (str) {
-    const parsedData = tokenizer(str);
-    return dataFormat(parsedData);
-}
-
-const tokenizer = function (str) {
-    let idx = 0;
-
-    function array() {
-        const newArr = [];
-        idx += 1;
-        while (idx < str.length) {
-            if (str[idx] === ']') {
-                return newArr;
-            }
-            if (str[idx] === '[') {
-                newArr.push(array());
-            }
-            if (str[idx].match(/[0-9]/)) {
-                newArr.push(number());
-            }
-            if (str[idx].match(/\s|,/)) {
-                idx += 1;
-            }
-        }
-        return newArr;
+class Tokenizer {
+    constructor(str) {
+        this.tokens = str;
+        this.index = 0;
     }
 
-    function number() {
+    number() { // 인자 type이 number일 경우
+        const tokens = this.tokens;
         let numValue = '';
-        while (idx < str.length) {
-            if (str[idx].match(/[0-9]/)) {
-                numValue += str[idx];
+
+        while (this.index < tokens.length) {
+            if (tokens[this.index].match(/\.|[0-9]/)) {
+                numValue += tokens[this.index];
+                this.index += 1;
             }
-            if (str[idx].match(/\D/)) {
+            else if (tokens[this.index].match(/\D/)) {
                 return Number(numValue);
             }
-            idx += 1;
         }
         return Number(numValue);
     }
 
-    if (str[idx] === '[') {
-        return array();
+    array() { // 인자 type이 array일 경우
+        const parsedData = [];
+        const tokens = this.tokens;
+
+        this.index += 1;
+
+        while (this.index < tokens.length) {
+            if (tokens[this.index].match(/\]/)) {
+                this.index += 1;
+                return parsedData;
+            }
+            else if (tokens[this.index].match(/\[/)) {
+                parsedData.push(this.array());
+            }
+            else if (tokens[this.index].match(/[0-9]/)) {
+                parsedData.push(this.number());
+            }
+            else if (tokens[this.index].match(/\s|,/)) {
+                this.index += 1;
+            }
+        }
     }
-    if (str[idx].match(/[0-9]/)) {
-        return number();
+
+    execution() { // 토큰나이저 실행
+        const tokens = this.tokens;
+
+        if (tokens.match(/^\[/)) return this.array();
+        else if (tokens.match(/^[0-9]/)) return this.number();
     }
 }
 
-const dataFormat = function (data) {
+const arrayParser = function (str) {
+    const tokenizer = new Tokenizer(str);
+    const parsedData = tokenizer.execution();
+    return dataFormat(parsedData);
+}
+
+function dataFormat(data) {
     if (typeof data === 'number') {
         return new Data('number', data);
     }
@@ -71,11 +81,18 @@ const dataFormat = function (data) {
     if (data instanceof Array) {
         result = new Data('array');
         data.forEach(element => {
-            const type = typeof element;
-            type === 'number'
-                ? result.child.push(new Data(type, element)) : data instanceof Array
+            const dataType = typeof element;
+            dataType === 'number'
+                ? result.child.push(new Data(dataType, element)) : element instanceof Array
                     ? result.child.push(dataFormat(element)) : '';
         });
     }
     return result;
 }
+
+/*
+Test Case
+const str = '[123, [22, 45, [26, 89], 78], 33]';
+const result = arrayParser(str);
+console.log(JSON.stringify(result, null, 2));
+*/
