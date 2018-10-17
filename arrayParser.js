@@ -2,31 +2,73 @@
 
 // convert array in string form => return given array data in structured Object form
 function arrayParser(arrStr) { 
-    return arrLexer.lexer(arrStr)
+    return new Lexer('array').lexer(arrStr)
 }
 
-const arrLexer = {
-    tempMemory: [],
-    dataBranchStack: [],
-    dataTree: [],
-    lexer(arrStr) {
+class Lexer {
+    constructor(dataType) {
+        this.tempMemory = [];
+        this.dataBranchStack = [];
+        this.dataTree = [];
+        this.dataType = dataType;
+    }
+    lexer(dataStr) {
         // create array data branch & add chilren information
-        arrStr.split('').forEach( (token) => { 
+        dataStr.split('').forEach( (token) => { 
             const tokenDataObj = {token: token, stack: this.dataBranchStack, memory: this.tempMemory};
             const tokenType = rules.tagTokenType(token);
-            // if incoming string is not predefined, process it as string token
-            if(!rules.charProcessing.array[tokenType]) { 
+            const typeOfItemInMemory = (tokenDataObj.memory[0]) ? tokenDataObj.memory[0].type : undefined;
+            // Process token as string if:
+                // incoming string is not predefined, 
+                // or currently there are openString stream in memory
+            if(!rules.charProcessing.array[tokenType] || typeOfItemInMemory === 'openString') { 
+                if (tokenType === 'stringInput') {
+                    rules.process('string', tokenDataObj, 'stringInput');
+                }
                 rules.process('string', tokenDataObj, 'strToken');
                 return
             }
-            rules.process('array', tokenDataObj, tokenType);
+            rules.process(this.dataType, tokenDataObj, tokenType);
         });
         
         this.dataTree.push(this.tempMemory.pop());
         
         return this.dataTree.pop();
-    },
+    }
 };
+
+class DataObj {
+    constructor(type, value) {
+        if (value !== undefined) {
+            this.type = type;
+            this.value = value;
+            return
+        }
+        this.type = type;
+    }
+
+    updateType(type) {
+        this.type = type;
+        return this
+    }
+    updateValue(value) {
+        this.value = value;
+        return this
+    }
+    createChildArr() {
+        this.child = [];
+        return this
+    }
+    get clone() {
+        var copiedInstance = Object.assign(
+            Object.create(
+            Object.getPrototypeOf(this)
+            ),
+            this
+        );
+        return copiedInstance;
+        }
+}
 
 const rules = {
     process(dataType, {token, stack, memory}, tokenType = this.tagTokenType(token)) {
@@ -42,17 +84,17 @@ const rules = {
     },
     concatLexeme(type, token, tempItem) {
         if (!tempItem){
-            tempItem = {type: type, value: token};
+            tempItem = new DataObj(type, token);
         } else {
-            tempItem = Object.assign(tempItem, {value: tempItem.value + token});
+            tempItem = tempItem.clone.updateValue(tempItem.value + token);
         }
 
         return tempItem
     },
     updateItemValue(dataObj) {
         const updateRule = {
-            noObj: () => ( {type: 'undefined', value: undefined} ),
-            array: () => Object.assign( dataObj, {value: 'arrayObject'} ),
+            noObj: () => new DataObj('undefined', undefined),
+            array: () => dataObj.clone.updateValue('arrayObject'),
             number: () => {
                 const updatedValueWithType = this.assignDataType(dataObj);
                 if(isNaN(updatedValueWithType)) {
@@ -60,10 +102,10 @@ const rules = {
                     logError(`${dataObj.value} : 알 수 없는 타입입니다!`);
                 }
 
-                return Object.assign( dataObj, {value: updatedValueWithType} )
+                return dataObj.clone.updateValue(updatedValueWithType)
             },
             string: () => dataObj, // Do nothing
-            openString: () => Object.assign( dataObj, {type: 'string'} ), 
+            openString: () => dataObj.clone.updateType('string'),
             keyword: () => {
                 const keywordObj = rules.charProcessing.keyword.dictionary[dataObj.value];
                 
@@ -77,6 +119,7 @@ const rules = {
             errorString: () => {
                 logError(`${dataObj.value} : 올바른 문자열이 아닙니다!`);
             },
+            object: () => dataObj,
         };
         
         const dataType = (dataObj) ? dataObj.type : 'noObj';
@@ -100,21 +143,29 @@ const rules = {
     },
     tagTokenType(token) {
         let tokenType = token;
+        const obviousTypes = {
+            ',' : 'appendElem',
+            '[' : 'arrayOpen',
+            ']' : 'arrayClose',
+            '{' : 'objectOpen',
+            '}' : 'objectClose',
+            ':' : 'appendObjKey',
+        }
 
+        // Return obvious types first
+        if (obviousTypes[token]) {
+            return obviousTypes[token]
+        }
+
+        // If token is not obvious, check following character ranges
         if(token.match(/[0-9]/)) {
             tokenType = 'number';
         } else if (token.match(/\s/)) {
             tokenType = 'whiteSpace';
-        } else if (token.match(/,/)) {
-            tokenType = 'appendElem';
         } else if (token.match(/['"`]/)) {
             tokenType = 'stringInput';
         } else if (token.match(/[a-zA-Z]/)) {
             tokenType = 'string';
-        } else if (token.match(/\[/)) {
-            tokenType = 'arrayOpen';
-        } else if (token.match(/\]/)) {
-            tokenType = 'arrayClose';
         }
 
         return tokenType
@@ -130,11 +181,7 @@ const rules = {
 rules.charProcessing = {};
 rules.charProcessing.array = {
     arrayOpen({token, stack, memory}) { //open new data branch
-        if(memory[0] && memory[0].type === 'openString') {
-            return rules.charProcessing.string.strToken({token, stack, memory})
-        }
-
-        const newArrayTree = {type: 'array', child: []};
+        const newArrayTree = new DataObj('array').createChildArr();
         return [stack, newArrayTree]
     },
     number({token, memory}) { // append or update last child object on temporary memory
@@ -155,9 +202,12 @@ rules.charProcessing.array = {
     },
     appendElem({token, stack, memory}) { // Append item in memory to parent array
         // if current stream is on string element, process token as pure string
-        if(memory[0] && memory[0].type === 'openString') {
-            return rules.charProcessing.string.strToken({token, stack, memory})
+        if(memory[0]) {
+            if(rules.getLastItemOfArr(stack).type === 'objectProperty') {
+                return rules.charProcessing.object.appendKeyValPair({token, stack, memory})
+            }
         }
+        
         
         const itemInMemory = memory.pop();
         const currentDataBranch = rules.getLastItemOfArr(stack);
@@ -174,7 +224,7 @@ rules.charProcessing.array = {
         // if current stream is object or array element, do nothing
         const isNotObjectNorArray = ( dataObj ) => {
             if (dataObj) {
-                return (dataObj.type !== 'object' || dataObj.type !== 'array') ? true : false
+                if(dataObj.type !== 'object' || dataObj.type !== 'array') return true
             }
             return false
         };
@@ -187,9 +237,6 @@ rules.charProcessing.array = {
     }, 
     arrayClose({token, stack, memory}) { // Append last child object on temporary memory. And then close data branch
         // if current stream is on string element, work as normal token
-        if(memory[0] && memory[0].type === 'openString') { 
-            return rules.charProcessing.string.strToken({token, stack, memory});
-        }
 
         if(memory[0]) { // append leftover element if exists
             rules.process('array', {token, stack, memory}, 'appendElem');
@@ -198,22 +245,24 @@ rules.charProcessing.array = {
         const arrayLexeme = stack.pop();
         return [memory, arrayLexeme]
     },
+    objectOpen: ({token, stack, memory}) => rules.charProcessing.object.objectOpen({token, stack, memory}),
+    objectClose: ({token, stack, memory}) => rules.charProcessing.object.objectClose({token, stack, memory}),
+    appendObjKey: ({token, stack, memory}) => rules.charProcessing.object.appendObjKey({token, stack, memory}),
 };
 rules.charProcessing.string = {
     stringInput ({token, stack, memory}) { // Open new data branch if there is no current one. If it exists, close it.
         // if there are ongoing string stream on stack, close it
         if ( memory[0] && memory[0].type === 'openString' ) {
-            const concatedToken = rules.concatLexeme('string', token, memory.pop());
-            return [memory, rules.updateItemValue(concatedToken)];
+            return [memory, rules.updateItemValue(memory.pop())];
         }
 
         // If there are string stream left on memory and yet this function was called, 
         // assign current lexeme as errorString to log error later when update lexeme to parent array
         const newStrTree = ( () => {
             if (memory[0] && memory[0].type === 'string') {
-                return {type: 'errorString', value: memory.pop().value + token}
+                return new DataObj('errorString', memory.pop().value + token)
             }
-             return {type: 'openString', value: token}
+             return new DataObj('openString', token)
         }) ();
 
         return [memory, newStrTree]
@@ -228,17 +277,53 @@ rules.charProcessing.string = {
 
 rules.charProcessing.keyword = {
     keywordInput ({token, stack, memory}) { //open new data branch
-        const newKeywordTree = {type: 'keyword', value: token};
+        const newKeywordTree = new DataObj('keyword', token);
         
         return [memory, newKeywordTree]
     },
     dictionary: {
-        'true': {type: 'boolean', value: true},
-        'false': {type: 'boolean', value: false},
-        'null': {type: 'object', value: null},
+        'true': new DataObj('boolean', true),
+        'false': new DataObj('boolean', false),
+        'null': new DataObj('object', null),
     },
 };
 
+rules.charProcessing.object = {
+    objectOpen({token, stack, memory}) {
+        const newObjTree = new DataObj('object').createChildArr();
+        return [stack, newObjTree]
+    },
+    objectClose({token, stack, memory}) {
+        if(memory[0]) { // append leftover element if exists
+            rules.process('array', {token, stack, memory}, 'appendElem');
+        }
+        
+        const objLexeme = stack.pop();
+        return [memory, objLexeme]
+    },
+    appendObjKey({token, stack, memory}) {
+        const itemInMemory = memory.pop();
+        // if item to update is keyword / string / number, remove all trailing whitespaces
+        if (itemInMemory && itemInMemory.value) {
+            itemInMemory.value = rules.removeAdditionalWhiteSpace(itemInMemory.value);
+        }
+
+        const keyValPairObj = new DataObj('objectProperty', {'propKey': itemInMemory});
+        
+        return [stack, keyValPairObj]
+    },
+    appendKeyValPair({token, stack, memory}) {
+        const currentTempItem = memory.pop();
+        const targetKeyValPairOnStack = stack.pop();
+        const parentObject = rules.getLastItemOfArr(stack);
+        const keyValPairObj = ( () => {
+            const completedKeyValpair = Object.assign(targetKeyValPairOnStack.value, {'propValue': currentTempItem});
+            return targetKeyValPairOnStack.clone.updateValue(completedKeyValpair)
+        })();
+        
+        return [parentObject.child, keyValPairObj]
+    },
+};
 
 function logError(msgStr) {
     try {
