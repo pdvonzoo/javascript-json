@@ -14,8 +14,9 @@ class Lexer {
     }
     lexer(dataStr) {
         // create array data branch & add chilren information
-        dataStr.split('').forEach( (token) => { 
-            const tokenDataObj = {token: token, stack: this.dataBranchStack, memory: this.tempMemory};
+        const dataStrArr = dataStr.split('');
+        function tokenProcessor(token, stack, memory, dataType) { 
+            const tokenDataObj = {token: token, stack: stack, memory: memory};
             const tokenType = rules.tagTokenType(token);
             const typeOfItemInMemory = (tokenDataObj.memory[0]) ? tokenDataObj.memory[0].type : undefined;
             // Process token as string if:
@@ -25,16 +26,25 @@ class Lexer {
                 if (tokenType === 'stringInput') {
                     rules.process('string', tokenDataObj, 'stringInput');
                 }
-                rules.process('string', tokenDataObj, 'strToken');
-                return
+                return rules.process('string', tokenDataObj, 'strToken');
             }
-            rules.process(this.dataType, tokenDataObj, tokenType);
-        });
+            return rules.process(dataType, tokenDataObj, tokenType);
+        }
+        let tokenIdx = -1;
+        for (let token of dataStrArr) { 
+            tokenIdx++;
+            const bProcessedWithoutIssue = tokenProcessor(token, this.dataBranchStack, this.tempMemory, this.dataType);
+            if (!bProcessedWithoutIssue) {
+                console.log(`토큰 처리 중 오류가 발생하여 프로그램을 종료합니다. 오류가 기록된 문자열 : ${tokenIdx+1}번째 문자 " ${token} "`);
+                return false
+            }
+        }
         
         this.dataTree.push(this.tempMemory.pop());
         
         // Throw Error if there are leftover stream in stack (e.g. Object, Array...)
-        rules.checkUnclosedObject(this.dataBranchStack, 'runtimeEnd');
+        const bHasNoUnclosedObj = rules.checkUnclosedObject(this.dataBranchStack, 'runtimeEnd');
+        if (!bHasNoUnclosedObj) return false
         
         return this.dataTree.pop();
     }
@@ -42,11 +52,7 @@ class Lexer {
 
 class DataObj {
     constructor(type, value) {
-        if (value !== undefined) {
-            this.type = type;
-            this.value = value;
-            return
-        }
+        if (value !== undefined) this.value = value;
         this.type = type;
     }
 
@@ -63,11 +69,13 @@ class DataObj {
         return this
     }
     get clone() {
-        var copiedInstance = Object.assign(
-            Object.create(
-            Object.getPrototypeOf(this)
-            ),
-            this
+        const copiedInstance = (
+            Object.assign(
+                Object.create(
+                    Object.getPrototypeOf(this)
+                ),
+                this
+            )
         );
         return copiedInstance;
         }
@@ -78,21 +86,19 @@ const rules = {
         // Call proper token processing method following submitted dataType info
         const [targetLocation, objToPush] = this[dataType][tokenType](arguments[1]);
         
-        if(objToPush) {
-            targetLocation.push(objToPush);
-        }
+        if (targetLocation === false) return false
+
+        if (objToPush) targetLocation.push(objToPush)
+        
+        return true
     },
     getLastItemOfArr(arr) {
         return arr[arr.length-1]
     },
     concatLexeme(type, token, tempItem) {
-        if (!tempItem){
-            tempItem = new DataObj(type, token);
-        } else {
-            tempItem = tempItem.clone.updateValue(tempItem.value + token);
-        }
-
-        return tempItem
+        if (!tempItem) return new DataObj(type, token)
+            
+        return tempItem.clone.updateValue(tempItem.value + token)
     },
     updateItemValue(dataObj) {
         const updateRule = {
@@ -103,6 +109,7 @@ const rules = {
                 if(isNaN(updatedValueWithType)) {
                     // Log error message if data branch has other characters than number strings
                     logError(`${dataObj.value} : 알 수 없는 타입입니다!`);
+                    return false
                 }
 
                 return dataObj.clone.updateValue(updatedValueWithType)
@@ -115,12 +122,14 @@ const rules = {
                 // If given keyword lexeme doesn't exist on dictionary, log error
                 if (!keywordObj) { 
                     logError(`${dataObj.value} : 존재하지 않는 명령어입니다!`);
+                    return false
                 }
 
                 return keywordObj
             },
             errorString: () => {
                 logError(`${dataObj.value} : 올바른 문자열이 아닙니다!`);
+                return false
             },
             object: () => dataObj,
         };
@@ -134,15 +143,6 @@ const rules = {
             'number': (value) => Number(value),
         };
         return convertTypeTo[targetType](value)
-    },
-    adjustStack(dataObj, stack) {
-        const typesRequireStackAdjustment = {
-            'keyword': true,
-            'errorString': true,
-        }
-        if (typesRequireStackAdjustment[dataObj.type]) {
-            stack.length--;
-        }
     },
     tagTokenType(token) {
         let tokenType = token;
@@ -182,8 +182,7 @@ const rules = {
         const bObjectEndMismatch = (processType !== 'runtimeEnd' && processType !== lastStackItem.type);
 
         if (bSomethingLeftOnProgramEnd || bObjectEndMismatch) { 
-            logError(`[Error] : 닫히지 않은 ${lastStackItem.type} 객체가 있습니다!\n[상세 정보] ${JSON.stringify(lastStackItem, null, 2)}`);
-            stack.pop() // Remove mismatched stack to prevent further error
+            logError(`[Error] : 닫히지 않은 ${lastStackItem.type} 객체가 있습니다!`);
             return false
         }
 
@@ -196,10 +195,10 @@ const rules = {
 =============================== */
 rules.array = {
     arrayOpen({token, stack, memory}) { //open new data branch
-        const bObjKeyHasColon = memory[0] && rules.getLastItemOfArr(stack).type === 'object';
-        if(bObjKeyHasColon) {
-            logError(`[Error]: 콜론이 사용되지 않은 객체 표현 \n[상세 정보]${JSON.stringify(memory[0],null,2)}`);
-            memory.pop(); // Remove wrong value in memory to prevent another error message
+        const bObjKeyHasNoColon = memory[0] && rules.getLastItemOfArr(stack).type === 'object';
+        if(bObjKeyHasNoColon) {
+            logError(`[Error]: 콜론이 사용되지 않은 객체 표현`);
+            return [false, null]
         }
 
         const newArrayTree = new DataObj('array').createChildArr();
@@ -230,13 +229,14 @@ rules.array = {
         
         const itemInMemory = memory.pop();
         const currentDataBranch = rules.getLastItemOfArr(stack);
-        // if item to update is keyword / string / number, remove all trailing whitespaces
+        // if item to update is Non-object (has 'value' property), remove all trailing whitespaces
         if (itemInMemory && itemInMemory.value) {
             itemInMemory.value = rules.removeAdditionalWhiteSpace(itemInMemory.value);
         }
 
         const childToAdd = rules.updateItemValue(itemInMemory);
-        
+        if (childToAdd === false) return [false, null]
+
         return [currentDataBranch.child, childToAdd]
     },
     whiteSpace({token, stack, memory}) {
@@ -256,13 +256,12 @@ rules.array = {
     }, 
     arrayClose({token, stack, memory}) { // Append last child object on temporary memory. And then close data branch
         if(memory[0]) { // append leftover element if exists
-            rules.process('array', {token, stack, memory}, 'appendElem');
+            const bProcessResult = rules.process('array', {token, stack, memory}, 'appendElem');
+            if (!bProcessResult) return [false, null]
         }
         
         const bNoObjectMismatch = rules.checkUnclosedObject(stack, 'array');
-        if (!bNoObjectMismatch) {
-            return [memory, stack.pop()] // Ignore current stack & move on to next stack item 
-        }
+        if (!bNoObjectMismatch) return [false, null] 
         
         const arrayLexeme = stack.pop();
         return [memory, arrayLexeme]
@@ -272,14 +271,17 @@ rules.array = {
     appendObjKey: ({token, stack, memory}) => rules.object.appendObjKey({token, stack, memory}),
 };
 rules.string = {
-    stringInput ({token, stack, memory}) { // Open new data branch if there is no current one. If it exists, close it.
-        // if there are ongoing string stream on stack, close it
+    stringInput ({token, stack, memory}) { // Open new String data branch. If one exists already, close it.
         if ( memory[0] && memory[0].type === 'openString' ) {
-            return [memory, rules.updateItemValue(memory.pop())];
+            const updatedItem = rules.updateItemValue( memory.pop() );
+            
+            if(updatedItem === false) return [false, null]
+            
+            return [memory, updatedItem];
         }
 
         // If there are string stream left on memory and yet this function was called, 
-        // assign current lexeme as errorString to log error later when update lexeme to parent array
+        // assign current lexeme as errorString to log error later when append lexeme to parent array
         const newStrTree = ( () => {
             if (memory[0] && memory[0].type === 'string') {
                 return new DataObj('errorString', memory.pop().value + token)
@@ -312,10 +314,10 @@ rules.keyword = {
 
 rules.object = {
     objectOpen({token, stack, memory}) {
-        const bObjKeyHasColon = memory[0] && rules.getLastItemOfArr(stack).type === 'object';
-        if(bObjKeyHasColon) {
-            logError(`[Error]: 콜론이 사용되지 않은 객체 표현 \n[상세 정보]${JSON.stringify(memory[0],null,2)}`);
-            memory.pop(); // Remove wrong value in memory to prevent another error message
+        const bObjKeyHasNoColon = memory[0] && rules.getLastItemOfArr(stack).type === 'object';
+        if(bObjKeyHasNoColon) {
+            logError(`[Error]: 콜론이 사용되지 않은 객체 표현`);
+            return [false, null]
         }
 
         const newObjTree = new DataObj('object').createChildArr();
@@ -323,21 +325,18 @@ rules.object = {
     },
     objectClose({token, stack, memory}) {
         if(memory[0]) { // append leftover element if exists
-            rules.process('array', {token, stack, memory}, 'appendElem');
+            const bProcessResult = rules.process('array', {token, stack, memory}, 'appendElem');
+            if (!bProcessResult) return [false, null]
         }
         
         const bNoObjectMismatch = rules.checkUnclosedObject(stack, 'object');
-        if (!bNoObjectMismatch) {
-            return [memory, stack.pop()] // Ignore current stack & move on to next stack item 
-        }
+        if (!bNoObjectMismatch) return [false, null]
         
         const childrenOfCurrentObj = rules.getLastItemOfArr(stack).child;
         const bNoMissingKeys = childrenOfCurrentObj.every( data => data.type === 'objectProperty');
         if (!bNoMissingKeys) {
-            logError(`[Error] 키가 없는 객체 속성이 존재합니다! \n[상세 정보]${JSON.stringify(childrenOfCurrentObj, null, 2)}`);
-            // childrenOfCurrentObj.length = 0; // remove invalid children to prevent further error
-            stack.pop();
-            return [] // Do nothing
+            logError(`[Error] 키가 없는 객체 속성이 존재합니다!`);
+            return [false, null]
         }
         
         const objLexeme = stack.pop();
@@ -349,12 +348,11 @@ rules.object = {
         // If data of itemInMemory has type of object or array, log error 
         const bItemIsObjectOrArray = itemInMemory && (itemInMemory.type === 'object' || itemInMemory.type === 'array' );
         if(bItemIsObjectOrArray) {
-            logError(`[Error]: 올바르지 않은 객체 키 자료형 \n[상세 정보]${JSON.stringify(itemInMemory,null,2)}`);
-            // Apply 'toString' to itemInMemory for further processing
-            itemInMemory = itemInMemory.toString();
+            logError(`[Error]: 올바르지 않은 객체 키 자료형`);
+            return [false, null]
         }
 
-        // if item to update is keyword / string / number, remove all trailing whitespaces
+        // if item to update is Non-object (has 'value' property), remove all trailing whitespaces
         if (itemInMemory && itemInMemory.value) {
             itemInMemory.value = rules.removeAdditionalWhiteSpace(itemInMemory.value);
         }
@@ -368,6 +366,10 @@ rules.object = {
         const targetKeyValPairOnStack = stack.pop();
         const parentObject = rules.getLastItemOfArr(stack);
         const keyValPairObj = ( () => {
+            // if item to update is Non-object (has 'value' property), remove all trailing whitespaces
+            if (currentTempItem && currentTempItem.value) {
+                currentTempItem.value = rules.removeAdditionalWhiteSpace(currentTempItem.value);
+            }
             const completedKeyValpair = Object.assign({}, targetKeyValPairOnStack.value, {'propValue': currentTempItem});
             return targetKeyValPairOnStack.clone.updateValue(completedKeyValpair)
         })();
@@ -382,6 +384,7 @@ function logError(msgStr) {
     }
     catch(e) {
         console.log(e);
+        return false
     }
 }
 
@@ -390,3 +393,9 @@ function logError(msgStr) {
 
 // Export to tester.js 
 module.exports.arrayParser = arrayParser;
+module.exports.testTarget = {
+    Class_Lexer: Lexer,
+    Class_DataObj: DataObj,
+    Obj_rules: rules,
+    Fn_logError: logError,
+};
