@@ -1,27 +1,42 @@
 class Parser{
   constructor(root){
     this.root = root;
-    this.format = {};
   }
   dataProcessing(data){
-    let target = 0, count = 1;
+    let target = 0, count = 1, curr = this.root, child;
     for(let v of data){
       target++;
+      if(v === '['){
+        child = curr.child;
+      }
+      if(v === ']'){
+        child = curr.parent;
+      } 
       if(v === '[' || v === ']'){
         count = this.getcount(data, count);
         if(count === -1) break;
-        this.setValue(data, target, count);
+        child = this.setValue(data, target, count, curr, child);
+        curr = child[0];
       }
     }
-    console.log(this.root);
+    this.print(this.root);
   }
-  setValue(data, target, count){
+  setValue(data, target, count, curr, child){
     let value = data.substring(target, count);
+    let trimValue = this.trimData(value);
     let type =  this.checkType(value.replace(/,/g,''));
-    root.child.push({
-      value,
+    child.push({
+      value: trimValue,
       type, 
+      child: [],
+      parent: [curr]
     })
+    return child;
+  }
+  trimData(data){
+    let convert = data.split(",");
+    let trimmedData = convert.filter(v => v !== '').join(',');
+	  return trimmedData;
   }
   getcount(data, count){
     let left_index = data.indexOf('[', count+1);
@@ -39,14 +54,17 @@ class Parser{
     if(!isNaN(data)) return 'number';
     return typeof data;
   }
+  print(data){
+    console.log(data);
+  }
 }
 
 const root = {
   type: 'array',
   child: [],
 }
-const Parser = new ArrayParser(root);
-Parser.dataProcessing("[123,14,[46, 58], 42]");
+const parser = new Parser(root);
+parser.dataProcessing("[123,14, 42]");
 
 
 // ArrayParser함수를 만든다.
