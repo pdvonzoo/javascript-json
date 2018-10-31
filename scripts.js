@@ -1,52 +1,71 @@
+"use strict";
+
 class Parser{
-  constructor(root){
-    this.root = root;
+  constructor(){
+    this.root = {
+      type: 'array',
+      child: [],
+    };
   }
   dataProcessing(data){
     let target = 0, count = 1, curr = this.root, child;
     for(let v of data){
       target++;
-      if(v === '['){
+      if(v === '[') {
         child = curr.child;
+        child.unshift({
+          type: 'array',
+          child: [],
+          parent: [curr]
+        })
       }
-      if(v === ']'){
-        child = curr.parent;
-      } 
-      if(v === '[' || v === ']'){
+      if(v === ']' && curr.parent[0] !== this.root ) { 
+          child = curr.parent[0].parent[0].child;
+      }
+
+      if(v === '[' || v === ']' || v === ','){
         count = this.getcount(data, count);
         if(count === -1) break;
         child = this.setValue(data, target, count, curr, child);
         curr = child[0];
       }
     }
-    this.print(this.root);
+    return this.root;
+    // console.log(this.root);
+    // this.print(this.root);
+  }
+  getcount(data, count){
+    let openingBracket = data.indexOf('[', count+1),
+        closingBracket = data.indexOf(']', count+1),
+        rest = data.indexOf(',', count+1),
+        compareValues = [openingBracket, closingBracket, rest],
+        minPoint = Math.max(...compareValues);
+
+    compareValues.forEach(v => {
+      if(v !== -1 && minPoint > v) minPoint = v;
+    })
+
+    count = minPoint;
+    return count;
   }
   setValue(data, target, count, curr, child){
     let value = data.substring(target, count);
     let trimValue = this.trimData(value);
     let type =  this.checkType(value.replace(/,/g,''));
-    child.push({
-      value: trimValue,
-      type, 
-      child: [],
-      parent: [curr]
-    })
+    if(trimValue !== ''){
+      child.unshift({
+        value: trimValue,
+        type, 
+        child: [],
+        parent: [curr]
+      })
+    }
     return child;
   }
   trimData(data){
     let convert = data.split(",");
-    let trimmedData = convert.filter(v => v !== '').join(',');
+    let trimmedData = convert.map(v => v.trim()).filter(v => v !== '').join(',');
 	  return trimmedData;
-  }
-  getcount(data, count){
-    let left_index = data.indexOf('[', count+1);
-    let right_index = data.indexOf(']', count+1);
-    if(right_index > left_index && left_index !== -1 && right_index !== -1){
-      count = left_index;
-    } else {
-      count = right_index; 
-    }
-    return count;
   }
   checkType(data){
     if(toString.call(data) === "[object Object]") return 'object';
@@ -54,18 +73,17 @@ class Parser{
     if(!isNaN(data)) return 'number';
     return typeof data;
   }
-  print(data){
-    console.log(data);
+}
+
+function replacer(key, value){
+  if (key === "parent") {
+    return undefined;
   }
+  return value;
 }
-
-const root = {
-  type: 'array',
-  child: [],
-}
-const parser = new Parser(root);
-parser.dataProcessing("[123,14, 42]");
-
+const parser = new Parser();
+let result = parser.dataProcessing("[123,14, [42, 53, [11, 23]], 56]");
+console.log(JSON.stringify(result, replacer, 2)); 
 
 // ArrayParser함수를 만든다.
 // 배열안에는 숫자데이터만 존재한다.
