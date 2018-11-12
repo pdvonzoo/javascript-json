@@ -5,21 +5,21 @@ class Parser{
     this.root = [];
   }
   processData(data){
-    let target = 0, count = 1, curr = this.root, child, parent;
+    let target = 0, curr = this.root, child, parent, value;
     for(let v of data){
       target++;
       if(v === '[' || v === ']' || v === ','){
-        count = this.getcount(data, count);
-        if(count === -1) break;
-        [curr, child, parent] = this.setValue(data, target, count, curr, child, parent, v);
+        value = this.getvalue(data, target);
+        if(value === undefined) break;
+        [curr, child, parent] = this.setValue(value, curr, child, parent, v);
       }
     }
     return this.root;
   }
-  getcount(data, count){
-    let openingBracket = data.indexOf('[', count+1),
-        closingBracket = data.indexOf(']', count+1),
-        rest = data.indexOf(',', count+1),
+  getvalue(data, target){
+    let openingBracket = data.indexOf('[', target),
+        closingBracket = data.indexOf(']', target),
+        rest = data.indexOf(',', target),
         compareValues = [openingBracket, closingBracket, rest];
     
     let stopPoint = compareValues.reduce((acc, curr) => {
@@ -27,10 +27,10 @@ class Parser{
       if(acc === -1 || acc > curr) return curr;
       return acc;
     })
-    return stopPoint;
+    if(stopPoint === -1) return;
+    return data.substring(target, stopPoint);
   }
-  setValue(data, target, count, curr, child, parent, input){
-    let value = data.substring(target, count);
+  setValue(value, curr, child, parent, input){
     let trimValue = this.trimData(value);
     let type =  this.checkType(value);
 
@@ -63,10 +63,10 @@ class Parser{
 }
 
 function replacer(key, value){
-  if (key === "parent") return undefined;
+  if (key === "parent") return;
   return value;
 }
 
 const parser = new Parser();
-let result = parser.processData("[123,14, 56]");
-console.log(JSON.stringify(result, replacer, 2)); 
+let result = parser.processData("[ 123,14, 56, 55]");
+console.log(JSON.stringify(result, replacer, 2));
