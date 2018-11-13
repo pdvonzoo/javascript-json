@@ -1,64 +1,72 @@
-const readline = require('readline');
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+"use strict";
 
-
-const init = () => {
-  rl.question('분석할 JSON 데이터를 입력하세요. ', (answer) => {
-    let arr = answer.split(' ');
-    let res = [];
-    arrays(arr, res);
-    console.log(result(res));
-    rl.close();
-  });
-}
-
-
-const arrays = (arr, res) => {
-  if (arr[0] === '[' && arr[arr.length - 1] === ']') {
-    for (let i = 1; i < arr.length - 1; i++) {
-      arr[i].match(',') ? res.push(arr[i].replace(',', "")) : res.push(arr[i]);
-    }
+class Parser{
+  constructor(){
+    this.root = [];
   }
-  return res;
-}
+  processData(data){
+    let target = 0, curr = this.root, child, parent, value;
+    for(let v of data){
+      target++;
+      if(v === '[' || v === ']' || v === ','){
+        value = this.getvalue(data, target);
+        if(value === undefined) break;
+        [curr, child, parent] = this.setValue(value, curr, child, parent, v);
+      }
+    }
+    return this.root;
+  }
+  getvalue(data, target){
+    let openingBracket = data.indexOf('[', target),
+        closingBracket = data.indexOf(']', target),
+        rest = data.indexOf(',', target),
+        compareValues = [openingBracket, closingBracket, rest];
+    
+    let stopPoint = compareValues.reduce((acc, curr) => {
+      if(curr === -1) return acc;
+      if(acc === -1 || acc > curr) return curr;
+      return acc;
+    })
+    if(stopPoint === -1) return;
+    return data.substring(target, stopPoint);
+  }
+  setValue(value, curr, child, parent, input){
+    let trimValue = this.trimData(value);
+    let type =  this.checkType(value);
 
+    if(input  === '['){
+      curr.push({ type: 'array', child: [], parent: parent, });
+      child = curr.slice(-1)[0].child;
+      parent = curr;
+    }
+    if(input  === ']'){
+      parent = curr.slice(-1)[0].parent;
+      child = parent;
+    }
+    if(trimValue !== '') child.push({ value: trimValue, type,  child: [], parent: parent, });
+    if(input  === '[') curr = child;
+    if(input  === ']') curr = parent;
 
-const types = {
-  string: function (res) {
-    let strs = [];
-    for (let val of res) {
-      if (val.match('"')) {
-        strs.push(val.replace('"', "").replace('"', ""));
-      }
-    }
-    return strs.length;
-  },
-  numbers: function (res) {
-    let nums = [];
-    for (let val of res) {
-      if (!isNaN(Number(val))) {
-        nums.push(Number(val));
-      }
-    }
-    return nums.length;
-  },
-  bools: function (res) {
-    let bools = [];
-    for (let val of res) {
-      if (val === "false" || val === "true") {
-        bools.push(val);
-      }
-    }
-    return bools.length;
+    return [curr, child, parent];
+  }
+  trimData(data){
+    let convert = data.split(",");
+    let trimmedData = convert.map(v => v.trim()).filter(v => v !== '').join(',');
+	  return trimmedData;
+  }
+  checkType(data){
+    if(toString.call(data) === "[object Object]") return 'object';
+    if(toString.call(data) === "[object Array]") return 'array';
+    if(!isNaN(data)) return 'number';
+    return typeof data;
   }
 }
 
-const result = (res) => {
-  return "총 " + res.length + "개의 데이터 중에 문자열 " + types.string(res) + "개, 숫자 " + types.numbers(res) + "개, 부울 " + types.bools(res) + "개가 포함되어 있습니다.";
+function replacer(key, value){
+  if (key === "parent") return;
+  return value;
 }
 
-
-init();
+const parser = new Parser();
+let result = parser.processData("[ 123,14, 56, 55]");
+console.log(JSON.stringify(result, replacer, 2));
