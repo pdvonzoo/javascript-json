@@ -2,10 +2,10 @@
 
 class Parser{
   constructor(){
-    this.root = [];
+    _root.set(this, []);
   }
   processData(data){
-    let target = 0, value, child, parent, curr = this.root;
+    let target = 0, value, child, parent, curr = _root.get(this);
     for(let v of data){
       target++;
       if(v === '[' || v === ']' || v === ','){
@@ -14,7 +14,7 @@ class Parser{
         [curr, child, parent] = this.setValue(value, curr, child, parent, v);
       }
     }
-    return this.root;
+    return _root.get(this);
   }
   getvalue(data, target){
     const openingBracket = data.indexOf('[', target),
@@ -33,14 +33,18 @@ class Parser{
   setValue(value, curr, child, parent, input){
     const trimValue = this.trimData(value),
           type =  this.checkType(value);
-
     if(input  === '['){
       curr.push({ type: 'array', child: [], parent: parent, });
       child = curr.slice(-1)[0].child;
       parent = curr;
     }
-    if(input  === ']')   child = curr.slice(-1)[0].parent;
-    if(trimValue !== '') child.push({ value: trimValue, type,  child: [], parent: parent, });
+    if(input  === ']'){
+      child = curr.slice(-1)[0].parent;
+      parent = child.slice(-1)[0].parent;
+    }
+    if(trimValue !== '') {
+      child.push({ value: trimValue, type,  child: [], parent: parent, });
+    }
     if(input  === '[' || input  === ']') curr = child;
 
     return [curr, child, parent];
@@ -64,6 +68,8 @@ function replacer(key, value){
   return value;
 }
 
-const parser = new Parser();
-const result = parser.processData("[[42,65] 123,14, [52, 98], 56, [55, 41]]");
+const _root = new WeakMap();
+const str = "[123,[22,23,[11,[112233],112],55],33]";
+const ArrayParser = (str) => new Parser().processData(str);
+const result = ArrayParser(str);
 console.log(JSON.stringify(result, replacer, 2));
