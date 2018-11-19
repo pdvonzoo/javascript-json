@@ -1,8 +1,12 @@
+const dataType = require('./dataType.js');
+
 "use strict";
 
+const _root = new WeakMap();
 class Parser{
-  constructor(){
+  constructor(dataType){
     _root.set(this, []);
+    this.dataType = dataType;
   }
   processData(data){
     let target = 0, value, child, parent, curr = _root.get(this);
@@ -32,7 +36,7 @@ class Parser{
   }
   setValue(value, curr, child, parent, input){
     const trimValue = this.trimData(value),
-          type =  this.checkType(value);
+          type =  this.dataType.check(trimValue);
     if(input  === '['){
       curr.push({ type: 'array', child: [], parent: parent, });
       child = curr.slice(-1)[0].child;
@@ -46,7 +50,6 @@ class Parser{
       child.push({ value: trimValue, type,  child: [], parent: parent, });
     }
     if(input  === '[' || input  === ']') curr = child;
-
     return [curr, child, parent];
   }
   trimData(data){
@@ -55,12 +58,6 @@ class Parser{
                 .filter(v => v !== "")
                 .join("");
   }
-  checkType(data){
-    if(toString.call(data) === "[object Object]") return 'object';
-    if(toString.call(data) === "[object Array]") return 'array';
-    if(!isNaN(data)) return 'number';
-    return typeof data;
-  }
 }
 
 function replacer(key, value){
@@ -68,8 +65,7 @@ function replacer(key, value){
   return value;
 }
 
-const _root = new WeakMap();
-const str = "[123,[22,23,[11,[112233],112],55],33]";
-const ArrayParser = (str) => new Parser().processData(str);
+const str = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
+const ArrayParser = (str) => new Parser(dataType).processData(str);
 const result = ArrayParser(str);
 console.log(JSON.stringify(result, replacer, 2));
