@@ -7,50 +7,57 @@ class Parser{
   constructor(dataType){
     _root.set(this, []);
     this.dataType = dataType;
+    this.boundary = ['[', ']', '}', '{', ':', ','];
   }
   processData(data){
-    let target = 0, value, child, parent, curr = _root.get(this);
+    let target = 0, value, parent, curr = _root.get(this);
     for(let v of data){
       target++;
-      if(v === '[' || v === ']' || v === ','){
+      if(this.boundary.includes(v)){
         value = this.getvalue(data, target);
         if(value === undefined) break;
-        [curr, child, parent] = this.setValue(value, curr, child, parent, v);
+        [curr, parent] = this.setValue(value, curr, parent, v);
       }
     }
     return _root.get(this);
   }
   getvalue(data, target){
-    const openingBracket = data.indexOf('[', target),
-          closingBracket = data.indexOf(']', target),
-          rest = data.indexOf(',', target),
-          compareValues = [openingBracket, closingBracket, rest];
-    
+    const compareValues = this.boundary.map(v => data.indexOf(v, target));
     const stopPoint = compareValues.reduce((acc, curr) => {
       if(curr === -1) return acc;
       if(acc === -1 || acc > curr) return curr;
       return acc;
-    })    
+    });
     if(stopPoint === -1) return;
     return data.substring(target, stopPoint);
   }
-  setValue(value, curr, child, parent, input){
+  setValue(value, curr, parent, input){
     const trimValue = this.trimData(value),
           type =  this.dataType.check(trimValue);
-    if(input  === '['){
-      curr.push({ type: 'array', child: [], parent: parent, });
-      child = curr.slice(-1)[0].child;
-      parent = curr;
+    if(input === ']' || input === '}'){
+      parent = parent.parent;
+      curr = parent.child;
     }
-    if(input  === ']'){
-      child = curr.slice(-1)[0].parent;
-      parent = child.slice(-1)[0].parent;
+    if(input  === '{' || input === '['){
+      const status = this.checkObjStatus(parent, curr);
+      curr.push({ status, type: (input === '[')? 'array': 'object', child: [], parent: parent, });
+      parent = curr.slice(-1)[0];
+      curr = curr.slice(-1)[0].child;
     }
     if(trimValue !== '') {
-      child.push({ value: trimValue, type,  child: [], parent: parent, });
+      const status = this.checkObjStatus(parent, curr);
+      curr.push({ status, value: trimValue, type, child: [], parent: parent, });
     }
-    if(input  === '[' || input  === ']') curr = child;
-    return [curr, child, parent];
+    return [curr, parent];
+  }
+  checkObjStatus(parent, curr){
+    let status;
+    if(parent && parent.type === 'object') {
+        status = 'object_key';
+        if(curr.slice(-1)[0] && curr.slice(-1)[0].status === 'object_key') status = 'object_value';
+        if(curr.slice(-1)[0] && curr.slice(-1)[0].status === 'object_value') status = 'object_key';
+    }     
+    return status;
   }
   trimData(data){
     return  data.split("")
@@ -61,11 +68,10 @@ class Parser{
 }
 
 function replacer(key, value){
-  if (key === "parent") return;
-  return value;
+  return (key !== "parent")? value: undefined;
 }
 
-const str = "['1a3',[null,false,['11',[112233],112],55, '99'],33, true]";
+const str = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
 const ArrayParser = (str) => new Parser(dataType).processData(str);
 const result = ArrayParser(str);
 console.log(JSON.stringify(result, replacer, 2));
