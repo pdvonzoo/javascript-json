@@ -1,5 +1,3 @@
-const dataType = require('./dataType.js');
-
 "use strict";
 
 const _root = new WeakMap();
@@ -14,6 +12,7 @@ class Parser{
   }
   processData(data){
     let target = 0, value, parent, strStatus = 'close', curr = _root.get(this);
+    this.dataType.findClosingError(data);
     for(let input of data){
       target++;
       if(!this.divisionPoint.includes(input)) continue;
@@ -21,7 +20,6 @@ class Parser{
       if(value === undefined) continue;
       [curr, parent, strStatus] = this.setValue({value, curr, parent, input, strStatus});
     }
-
     return _root.get(this);
   }
   getValue(data, target, input, strStatus){
@@ -37,7 +35,7 @@ class Parser{
   getStrValue(data, target){
       return data.substring(target, data.indexOf("'", target));
   }
-  getOtherValue(data, target, input){
+  getOtherValue(data, target){
     const divisionPoint = [...this.divisionPoint];
     const compareValues = divisionPoint.map(v => data.indexOf(v, target));    
     const stopPoint = compareValues.reduce((acc, curr) => {
@@ -54,11 +52,11 @@ class Parser{
     type =  this.dataType.check(trimValue);
     
     if(this.specialChar.includes(input)){
-      strStatus = this.setStrValue({value, curr, parent, input, strStatus});
+      strStatus = this.setStrValue({strStatus});
     }
     if(strStatus !== 'open'){
       if(this.bracket.includes(input) ){
-        [curr, parent, strStatus] = this.setBracketValue({curr, parent, input, strStatus, trimValue, type});
+        [curr, parent, strStatus] = this.setBracketValue({curr, parent, input, strStatus});
       }
     }
     if(value !== 'open string' && trimValue !== ''){
@@ -67,8 +65,9 @@ class Parser{
     }
     return [curr, parent, strStatus];
   }
-  setBracketValue({curr, parent, input, strStatus, trimValue, type}){
+  setBracketValue({curr, parent, input, strStatus}){
     if(parent && parent.parent && input === ']' || input === '}'){
+      if(input === '}') this.dataType.findColonError(curr);
       parent = parent.parent;
       curr = parent.child;
     }
@@ -80,7 +79,7 @@ class Parser{
     }
     return [curr, parent, strStatus];
   }
-  setStrValue({value, curr, parent, input, strStatus}){
+  setStrValue({strStatus}){
     if(strStatus === 'close'){
       strStatus = 'open';
     } else if(strStatus === 'open'){
@@ -105,11 +104,4 @@ class Parser{
   }
 }
 
-function replacer(key, value){
-  return (key !== "parent")? value: undefined;
-}
-
-const str = "['1a3',[null,false,['11',112,'99'], {a:'str', b:[912,[5656,33]]}, true]";
-const ArrayParser = (str) => new Parser(dataType).processData(str);
-const result = ArrayParser(str);
-console.log(JSON.stringify(result, replacer, 2));
+module.exports = Parser;
