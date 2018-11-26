@@ -27,8 +27,8 @@ class DataType{
 
 class Error{
     validateString(value){
-        if(!value.match(/^\'/)) throw "문자열의 시작은 '이어야 합니다.";
-        if(!value.match(/\'$/)) throw "문자열의 끝은 '이어야 합니다.";
+        // if(!value.match(/^\'/)) throw "문자열의 시작은 '이어야 합니다.";
+        // if(!value.match(/\'$/)) throw "문자열의 끝은 '이어야 합니다.";
     }
 }
 
