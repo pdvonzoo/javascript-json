@@ -5,17 +5,18 @@ class Parser{
   constructor(dataType){
     _root.set(this, []);
     this.dataType = dataType;
-    this.divisionPoint = ['[', ']', '}', '{', ':', ',', "\"", "\'"];
-    this.bracket = ['[', ']', '}', '{'];
-    this.apostrophe = [':', ','];
-    this.specialChar = ["\"", "\'"];
+    this.token = {
+      divisionPoint : ['[', ']', '}', '{', ':', ',', "\"", "\'"],
+      bracket : ['[', ']', '}', '{'],
+      specialChar : ["\"", "\'"]
+    }
   }
   processData(data){
     let target = 0, value, parent, strStatus = 'close', curr = _root.get(this);
     this.dataType.findClosingError(data);
     for(let input of data){
       target++;
-      if(!this.divisionPoint.includes(input)) continue;
+      if(!this.token.divisionPoint.includes(input)) continue;
       value = this.getValue(data, target, input, strStatus);
       if(value === undefined) continue;
       [curr, parent, strStatus] = this.setValue({value, curr, parent, input, strStatus});
@@ -25,7 +26,7 @@ class Parser{
   getValue(data, target, input, strStatus){
     let value;
     if(strStatus === 'open') return 'open string';
-    if(this.specialChar.includes(input)){
+    if(this.token.specialChar.includes(input)){
       value = this.getStrValue(data, target);
     } else {
       value = this.getOtherValue(data, target, input);
@@ -36,7 +37,7 @@ class Parser{
       return data.substring(target, data.indexOf("'", target));
   }
   getOtherValue(data, target){
-    const divisionPoint = [...this.divisionPoint];
+    const divisionPoint = [...this.token.divisionPoint];
     const compareValues = divisionPoint.map(v => data.indexOf(v, target));    
     const stopPoint = compareValues.reduce((acc, curr) => {
       if(curr === -1) return acc;
@@ -51,11 +52,11 @@ class Parser{
     trimValue = this.trimData(value);
     type =  this.dataType.check(trimValue);
     
-    if(this.specialChar.includes(input)){
+    if(this.token.specialChar.includes(input)){
       strStatus = this.setStrValue({strStatus});
     }
     if(strStatus !== 'open'){
-      if(this.bracket.includes(input) ){
+      if(this.token.bracket.includes(input) ){
         [curr, parent, strStatus] = this.setBracketValue({curr, parent, input, strStatus});
       }
     }
