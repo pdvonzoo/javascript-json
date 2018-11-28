@@ -7,9 +7,7 @@ class DataType{
         if(this.isBoolean(data)) return 'boolean';
         if(this.isNull(data)) return 'null';
         if(this.isNumber(data)) return 'number';
-        if(this.isString(data)) {
-            if(!this.error.validateString(data)) return 'string';            
-        }
+        return 'string';
     }
     isString(value){
         return value.includes("'") | value.includes('"');
@@ -23,14 +21,12 @@ class DataType{
     isNumber(value){
         return value.match(/^[0-9]*$/);
     }
-}
-
-class Error{
-    validateString(value){
-        if(!value.match(/^\'/)) throw "문자열의 시작은 '이어야 합니다.";
-        if(!value.match(/\'$/)) throw "문자열의 끝은 '이어야 합니다.";
+    findClosingError(data){
+        this.error.validateClosing(data);
+    }
+    findColonError(data){
+        this.error.validateColon(data);
     }
 }
 
-const dataType = new DataType(new Error());
-module.exports = dataType;
+module.exports = DataType;

@@ -1,5 +1,3 @@
-const dataType = require('./dataType.js');
-
 "use strict";
 
 const _root = new WeakMap();
@@ -7,22 +5,40 @@ class Parser{
   constructor(dataType){
     _root.set(this, []);
     this.dataType = dataType;
-    this.boundary = ['[', ']', '}', '{', ':', ','];
+    this.token = {
+      divisionPoint : ['[', ']', '}', '{', ':', ',', "\"", "\'"],
+      bracket : ['[', ']', '}', '{'],
+      specialChar : ["\"", "\'"]
+    }
   }
   processData(data){
-    let target = 0, value, parent, curr = _root.get(this);
-    for(let v of data){
+    let target = 0, value, parent, strStatus = 'close', curr = _root.get(this);
+    this.dataType.findClosingError(data);
+    for(let input of data){
       target++;
-      if(this.boundary.includes(v)){
-        value = this.getvalue(data, target);
-        if(value === undefined) break;
-        [curr, parent] = this.setValue(value, curr, parent, v);
-      }
+      if(!this.token.divisionPoint.includes(input)) continue;
+      value = this.getValue(data, target, input, strStatus);
+      if(value === undefined) continue;
+      [curr, parent, strStatus] = this.setValue({value, curr, parent, input, strStatus});
     }
     return _root.get(this);
   }
-  getvalue(data, target){
-    const compareValues = this.boundary.map(v => data.indexOf(v, target));
+  getValue(data, target, input, strStatus){
+    let value;
+    if(strStatus === 'open') return 'open string';
+    if(this.token.specialChar.includes(input)){
+      value = this.getStrValue(data, target);
+    } else {
+      value = this.getOtherValue(data, target, input);
+    }
+    return value;
+  }
+  getStrValue(data, target){
+      return data.substring(target, data.indexOf("'", target));
+  }
+  getOtherValue(data, target){
+    const divisionPoint = [...this.token.divisionPoint];
+    const compareValues = divisionPoint.map(v => data.indexOf(v, target));    
     const stopPoint = compareValues.reduce((acc, curr) => {
       if(curr === -1) return acc;
       if(acc === -1 || acc > curr) return curr;
@@ -31,10 +47,28 @@ class Parser{
     if(stopPoint === -1) return;
     return data.substring(target, stopPoint);
   }
-  setValue(value, curr, parent, input){
-    const trimValue = this.trimData(value),
-          type =  this.dataType.check(trimValue);
-    if(input === ']' || input === '}'){
+  setValue({value, curr, parent, input, strStatus}){
+    let trimValue, type, status;
+    trimValue = this.trimData(value);
+    type =  this.dataType.check(trimValue);
+    
+    if(this.token.specialChar.includes(input)){
+      strStatus = this.setStrValue({strStatus});
+    }
+    if(strStatus !== 'open'){
+      if(this.token.bracket.includes(input) ){
+        [curr, parent, strStatus] = this.setBracketValue({curr, parent, input, strStatus});
+      }
+    }
+    if(value !== 'open string' && trimValue !== ''){
+      status = this.checkObjStatus(parent, curr);
+      curr.push({ status, value: trimValue, type, child: [], parent: parent, });  
+    }
+    return [curr, parent, strStatus];
+  }
+  setBracketValue({curr, parent, input, strStatus}){
+    if(parent && parent.parent && input === ']' || input === '}'){
+      if(input === '}') this.dataType.findColonError(curr);
       parent = parent.parent;
       curr = parent.child;
     }
@@ -44,11 +78,15 @@ class Parser{
       parent = curr.slice(-1)[0];
       curr = curr.slice(-1)[0].child;
     }
-    if(trimValue !== '') {
-      const status = this.checkObjStatus(parent, curr);
-      curr.push({ status, value: trimValue, type, child: [], parent: parent, });
+    return [curr, parent, strStatus];
+  }
+  setStrValue({strStatus}){
+    if(strStatus === 'close'){
+      strStatus = 'open';
+    } else if(strStatus === 'open'){
+      strStatus = 'close';
     }
-    return [curr, parent];
+    return strStatus;
   }
   checkObjStatus(parent, curr){
     let status;
@@ -67,11 +105,4 @@ class Parser{
   }
 }
 
-function replacer(key, value){
-  return (key !== "parent")? value: undefined;
-}
-
-const str = "['1a3',[null,false,['11',[112233],{easy : ['hello', {a:'a'}, 'world']},112],55, '99'],{a:'str', b:[912,[5656,33],{key : 'innervalue', newkeys: [1,2,3,4,5]}]}, true]";
-const ArrayParser = (str) => new Parser(dataType).processData(str);
-const result = ArrayParser(str);
-console.log(JSON.stringify(result, replacer, 2));
+module.exports = Parser;
