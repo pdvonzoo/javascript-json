@@ -27,7 +27,7 @@ class ErrorChecker{
         try{
             if(data.slice(-1)[0].status !== 'object_value') throw "객체 안에 콜론이 생략되어 있습니다.";
             return true;
-        } catch(err){
+        } catch(err) {
             return err;
         }
     }

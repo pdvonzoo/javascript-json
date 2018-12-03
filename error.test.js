@@ -10,5 +10,8 @@ test('문자열, 배열, 객체의 특수문자가 올바르게 열리고 닫히
     const result = errorChecker.validateClosing(value);
     return expect(true).toBe(result);
 })
-test('객체 안의 콜론이 정상적으로 있는지 체크', function(){
+test('객체 안의 콜론이 정상적으로 존재하는지 체크', function(){
+    const data = [ {status: 'object_key'}, {status: 'object_value'} ];
+    const result = errorChecker.validateColon(data);
+    return expect(true).toBe(result);
 })
